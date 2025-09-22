@@ -37,19 +37,19 @@
 #include <asm/mach/arch.h>
 #include <asm/mach/map.h>
 
-ifdef CONFIG_ZONE_MOVABLE_CMA
+#ifdef CONFIG_ZONE_MOVABLE_CMA
 #include <linux/cma.h>
 #include <mt-plat/mtk_meminfo.h>
-endif
+#endif
 #include "mm.h"
 
-ifdef CONFIG_CPU_CP15_MMU
+#ifdef CONFIG_CPU_CP15_MMU
 unsigned long __init __clear_cr(unsigned long mask)
 {
 	cr_alignment = cr_alignment & ~mask;
 	return cr_alignment;
 }
-endif
+#endif
 
 static phys_addr_t phys_initrd_start __initdata = 0;
 static unsigned long phys_initrd_size __initdata = 0;
@@ -99,7 +99,7 @@ static void __init find_limits(unsigned long *min, unsigned long *max_low,
 	*max_high = PFN_DOWN(memblock_end_of_DRAM());
 }
 
-ifdef CONFIG_ZONE_DMA
+#ifdef CONFIG_ZONE_DMA
 
 phys_addr_t arm_dma_zone_size __read_mostly;
 EXPORT_SYMBOL(arm_dma_zone_size);
@@ -124,18 +124,18 @@ static void __init arm_adjust_dma_zone(unsigned long *size, unsigned long *hole,
 	hole[ZONE_NORMAL] = hole[0];
 	hole[ZONE_DMA] = 0;
 }
-endif
+#endif
 
 void __init setup_dma_zone(const struct machine_desc *mdesc)
 {
-ifdef CONFIG_ZONE_DMA
+#ifdef CONFIG_ZONE_DMA
 	if (mdesc->dma_zone_size) {
 		arm_dma_zone_size = mdesc->dma_zone_size;
 		arm_dma_limit = PHYS_OFFSET + arm_dma_zone_size - 1;
 	} else
 		arm_dma_limit = 0xffffffff;
 	arm_dma_pfn_limit = arm_dma_limit >> PAGE_SHIFT;
-endif
+#endif
 }
 
 static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
@@ -144,7 +144,7 @@ static void __init zone_sizes_init(unsigned long min, unsigned long max_low,
 	unsigned long zone_size[MAX_NR_ZONES], zhole_size[MAX_NR_ZONES];
 	struct memblock_region *reg;
 
-ifdef CONFIG_ZONE_MOVABLE_CMA
+#ifdef CONFIG_ZONE_MOVABLE_CMA
 	phys_addr_t cma_base, cma_size;
 	unsigned long cma_base_pfn = ULONG_MAX;
 
@@ -155,7 +155,7 @@ ifdef CONFIG_ZONE_MOVABLE_CMA
 
 	if (cma_size)
 		cma_base_pfn = PFN_DOWN(cma_base);
-endif
+#endif
 
 	/*
 	 * initialise the zones.
@@ -168,14 +168,14 @@ endif
 	 * to the zones, now is the time to do it.
 	 */
 	zone_size[0] = max_low - min;
-ifdef CONFIG_HIGHMEM
-	ifdef CONFIG_ZONE_MOVABLE_CMA
+#ifdef CONFIG_HIGHMEM
+	#ifdef CONFIG_ZONE_MOVABLE_CMA
 		zone_size[ZONE_HIGHMEM] = cma_base_pfn - max_low;
 		zone_size[ZONE_MOVABLE] = max_high - cma_base_pfn;
 	#elif
 		zone_size[ZONE_HIGHMEM] = max_high - max_low;
-	endif
-endif
+	#endif
+#endif
 
 	/*
 	 * Calculate the size of the holes.
@@ -191,8 +191,8 @@ endif
 			zhole_size[0] -= low_end - start;
 		}
 
-ifdef CONFIG_HIGHMEM
-	ifdef CONFIG_ZONE_MOVABLE_CMA
+#ifdef CONFIG_HIGHMEM
+	#ifdef CONFIG_ZONE_MOVABLE_CMA
 		if(zone_size[ZONE_HIGHMEM] && end > max_low &&
 				start < cma_base_pfn) {
 			unsigned long low_end = min(end, cma_base_pfn);
@@ -209,11 +209,11 @@ ifdef CONFIG_HIGHMEM
 			unsigned long high_start = max(start, max_low);
 			zhole_size[ZONE_HIGHMEM] -= end - high_start;
 		}
-	endif
-endif
+	#endif
+#endif
 	}
 
-ifdef CONFIG_ZONE_DMA
+#ifdef CONFIG_ZONE_DMA
 	/*
 	 * Adjust the sizes according to any special requirements for
 	 * this machine type.
@@ -221,24 +221,24 @@ ifdef CONFIG_ZONE_DMA
 	if (arm_dma_zone_size)
 		arm_adjust_dma_zone(zone_size, zhole_size,
 			arm_dma_zone_size >> PAGE_SHIFT);
-endif
+#endif
 
 	free_area_init_node(0, zone_size, min, zhole_size);
 }
 
-ifdef CONFIG_HAVE_ARCH_PFN_VALID
+#ifdef CONFIG_HAVE_ARCH_PFN_VALID
 int pfn_valid(unsigned long pfn)
 {
 	return memblock_is_map_memory(__pfn_to_phys(pfn));
 }
 EXPORT_SYMBOL(pfn_valid);
-endif
+#endif
 
 #ifndef CONFIG_SPARSEMEM
 static void __init arm_memory_present(void)
 {
 }
-else
+#else
 static void __init arm_memory_present(void)
 {
 	struct memblock_region *reg;
@@ -247,7 +247,7 @@ static void __init arm_memory_present(void)
 		memory_present(0, memblock_region_memory_base_pfn(reg),
 			       memblock_region_memory_end_pfn(reg));
 }
-endif
+#endif
 
 static bool arm_memblock_steal_permitted = true;
 
@@ -267,12 +267,12 @@ phys_addr_t __init arm_memblock_steal(phys_addr_t size, phys_addr_t align)
 void __init arm_memblock_init(const struct machine_desc *mdesc)
 {
 	/* Register the kernel text, kernel data and initrd with memblock. */
-ifdef CONFIG_XIP_KERNEL
+#ifdef CONFIG_XIP_KERNEL
 	memblock_reserve(__pa(_sdata), _end - _sdata);
-else
+#else
 	memblock_reserve(__pa(_stext), _end - _stext);
-endif
-ifdef CONFIG_BLK_DEV_INITRD
+#endif
+#ifdef CONFIG_BLK_DEV_INITRD
 	/* FDT scan will populate initrd_start */
 	if (initrd_start && !phys_initrd_size) {
 		phys_initrd_start = __virt_to_phys(initrd_start);
@@ -298,7 +298,7 @@ ifdef CONFIG_BLK_DEV_INITRD
 		initrd_start = __phys_to_virt(phys_initrd_start);
 		initrd_end = initrd_start + phys_initrd_size;
 	}
-endif
+#endif
 
 	arm_mm_memblock_reserve();
 
@@ -409,21 +409,21 @@ static void __init free_unused_memmap(void)
 	for_each_memblock(memory, reg) {
 		start = memblock_region_memory_base_pfn(reg);
 
-ifdef CONFIG_SPARSEMEM
+#ifdef CONFIG_SPARSEMEM
 		/*
 		 * Take care not to free memmap entries that don't exist
 		 * due to SPARSEMEM sections which aren't present.
 		 */
 		start = min(start,
 				 ALIGN(prev_end, PAGES_PER_SECTION));
-else
+#else
 		/*
 		 * Align down here since the VM subsystem insists that the
 		 * memmap entries are valid from the bank start aligned to
 		 * MAX_ORDER_NR_PAGES.
 		 */
 		start = round_down(start, MAX_ORDER_NR_PAGES);
-endif
+#endif
 		/*
 		 * If we had a previous bank, and there is a space
 		 * between the current bank and the previous, free it.
@@ -440,24 +440,24 @@ endif
 				 MAX_ORDER_NR_PAGES);
 	}
 
-ifdef CONFIG_SPARSEMEM
+#ifdef CONFIG_SPARSEMEM
 	if (!IS_ALIGNED(prev_end, PAGES_PER_SECTION))
 		free_memmap(prev_end,
 			    ALIGN(prev_end, PAGES_PER_SECTION));
-endif
+#endif
 }
 
-ifdef CONFIG_HIGHMEM
+#ifdef CONFIG_HIGHMEM
 static inline void free_area_high(unsigned long pfn, unsigned long end)
 {
 	for (; pfn < end; pfn++)
 		free_highmem_page(pfn_to_page(pfn));
 }
-endif
+#endif
 
 static void __init free_highpages(void)
 {
-ifdef CONFIG_HIGHMEM
+#ifdef CONFIG_HIGHMEM
 	unsigned long max_low = max_low_pfn;
 	struct memblock_region *mem, *res;
 
@@ -503,7 +503,7 @@ ifdef CONFIG_HIGHMEM
 		if (start < end)
 			free_area_high(start, end);
 	}
-endif
+#endif
 }
 
 /*
@@ -513,11 +513,11 @@ endif
  */
 void __init mem_init(void)
 {
-ifdef CONFIG_HAVE_TCM
+#ifdef CONFIG_HAVE_TCM
 	/* These pointers are filled in on TCM detection */
 	extern u32 dtcm_end;
 	extern u32 itcm_end;
-endif
+#endif
 
 	set_max_mapnr(pfn_to_page(max_pfn) - mem_map);
 
@@ -525,10 +525,10 @@ endif
 	free_unused_memmap();
 	free_all_bootmem();
 
-ifdef CONFIG_SA1111
+#ifdef CONFIG_SA1111
 	/* now that our DMA memory is actually so designated, we can free it */
 	free_reserved_area(__va(PHYS_OFFSET), swapper_pg_dir, -1, NULL);
-endif
+#endif
 
 	free_highpages();
 
@@ -540,19 +540,19 @@ endif
 
 	pr_notice("Virtual kernel memory layout:\n"
 			"    vector  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
-ifdef CONFIG_HAVE_TCM
+#ifdef CONFIG_HAVE_TCM
 			"    DTCM    : 0x%08lx - 0x%08lx   (%4ld kB)\n"
 			"    ITCM    : 0x%08lx - 0x%08lx   (%4ld kB)\n"
-endif
+#endif
 			"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
 			"    vmalloc : 0x%08lx - 0x%08lx   (%4ld MB)\n"
 			"    lowmem  : 0x%08lx - 0x%08lx   (%4ld MB)\n"
-ifdef CONFIG_HIGHMEM
+#ifdef CONFIG_HIGHMEM
 			"    pkmap   : 0x%08lx - 0x%08lx   (%4ld MB)\n"
-endif
-ifdef CONFIG_MODULES
+#endif
+#ifdef CONFIG_MODULES
 			"    modules : 0x%08lx - 0x%08lx   (%4ld MB)\n"
-endif
+#endif
 			"      .text : 0x%p" " - 0x%p" "   (%4td kB)\n"
 			"      .init : 0x%p" " - 0x%p" "   (%4td kB)\n"
 			"      .data : 0x%p" " - 0x%p" "   (%4td kB)\n"
@@ -560,20 +560,20 @@ endif
 
 			MLK(UL(CONFIG_VECTORS_BASE), UL(CONFIG_VECTORS_BASE) +
 				(PAGE_SIZE)),
-ifdef CONFIG_HAVE_TCM
+#ifdef CONFIG_HAVE_TCM
 			MLK(DTCM_OFFSET, (unsigned long) dtcm_end),
 			MLK(ITCM_OFFSET, (unsigned long) itcm_end),
-endif
+#endif
 			MLK(FIXADDR_START, FIXADDR_END),
 			MLM(VMALLOC_START, VMALLOC_END),
 			MLM(PAGE_OFFSET, (unsigned long)high_memory),
-ifdef CONFIG_HIGHMEM
+#ifdef CONFIG_HIGHMEM
 			MLM(PKMAP_BASE, (PKMAP_BASE) + (LAST_PKMAP) *
 				(PAGE_SIZE)),
-endif
-ifdef CONFIG_MODULES
+#endif
+#ifdef CONFIG_MODULES
 			MLM(MODULES_VADDR, MODULES_END),
-endif
+#endif
 
 			MLK_ROUNDUP(_text, _etext),
 			MLK_ROUNDUP(__init_begin, __init_end),
@@ -588,15 +588,15 @@ endif
 	 * Check boundaries twice: Some fundamental inconsistencies can
 	 * be detected at build time already.
 	 */
-ifdef CONFIG_MMU
+#ifdef CONFIG_MMU
 	BUILD_BUG_ON(TASK_SIZE				> MODULES_VADDR);
 	BUG_ON(TASK_SIZE 				> MODULES_VADDR);
-endif
+#endif
 
-ifdef CONFIG_HIGHMEM
+#ifdef CONFIG_HIGHMEM
 	BUILD_BUG_ON(PKMAP_BASE + LAST_PKMAP * PAGE_SIZE > PAGE_OFFSET);
 	BUG_ON(PKMAP_BASE + LAST_PKMAP * PAGE_SIZE	> PAGE_OFFSET);
-endif
+#endif
 
 	if (PAGE_SIZE >= 16384 && get_num_physpages() <= 128) {
 		extern int sysctl_overcommit_memory;
@@ -609,7 +609,7 @@ endif
 	}
 }
 
-ifdef CONFIG_DEBUG_RODATA
+#ifdef CONFIG_DEBUG_RODATA
 struct section_perm {
 	const char *name;
 	unsigned long start;
@@ -655,14 +655,14 @@ static struct section_perm ro_perms[] = {
 		.name	= "text/rodata RO",
 		.start  = (unsigned long)_stext,
 		.end    = (unsigned long)__init_begin,
-ifdef CONFIG_ARM_LPAE
+#ifdef CONFIG_ARM_LPAE
 		.mask   = ~(L_PMD_SECT_RDONLY | PMD_SECT_AP2),
 		.prot   = L_PMD_SECT_RDONLY | PMD_SECT_AP2,
-else
+#else
 		.mask   = ~(PMD_SECT_APX | PMD_SECT_AP_WRITE),
 		.prot   = PMD_SECT_APX | PMD_SECT_AP_WRITE,
 		.clear  = PMD_SECT_AP_WRITE,
-endif
+#endif
 	},
 };
 
@@ -678,14 +678,14 @@ static inline void section_update(unsigned long addr, pmdval_t mask,
 
 	pmd = pmd_offset(pud_offset(pgd_offset(mm, addr), addr), addr);
 
-ifdef CONFIG_ARM_LPAE
+#ifdef CONFIG_ARM_LPAE
 	pmd[0] = __pmd((pmd_val(pmd[0]) & mask) | prot);
-else
+#else
 	if (addr & SECTION_SIZE)
 		pmd[1] = __pmd((pmd_val(pmd[1]) & mask) | prot);
 	else
 		pmd[0] = __pmd((pmd_val(pmd[0]) & mask) | prot);
-endif
+#endif
 	flush_pmd_entry(pmd);
 	local_flush_tlb_kernel_range(addr, addr + SECTION_SIZE);
 }
@@ -776,18 +776,18 @@ void set_kernel_text_ro(void)
 				current->active_mm);
 }
 
-else
+#else
 static inline void fix_kernmem_perms(void) { }
-endif /* CONFIG_DEBUG_RODATA */
+#endif /* CONFIG_DEBUG_RODATA */
 
 void free_tcmmem(void)
 {
-ifdef CONFIG_HAVE_TCM
+#ifdef CONFIG_HAVE_TCM
 	extern char __tcm_start, __tcm_end;
 
 	poison_init_mem(&__tcm_start, &__tcm_end - &__tcm_start);
 	free_reserved_area(&__tcm_start, &__tcm_end, -1, "TCM link");
-endif
+#endif
 }
 
 void free_initmem(void)
@@ -800,7 +800,7 @@ void free_initmem(void)
 		free_initmem_default(-1);
 }
 
-ifdef CONFIG_BLK_DEV_INITRD
+#ifdef CONFIG_BLK_DEV_INITRD
 
 static int keep_initrd;
 
@@ -824,4 +824,4 @@ static int __init keepinitrd_setup(char *__unused)
 }
 
 __setup("keepinitrd", keepinitrd_setup);
-endif
+#endif
