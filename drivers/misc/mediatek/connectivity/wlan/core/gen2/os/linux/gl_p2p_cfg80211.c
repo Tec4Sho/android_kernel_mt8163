@@ -38,6 +38,9 @@
 #pragma GCC diagnostic ignored "-Wformat"
 #endif
 
+#ifndef CFG_WIFI_LATAM_HOTSPOT_FCC
+#define CFG_WIFI_LATAM_HOTSPOT_FCC 1
+#endif
 /*******************************************************************************
 *                              C O N S T A N T S
 ********************************************************************************
@@ -2199,3 +2202,4 @@ nla_put_failure:
 #endif /* CONFIG_NL80211_TESTMODE */
 
 #endif /* CFG_ENABLE_WIFI_DIRECT && CFG_ENABLE_WIFI_DIRECT_CFG_80211 */
+
