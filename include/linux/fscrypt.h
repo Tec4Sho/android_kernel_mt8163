@@ -13,8 +13,6 @@
 #ifndef _LINUX_FSCRYPT_H
 #define _LINUX_FSCRYPT_H
 
-#define __FS_HAS_ENCRYPTION
-
 #include <linux/fs.h>
 
 #define FS_CRYPTO_BLOCK_SIZE		16
