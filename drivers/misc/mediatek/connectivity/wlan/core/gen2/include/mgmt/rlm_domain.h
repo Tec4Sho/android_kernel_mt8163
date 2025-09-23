@@ -12,6 +12,13 @@
 #ifndef _RLM_DOMAIN_H
 #define _RLM_DOMAIN_H
 
+#ifndef CFG_WIFI_LATAM_CHANNELS_NEW
+#define CFG_WIFI_LATAM_CHANNELS_NEW 1
+#endif
+
+#ifndef CFG_SUPPORT_PWR_LIMIT_COUNTRY
+#define CFG_SUPPORT_PWR_LIMIT_COUNTRY 1
+#endif
 /*******************************************************************************
 *                         C O M P I L E R   F L A G S
 ********************************************************************************
@@ -534,3 +541,4 @@ VOID rlmDomainSendPwrLimitCmd(P_ADAPTER_T prAdapter);
 */
 
 #endif /* _RLM_DOMAIN_H */
+
