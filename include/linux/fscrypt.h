@@ -16,7 +16,10 @@
 #include <linux/fs.h>
 
 #define FS_CRYPTO_BLOCK_SIZE		16
-#define __FS_HAS_ENCRYPTION         0
+
+#ifndef __FS_HAS_ENCRYPTION
+#define __FS_HAS_ENCRYPTION  0
+#endif
 
 struct fscrypt_ctx;
 struct fscrypt_info;
