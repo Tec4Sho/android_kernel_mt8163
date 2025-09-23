@@ -13,7 +13,6 @@
 #ifndef _LINUX_FSCRYPT_H
 #define _LINUX_FSCRYPT_H
 
-#ifndef __FS_HAS_ENCRYPTION
 #define __FS_HAS_ENCRYPTION
 
 #include <linux/fs.h>
