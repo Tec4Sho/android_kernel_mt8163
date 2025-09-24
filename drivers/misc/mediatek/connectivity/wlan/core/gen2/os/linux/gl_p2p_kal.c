@@ -22,7 +22,7 @@
 #include "precomp.h"
 
 #ifndef CFG80211_VERSION_CODE‎
-#define CFG80211_VERSION_CODE‎ 4.9.117
+#define CFG80211_VERSION_CODE‎  1
 #endif
 
 /*******************************************************************************
@@ -1634,5 +1634,6 @@ void kalP2pIndicateQueuedMgmtFrame(IN P_GLUE_INFO_T prGlueInfo,
 		prFrame->u2Length,
 		GFP_ATOMIC);
 }
+
 
 
