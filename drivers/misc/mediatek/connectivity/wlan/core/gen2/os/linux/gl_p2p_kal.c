@@ -1580,7 +1580,7 @@ VOID kalP2pUnlinkBss(IN P_GLUE_INFO_T prGlueInfo, IN UINT_8 aucBSSID[])
 	if (prGlueP2pInfo == NULL)
 		return;
 
-#if (KERNEL_VERSION(4, 1, 0) <= CFG80211_VERSION_CODE)
+#if (KERNEL_VERSION(4, 1, 0) <= CFG80211_VERSION_CODE + 0)
 	bss = cfg80211_get_bss(prGlueP2pInfo->prWdev->wiphy,
 			NULL, /* channel */
 			aucBSSID,
@@ -1634,6 +1634,7 @@ void kalP2pIndicateQueuedMgmtFrame(IN P_GLUE_INFO_T prGlueInfo,
 		prFrame->u2Length,
 		GFP_ATOMIC);
 }
+
 
 
 
