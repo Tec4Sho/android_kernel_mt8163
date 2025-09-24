@@ -21,8 +21,8 @@
 #include "net/cfg80211.h"
 #include "precomp.h"
 
-#ifndef CFG80211_VERSION_CODE‎
-#define CFG80211_VERSION_CODE‎
+#ifndef CFG80211_VERSION_CODE
+#define CFG80211_VERSION_CODE
 #endif
 
 /*******************************************************************************
@@ -1634,6 +1634,7 @@ void kalP2pIndicateQueuedMgmtFrame(IN P_GLUE_INFO_T prGlueInfo,
 		prFrame->u2Length,
 		GFP_ATOMIC);
 }
+
 
 
 
