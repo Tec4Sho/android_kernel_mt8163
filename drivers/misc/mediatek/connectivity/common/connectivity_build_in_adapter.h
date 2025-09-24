@@ -220,7 +220,7 @@ void connectivity_arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
  *
  * event_trace_printk()
  *********************************************/
-
+#ifndef KERNEL_event_trace_printk
 #define KERNEL_event_trace_printk(ip, fmt, args...)               \
 do {                                                              \
 	__trace_printk_check_format(fmt, ##args);                 \
@@ -233,7 +233,7 @@ do {                                                              \
 	} else                                                    \
 		__trace_printk(ip, fmt, ##args);                  \
 } while (0)
-
+#endif
 /******************************************************************************
  * GPIO dump information
  ******************************************************************************/
