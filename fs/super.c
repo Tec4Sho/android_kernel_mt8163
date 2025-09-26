@@ -993,8 +993,8 @@ static int ns_set_super(struct super_block *sb, void *data)
 }
 
 struct dentry *mount_ns(struct file_system_type *fs_type,
-	int flags, char *data, char *ns, struct user_namespace *user_ns,
-	int (*fill_super)(struct super_block *, void *, int))
+	int flags, void *data, void *ns, struct user_namespace *user_ns,
+	int (*fill_super)(struct super_block *, char *, int))
 {
 	struct super_block *sb;
 
