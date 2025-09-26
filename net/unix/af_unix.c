@@ -1035,8 +1035,7 @@ static int unix_bind(struct socket *sock, struct sockaddr *uaddr, int addr_len)
 	addr = kmalloc(sizeof(*addr)+addr_len, GFP_KERNEL);
 	if (!addr)
 		goto out_up;
-
-	unsigned int hash = 16; // or some other appropriate initial value
+	
 	memcpy(addr->name, sunaddr, addr_len);
 	addr->len = addr_len;
 	addr->hash = hash ^ sk->sk_type;
