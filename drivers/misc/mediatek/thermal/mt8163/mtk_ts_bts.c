@@ -90,7 +90,7 @@ struct mtkts_bts_channel_param {
 #elif defined(CONFIG_THERMAL_abc123)
 #include "inc/mtk_ts_board_abc123.h"
 #else
-#include "inc/mtk_ts_board_abf123.h"
+#include "inc/mtk_ts_board_karnak.h"
 #endif
 
 struct gadc_thermal_info {
