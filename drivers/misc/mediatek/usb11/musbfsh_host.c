@@ -200,8 +200,7 @@ static void musbfsh_start_urb(struct musbfsh *musbfsh, int is_in,
 	u8 address = usb_pipedevice(pipe);
 	int epnum = hw_ep->epnum;
 
-	INFO("musbfsh_start_urb++, address=%d, hw_ep->epnum=%d,
-		urb_ep_addr:0x%x\r\n",
+	INFO("musbfsh_start_urb++, address=%d, hw_ep->epnum=%d, urb_ep_addr:0x%x\r\n",
 		address, epnum, urb->ep->desc.bEndpointAddress);
 
 	/* initialize software qh state */
