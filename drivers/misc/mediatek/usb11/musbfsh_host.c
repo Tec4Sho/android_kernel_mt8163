@@ -459,8 +459,8 @@ static bool musbfsh_host_packet_rx(struct musbfsh *musbfsh, struct urb *urb,
 
 	/* musbfsh_ep_select(mbase, epnum); */
 	rx_count = musbfsh_readw(epio, MUSBFSH_RXCOUNT);
-	INFO("musbfsh_host_packet_rx++:real RX%d count %d,
-		buffer %p len %d/%d\n", epnum, rx_count,
+	INFO("musbfsh_host_packet_rx++:real RX%d count %d, buffer %p len %d/%d\n",
+		epnum, rx_count,
 		urb->transfer_buffer, qh->offset,
 		urb->transfer_buffer_length);
 	/* unload FIFO */
