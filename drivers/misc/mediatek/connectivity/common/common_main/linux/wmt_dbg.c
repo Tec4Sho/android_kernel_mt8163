@@ -31,7 +31,7 @@
 #include "stp_dbg.h"
 #include "connsys_debug_utility.h"
 #include "wmt_step.h"
-#ifdef CONFIG_MTK_ENG_BUILD
+#ifndef CONFIG_MTK_ENG_BUILD
 #include "wmt_step_test.h"
 #endif
 
