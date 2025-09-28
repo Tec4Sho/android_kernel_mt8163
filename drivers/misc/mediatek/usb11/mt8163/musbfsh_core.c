@@ -112,8 +112,7 @@ store_start(struct device *dev, struct device_attribute *attr, const char *buf,
 			WARNING("[IC-USB]start session\n");
 			/* wx? why not wait until device connected */
 			devctl |= MUSBFSH_DEVCTL_SESSION;
-			musbfsh_writeb((unsigned char __iomem *)USB11_BASE,
-				       MUSBFSH_DEVCTL, devctl);
+			musbfsh_writeb((unsigned char __iomem *)USB11_BASE, MUSBFSH_DEVCTL, devctl);
 			WARNING("[IC-USB]power on VSIM\n");
 			hwPowerOn(MT65XX_POWER_LDO_VSIM, VOL_3000, "USB11-SIM");
 		}
@@ -172,8 +171,7 @@ void musbfsh_write_fifo(struct musbfsh_hw_ep *hw_ep, u16 len, const u8 *src)
 
 	prefetch((u8 *) src);
 
-	INFO("%cX ep%d fifo %p count %d buf %p\n", 'T', hw_ep->epnum, fifo, len,
-	     src);
+	INFO("%cX ep%d fifo %p count %d buf %p\n", 'T', hw_ep->epnum, fifo, len, src);
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 	/* we can't assume unaligned reads work */
 	if (likely((0x01 & (unsigned long)src) == 0)) {
@@ -214,8 +212,7 @@ void musbfsh_read_fifo(struct musbfsh_hw_ep *hw_ep, u16 len, u8 *dst)
 	void __iomem *fifo = hw_ep->fifo;
 
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
-	INFO("%cX ep%d fifo %p count %d buf %p\n", 'R', hw_ep->epnum, fifo, len,
-	     dst);
+	INFO("%cX ep%d fifo %p count %d buf %p\n", 'R', hw_ep->epnum, fifo, len, dst);
 
 	/* we can't assume unaligned writes work */
 	if (likely((0x01 & (unsigned long)dst) == 0)) {
@@ -275,8 +272,7 @@ void musbfsh_load_testpacket(struct musbfsh *musbfsh)
 	void __iomem *regs = musbfsh->endpoints[0].regs;
 
 	musbfsh_ep_select(musbfsh->mregs, 0);	/*should be implemented */
-	musbfsh_write_fifo(musbfsh->control_ep, sizeof(musbfsh_test_packet),
-			   musbfsh_test_packet);
+	musbfsh_write_fifo(musbfsh->control_ep, sizeof(musbfsh_test_packet), musbfsh_test_packet);
 	musbfsh_writew(regs, MUSBFSH_CSR0, MUSBFSH_CSR0_TXPKTRDY);
 }
 
@@ -320,13 +316,9 @@ static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb,
 			}
 
 			power &= ~MUSBFSH_POWER_SUSPENDM;
-			musbfsh_writeb(mbase, MUSBFSH_POWER,
-				       power | MUSBFSH_POWER_RESUME);
-
-			musbfsh->port1_status |= (USB_PORT_STAT_C_SUSPEND << 16)
-			    | MUSBFSH_PORT_STAT_RESUME;
+			musbfsh_writeb(mbase, MUSBFSH_POWER, power | MUSBFSH_POWER_RESUME);
+			musbfsh->port1_status |= (USB_PORT_STAT_C_SUSPEND << 16) | MUSBFSH_PORT_STAT_RESUME;
 			musbfsh->rh_timer = jiffies + msecs_to_jiffies(20);
-
 			musbfsh->is_active = 1;
 			usb_hcd_resume_root_hub(musbfsh_to_hcd(musbfsh));
 		}
@@ -381,13 +373,10 @@ static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb,
 			devctl |= MUSBFSH_DEVCTL_SESSION;
 			musbfsh_writeb(mbase, MUSBFSH_DEVCTL, devctl);
 		} else {
-			musbfsh->port1_status |=
-			    USB_PORT_STAT_OVERCURRENT |
-			    (USB_PORT_STAT_C_OVERCURRENT << 16);
+			musbfsh->port1_status |= USB_PORT_STAT_OVERCURRENT | (USB_PORT_STAT_C_OVERCURRENT << 16);
 		}
 
-		ERR("VBUS_ERROR (%02x, %s), retry #%d, port1_status 0x%08x\n",
-		    devctl, ({
+		ERR("VBUS_ERROR (%02x, %s), retry #%d, port1_status 0x%08x\n", devctl, ({
 				char *s;
 
 				switch (devctl & MUSBFSH_DEVCTL_VBUS) {
@@ -401,8 +390,7 @@ static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb,
 				default:
 					s = "VALID"; break; };
 			     s; }
-		    ), VBUSERR_RETRY_COUNT - musbfsh->vbuserr_retry,
-		    musbfsh->port1_status);
+		    ), VBUSERR_RETRY_COUNT - musbfsh->vbuserr_retry, musbfsh->port1_status);
 
 		/* go through A_WAIT_VFALL then start a new session */
 		if (!ignore)
@@ -426,12 +414,8 @@ static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb,
 		musbfsh->is_active = 1;
 
 		musbfsh->ep0_stage = MUSBFSH_EP0_START;
-		musbfsh->port1_status &= ~(USB_PORT_STAT_LOW_SPEED
-					   | USB_PORT_STAT_HIGH_SPEED |
-					   USB_PORT_STAT_ENABLE);
-		musbfsh->port1_status |=
-		    USB_PORT_STAT_CONNECTION | (USB_PORT_STAT_C_CONNECTION <<
-						16);
+		musbfsh->port1_status &= ~(USB_PORT_STAT_LOW_SPEED | USB_PORT_STAT_HIGH_SPEED | USB_PORT_STAT_ENABLE);
+		musbfsh->port1_status |= USB_PORT_STAT_CONNECTION | (USB_PORT_STAT_C_CONNECTION << 16);
 
 		/* high vs full speed is just a guess until after reset */
 		if (devctl & MUSBFSH_DEVCTL_LSDEV)
@@ -507,8 +491,7 @@ void remote_wakeup_irq(void)
 	devctl = musbfsh_readb(mtk_musbfsh->mregs, MUSBFSH_DEVCTL);
 	if (devctl & MUSBFSH_DEVCTL_HM) {
 #ifndef EVDO_DT_SUPPORT
-		__pm_wakeup_event(usb_resume_lock,
-				  jiffies_to_msecs(USB_WAKE_TIME * HZ));
+		__pm_wakeup_event(usb_resume_lock, jiffies_to_msecs(USB_WAKE_TIME * HZ));
 #endif
 		power = musbfsh_readb(mtk_musbfsh->mregs, MUSBFSH_POWER);
 		WARNING("Remote wakeup! power=0x%x\n", power);
@@ -519,13 +502,9 @@ void remote_wakeup_irq(void)
 		 * will stop RESUME signaling
 		 */
 		power &= ~MUSBFSH_POWER_SUSPENDM;
-		musbfsh_writeb(mtk_musbfsh->mregs, MUSBFSH_POWER,
-			       power | MUSBFSH_POWER_RESUME);
-
-		mtk_musbfsh->port1_status |= (USB_PORT_STAT_C_SUSPEND << 16)
-		    | MUSBFSH_PORT_STAT_RESUME;
+		musbfsh_writeb(mtk_musbfsh->mregs, MUSBFSH_POWER, power | MUSBFSH_POWER_RESUME);
+		mtk_musbfsh->port1_status |= (USB_PORT_STAT_C_SUSPEND << 16) | MUSBFSH_PORT_STAT_RESUME;
 		mtk_musbfsh->rh_timer = jiffies + msecs_to_jiffies(20);
-
 		mtk_musbfsh->is_active = 1;
 		usb_hcd_resume_root_hub(musbfsh_to_hcd(mtk_musbfsh));
 	}
@@ -603,17 +582,10 @@ void musbfsh_start(struct musbfsh *musbfsh)
 	mt_set_gpio_out(GPIO_52_USB_SW2, GPIO_OUT_ONE);
 	/*wx, need to be done before EINT unmask */
 	usb_resume_lock = wakeup_source_register("USB11 wakelock");
-
-	mt65xx_eint_set_sens(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM,
-			     CUST_EINT_DT_EXT_MD_WK_UP_USB_SENSITIVE);
-	mt65xx_eint_set_polarity(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM,
-				 CUST_EINT_DT_EXT_MD_WK_UP_USB_POLARITY);
-	mt65xx_eint_set_hw_debounce(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM,
-				    CUST_EINT_DT_EXT_MD_WK_UP_USB_DEBOUNCE_CN);
-	mt65xx_eint_registration(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM,
-				 CUST_EINT_DT_EXT_MD_WK_UP_USB_DEBOUNCE_EN,
-				 CUST_EINT_DT_EXT_MD_WK_UP_USB_POLARITY,
-				 remote_wakeup_irq, false);
+	mt65xx_eint_set_sens(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM, CUST_EINT_DT_EXT_MD_WK_UP_USB_SENSITIVE);
+	mt65xx_eint_set_polarity(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM, CUST_EINT_DT_EXT_MD_WK_UP_USB_POLARITY);
+	mt65xx_eint_set_hw_debounce(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM, CUST_EINT_DT_EXT_MD_WK_UP_USB_DEBOUNCE_CN);
+	mt65xx_eint_registration(CUST_EINT_DT_EXT_MD_WK_UP_USB_NUM, CUST_EINT_DT_EXT_MD_WK_UP_USB_DEBOUNCE_EN, CUST_EINT_DT_EXT_MD_WK_UP_USB_POLARITY, remote_wakeup_irq, false);
 #endif
 #endif
 }
@@ -690,34 +662,20 @@ static void musbfsh_shutdown(struct platform_device *pdev)
 #define MAXFIFOSIZE 8096
 
 static struct musbfsh_fifo_cfg epx_cfg[] __initdata = {
-	{.hw_ep_num = 1, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 1, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 2, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 2, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 3, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 3, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 4, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 4, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 5, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 5, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 6, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 6, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 7, .style = FIFO_TX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
-	{.hw_ep_num = 7, .style = FIFO_RX,
-	 .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 1, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 1, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 2, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 2, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 3, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 3, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 4, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 4, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 5, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 5, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 6, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 6, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 7, .style = FIFO_TX, .maxpacket = 512, .mode = BUF_SINGLE},
+	{.hw_ep_num = 7, .style = FIFO_RX, .maxpacket = 512, .mode = BUF_SINGLE},
 };
 
 static struct musbfsh_fifo_cfg ep0_cfg __initdata = {
@@ -743,8 +701,7 @@ fifo_setup(struct musbfsh *musbfsh, struct musbfsh_hw_ep *hw_ep,
 	u16 c_off = offset >> 3;
 	u8 c_size;		/*will be written into the fifo register */
 
-	INFO("hw_ep->epnum=%d,cfg->hw_ep_num=%d\n", hw_ep->epnum,
-	     cfg->hw_ep_num);
+	INFO("hw_ep->epnum=%d,cfg->hw_ep_num=%d\n", hw_ep->epnum, cfg->hw_ep_num);
 	/* expect hw_ep has already been zero-initialized */
 
 	size = ffs(max_t(u16, maxpacket, 8)) - 1;
@@ -836,17 +793,14 @@ done:
 		}
 		offset = fifo_setup(musbfsh, hw_ep + epn, cfg++, offset);
 		if (offset < 0) {
-			ERR("%s: mem overrun, ep %d\n", musbfsh_driver_name,
-			    epn);
+			ERR("%s: mem overrun, ep %d\n", musbfsh_driver_name, epn);
 			return -EINVAL;
 		}
 
 		epn++;		/*include ep0 */
 		musbfsh->nr_endpoints = max(epn, musbfsh->nr_endpoints);
 	}
-	INFO("%s: %d/%d max ep, %d/%d memory\n",
-	     musbfsh_driver_name, n + 1, musbfsh->config->num_eps * 2 - 1,
-	     offset, MAXFIFOSIZE);
+	INFO("%s: %d/%d max ep, %d/%d memory\n", musbfsh_driver_name, n + 1, musbfsh->config->num_eps * 2 - 1, offset, MAXFIFOSIZE);
 
 	if (!musbfsh->bulk_ep) {
 		ERR("%s: missing bulk\n", musbfsh_driver_name);
@@ -888,20 +842,10 @@ static int __init musbfsh_core_init(struct musbfsh *musbfsh)
 		hw_ep->tx_reinit = 1;
 
 		if (hw_ep->max_packet_sz_tx) {
-			INFO("%s: hw_ep %d%s, %smax %d,and hw_ep->epnum=%d\n",
-			     musbfsh_driver_name, i,
-			     hw_ep->is_shared_fifo ? "shared" : "tx",
-			     hw_ep->tx_double_buffered ?
-			     "doublebuffer, " : "", hw_ep->max_packet_sz_tx,
-			     hw_ep->epnum);
+			INFO("%s: hw_ep %d%s, %smax %d,and hw_ep->epnum=%d\n", musbfsh_driver_name, i, hw_ep->is_shared_fifo ? "shared" : "tx", hw_ep->tx_double_buffered ? "doublebuffer, " : "", hw_ep->max_packet_sz_tx, hw_ep->epnum);
 		}
 		if (hw_ep->max_packet_sz_rx && !hw_ep->is_shared_fifo) {
-			INFO("%s: hw_ep %d%s, %smax %d,and hw_ep->epnum=%d\n",
-			     musbfsh_driver_name, i,
-			     "rx",
-			     hw_ep->rx_double_buffered ?
-			     "doublebuffer, " : "", hw_ep->max_packet_sz_rx,
-			     hw_ep->epnum);
+			INFO("%s: hw_ep %d%s, %smax %d,and hw_ep->epnum=%d\n", musbfsh_driver_name, i, "rx", hw_ep->rx_double_buffered ? "doublebuffer, " : "", hw_ep->max_packet_sz_rx, hw_ep->epnum);
 		}
 		if (!(hw_ep->max_packet_sz_tx || hw_ep->max_packet_sz_rx))
 			INFO("hw_ep %d not configured\n", i);
@@ -916,9 +860,7 @@ void musbfsh_read_clear_generic_interrupt(struct musbfsh *musbfsh)
 	musbfsh->int_tx = musbfsh_readw(musbfsh->mregs, MUSBFSH_INTRTX);
 	musbfsh->int_rx = musbfsh_readw(musbfsh->mregs, MUSBFSH_INTRRX);
 	musbfsh->int_dma = musbfsh_readb(musbfsh->mregs, MUSBFSH_HSDMA_INTR);
-	INFO("** musbfsh::IRQ! usb%04x tx%04x rx%04x dma%04x\n",
-	     musbfsh->int_usb, musbfsh->int_tx, musbfsh->int_rx,
-	     musbfsh->int_dma);
+	INFO("** musbfsh::IRQ! usb%04x tx%04x rx%04x dma%04x\n", musbfsh->int_usb, musbfsh->int_tx, musbfsh->int_rx, musbfsh->int_dma);
 	/* clear interrupt status */
 	musbfsh_writew(musbfsh->mregs, MUSBFSH_INTRTX, musbfsh->int_tx);
 	musbfsh_writew(musbfsh->mregs, MUSBFSH_INTRRX, musbfsh->int_rx);
@@ -944,9 +886,7 @@ static irqreturn_t generic_interrupt(int irq, void *__hci)
 		retval = musbfsh_interrupt(musbfsh);
 #ifndef CONFIG_MUSBFSH_PIO_ONLY
 	if (musbfsh->int_dma)
-		retval =
-		    musbfsh_dma_controller_irq(irq,
-					       musbfsh->musbfsh_dma_controller);
+		retval = musbfsh_dma_controller_irq(irq, musbfsh->musbfsh_dma_controller);
 #endif
 
 	spin_unlock_irqrestore(&musbfsh->lock, flags);
@@ -976,9 +916,7 @@ irqreturn_t musbfsh_interrupt(struct musbfsh *musbfsh)
 	 * a generic interrupt flowchart to follow
 	 */
 	if (musbfsh->int_usb)
-		retval |=
-		    musbfsh_stage0_irq(musbfsh, musbfsh->int_usb, devctl,
-				       power);
+		retval |= musbfsh_stage0_irq(musbfsh, musbfsh->int_usb, devctl, power);
 
 	/* "stage 1" is handling endpoint irqs */
 
@@ -1079,8 +1017,7 @@ allocate_instance(struct device *dev, struct musbfsh_hdrc_config *config,
 	musbfsh->nIrq = -ENODEV;
 	musbfsh->config = config;
 	WARN_ON(musbfsh->config->num_eps > MUSBFSH_C_NUM_EPS);
-	for (epnum = 0, ep = musbfsh->endpoints;
-	     epnum < musbfsh->config->num_eps; epnum++, ep++) {
+	for (epnum = 0, ep = musbfsh->endpoints; epnum < musbfsh->config->num_eps; epnum++, ep++) {
 		ep->musbfsh = musbfsh;
 		ep->epnum = epnum;
 	}
@@ -1121,11 +1058,9 @@ static void musbfsh_free(struct musbfsh *musbfsh)
  */
 #ifdef CONFIG_OF
 static int
-musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl,
-		     void __iomem *ctrlp)
+musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl, void __iomem *ctrlp)
 #else
-static int musb_init_controller(struct device *dev, int nIrq,
-				void __iomem *ctrl)
+static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
 #endif
 {
 	int status;
@@ -1137,8 +1072,7 @@ static int musb_init_controller(struct device *dev, int nIrq,
 	/* The driver might handle more features than the board; OK.
 	 * Fail when the board needs a feature that's not enabled.
 	 */
-	INFO("[Flow][USB11]%s:%d,pbase= 0x%lx\n", __func__, __LINE__,
-	     (unsigned long)ctrlp);
+	INFO("[Flow][USB11]%s:%d,pbase= 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp);
 	if (!plat) {
 		dev_dbg(dev, "no platform_data?\n");
 		status = -ENODEV;
@@ -1158,8 +1092,7 @@ static int musb_init_controller(struct device *dev, int nIrq,
 	musbfsh->ops = plat->platform_ops;
 
 	musbfsh->config->fifo_cfg = epx_cfg;
-	musbfsh->config->fifo_cfg_size =
-	    sizeof(epx_cfg) / sizeof(struct musbfsh_fifo_cfg);
+	musbfsh->config->fifo_cfg_size = sizeof(epx_cfg) / sizeof(struct musbfsh_fifo_cfg);
 	/* The musbfsh_platform_init() call:
 	 *   - adjusts musbfsh->mregs and musbfsh->isr if needed,
 	 *   - may initialize an integrated tranceiver
@@ -1175,19 +1108,11 @@ static int musb_init_controller(struct device *dev, int nIrq,
 	 */
 	musbfsh_Device = musbfsh;
 #ifdef CONFIG_OF
-	INFO("[Flow][USB11]%s:%d  unsigned longbase == 0x%lx ,
-		musbfsh_Device->phy_reg_base = 0x%lx\n",
-		__func__, __LINE__, (unsigned long)ctrlp,
-		(unsigned long)(musbfsh_Device->phy_reg_base));
-
+	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
 	musbfsh_Device->phy_reg_base = ctrlp;
-
 #endif
 	musbfsh->isr = generic_interrupt;
-	INFO("[Flow][USB11]%s:%d  unsigned longbase == 0x%lx ,
-		musbfsh_Device->phy_reg_base = 0x%lx\n",
-		__func__, __LINE__, (unsigned long)ctrlp,
-		(unsigned long)(musbfsh_Device->phy_reg_base));
+	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
 	status = musbfsh_platform_init(musbfsh);
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 	if (status < 0) {
@@ -1213,7 +1138,7 @@ static int musb_init_controller(struct device *dev, int nIrq,
 	}
 #else
 	INFO("PIO mode\n");
-	INFO("[Flow][USB11]%s:%d	PIO Mode\n", __func__, __LINE__);
+	INFO("[Flow][USB11]%s:%d PIO Mode\n", __func__, __LINE__);
 #endif
 
 	/* ideally this would be abstracted in platform setup */
@@ -1276,30 +1201,23 @@ static int musb_init_controller(struct device *dev, int nIrq,
 		ERR("usb_add_debugfs fail!");
 		goto fail3;
 	}
-	dev_info(dev, "USB controller at %p using %s, IRQ %d\n",
-		 ctrl, (is_dma_capable() && musbfsh->dma_controller)
-		 ? "DMA" : "PIO", musbfsh->nIrq);
+	dev_info(dev, "USB controller at %p using %s, IRQ %d\n", ctrl, (is_dma_capable() && musbfsh->dma_controller) ? "DMA" : "PIO", musbfsh->nIrq);
 
 	return 0;
-
 
 fail3:
 	musbfsh_exit_debugfs(musbfsh);
 
-
-
 fail2:
 	if (musbfsh->irq_wake)
 		device_init_wakeup(dev, 0);
-	musbfsh_platform_exit(musbfsh);
+	    musbfsh_platform_exit(musbfsh);
 
 fail1:
-	dev_err(musbfsh->controller,
-		"musbfsh_init_controller failed with status %d\n", status);
+	dev_err(musbfsh->controller, "musbfsh_init_controller failed with status %d\n", status);
 	musbfsh_free(musbfsh);
 
 fail0:
-
 	return status;
 
 }
@@ -1344,9 +1262,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 		INFO("[Flow][USB11]dts node from dts_np\n");
 		pdev->dev.of_node = usb11_dts_np;
 	} else {
-		pdev->dev.of_node =
-		    of_find_compatible_node(NULL, NULL,
-					    "mediatek,mt8163-usb11");
+		pdev->dev.of_node = of_find_compatible_node(NULL, NULL, "mediatek,mt8163-usb11");
 	}
 	if (pdev->dev.of_node == NULL)
 		INFO("[Flow][USB11] get node failed\n");
@@ -1412,11 +1328,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	usb_phy11_base = (unsigned long)pbase;
 	irq = usb1_irq_number;
 
-	INFO("[Flow][USB11]musb probe reg: 0x%lx ,
-		usb_phy11_base == 0x%lx ,
-		pbase == 0x%lx irq: 0x%d\n",
-		usb_mac_base, usb_phy11_base,
-		(unsigned long)pbase, usb1_irq_number);
+	INFO("[Flow][USB11]musb probe reg: 0x%lx , usb_phy11_base == 0x%lx , pbase == 0x%lx irq: 0x%d\n", usb_mac_base, usb_phy11_base, (unsigned long)pbase, usb1_irq_number);
 
 #endif
 	INFO("++\n");
@@ -1468,13 +1380,12 @@ static int __exit musbfsh_remove(struct platform_device *pdev)
 	musbfsh_shutdown(pdev);
 	if (musbfsh->board_mode == MUSBFSH_HOST)
 		usb_remove_hcd(musbfsh_to_hcd(musbfsh));
-	musbfsh_writeb(musbfsh->mregs, MUSBFSH_DEVCTL, 0);
-	musbfsh_platform_exit(musbfsh);
-	musbfsh_writeb(musbfsh->mregs, MUSBFSH_DEVCTL, 0);
-
-	musbfsh_free(musbfsh);
-	iounmap(ctrl_base);
-	device_init_wakeup(&pdev->dev, 0);
+	    musbfsh_writeb(musbfsh->mregs, MUSBFSH_DEVCTL, 0);
+	    musbfsh_platform_exit(musbfsh);
+	    musbfsh_writeb(musbfsh->mregs, MUSBFSH_DEVCTL, 0);
+	    musbfsh_free(musbfsh);
+	    iounmap(ctrl_base);
+	    device_init_wakeup(&pdev->dev, 0);
 #ifndef CONFIG_MUSBFSH_PIO_ONLY
 	dma_set_mask(dev, *dev->parent->dma_mask);
 #endif
@@ -1492,11 +1403,9 @@ static void musbfsh_save_context(struct musbfsh *musbfsh)
 	musbfsh->context.power = musbfsh_readb(musbfsh_base, MUSBFSH_POWER);
 	musbfsh->context.intrtxe = musbfsh_readw(musbfsh_base, MUSBFSH_INTRTXE);
 	musbfsh->context.intrrxe = musbfsh_readw(musbfsh_base, MUSBFSH_INTRRXE);
-	musbfsh->context.intrusbe =
-	    musbfsh_readb(musbfsh_base, MUSBFSH_INTRUSBE);
+	musbfsh->context.intrusbe = musbfsh_readb(musbfsh_base, MUSBFSH_INTRUSBE);
 	musbfsh->context.index = musbfsh_readb(musbfsh_base, MUSBFSH_INDEX);
 	musbfsh->context.devctl = musbfsh_readb(musbfsh_base, MUSBFSH_DEVCTL);
-
 	musbfsh->context.l1_int = musbfsh_readl(musbfsh_base, USB11_L1INTM);
 
 	for (i = 0; i < MUSBFSH_C_NUM_EPS - 1; ++i) {
@@ -1511,24 +1420,16 @@ static void musbfsh_save_context(struct musbfsh *musbfsh)
 			continue;
 
 		musbfsh_writeb(musbfsh_base, MUSBFSH_INDEX, i);
-		musbfsh->context.index_regs[i].txmaxp =
-		    musbfsh_readw(epio, MUSBFSH_TXMAXP);
-		musbfsh->context.index_regs[i].txcsr =
-		    musbfsh_readw(epio, MUSBFSH_TXCSR);
-		musbfsh->context.index_regs[i].rxmaxp =
-		    musbfsh_readw(epio, MUSBFSH_RXMAXP);
-		musbfsh->context.index_regs[i].rxcsr =
-		    musbfsh_readw(epio, MUSBFSH_RXCSR);
+		musbfsh->context.index_regs[i].txmaxp = musbfsh_readw(epio, MUSBFSH_TXMAXP);
+		musbfsh->context.index_regs[i].txcsr = musbfsh_readw(epio, MUSBFSH_TXCSR);
+		musbfsh->context.index_regs[i].rxmaxp = musbfsh_readw(epio, MUSBFSH_RXMAXP);
+		musbfsh->context.index_regs[i].rxcsr =  musbfsh_readw(epio, MUSBFSH_RXCSR);
 
 		if (musbfsh->dyn_fifo) {
-			musbfsh->context.index_regs[i].txfifoadd =
-			    musbfsh_read_txfifoadd(musbfsh_base);
-			musbfsh->context.index_regs[i].rxfifoadd =
-			    musbfsh_read_rxfifoadd(musbfsh_base);
-			musbfsh->context.index_regs[i].txfifosz =
-			    musbfsh_read_txfifosz(musbfsh_base);
-			musbfsh->context.index_regs[i].rxfifosz =
-			    musbfsh_read_rxfifosz(musbfsh_base);
+			musbfsh->context.index_regs[i].txfifoadd = musbfsh_read_txfifoadd(musbfsh_base);
+			musbfsh->context.index_regs[i].rxfifoadd = musbfsh_read_rxfifoadd(musbfsh_base);
+			musbfsh->context.index_regs[i].txfifosz = musbfsh_read_txfifosz(musbfsh_base);
+			musbfsh->context.index_regs[i].rxfifosz = musbfsh_read_rxfifosz(musbfsh_base);
 		}
 	}
 }
@@ -1538,12 +1439,11 @@ static void musbfsh_restore_context(struct musbfsh *musbfsh)
 	int i;
 	void __iomem *musbfsh_base = musbfsh->mregs;
 	void __iomem *epio;
-
+	
 	musbfsh_writeb(musbfsh_base, MUSBFSH_POWER, musbfsh->context.power);
 	musbfsh_writew(musbfsh_base, MUSBFSH_INTRTXE, musbfsh->context.intrtxe);
 	musbfsh_writew(musbfsh_base, MUSBFSH_INTRRXE, musbfsh->context.intrrxe);
-	musbfsh_writeb(musbfsh_base, MUSBFSH_INTRUSBE,
-		       musbfsh->context.intrusbe);
+	musbfsh_writeb(musbfsh_base, MUSBFSH_INTRUSBE, musbfsh->context.intrusbe);
 	musbfsh_writeb(musbfsh_base, MUSBFSH_DEVCTL, musbfsh->context.devctl);
 
 	for (i = 0; i < MUSBFSH_C_NUM_EPS - 1; ++i) {
@@ -1558,28 +1458,16 @@ static void musbfsh_restore_context(struct musbfsh *musbfsh)
 			continue;
 
 		musbfsh_writeb(musbfsh_base, MUSBFSH_INDEX, i);
-		musbfsh_writew(epio, MUSBFSH_TXMAXP,
-			       musbfsh->context.index_regs[i].txmaxp);
-		musbfsh_writew(epio, MUSBFSH_TXCSR,
-			       musbfsh->context.index_regs[i].txcsr);
-		musbfsh_writew(epio, MUSBFSH_RXMAXP,
-			       musbfsh->context.index_regs[i].rxmaxp);
-		musbfsh_writew(epio, MUSBFSH_RXCSR,
-			       musbfsh->context.index_regs[i].rxcsr);
+		musbfsh_writew(epio, MUSBFSH_TXMAXP, musbfsh->context.index_regs[i].txmaxp);
+		musbfsh_writew(epio, MUSBFSH_TXCSR, musbfsh->context.index_regs[i].txcsr);
+		musbfsh_writew(epio, MUSBFSH_RXMAXP, musbfsh->context.index_regs[i].rxmaxp);
+		musbfsh_writew(epio, MUSBFSH_RXCSR, musbfsh->context.index_regs[i].rxcsr);
 
 		if (musbfsh->dyn_fifo) {
-			musbfsh_write_txfifosz(musbfsh_base,
-					       musbfsh->context.
-					       index_regs[i].txfifosz);
-			musbfsh_write_rxfifosz(musbfsh_base,
-					       musbfsh->context.
-					       index_regs[i].rxfifosz);
-			musbfsh_write_txfifoadd(musbfsh_base,
-						musbfsh->context.
-						index_regs[i].txfifoadd);
-			musbfsh_write_rxfifoadd(musbfsh_base,
-						musbfsh->context.
-						index_regs[i].rxfifoadd);
+			musbfsh_write_txfifosz(musbfsh_base, musbfsh->context.index_regs[i].txfifosz);
+			musbfsh_write_rxfifosz(musbfsh_base, musbfsh->context.index_regs[i].rxfifosz);
+			musbfsh_write_txfifoadd(musbfsh_base, musbfsh->context.index_regs[i].txfifoadd);
+			musbfsh_write_rxfifoadd(musbfsh_base, musbfsh->context.index_regs[i].rxfifoadd);
 		}
 	}
 
@@ -1588,8 +1476,7 @@ static void musbfsh_restore_context(struct musbfsh *musbfsh)
 	/* Enable all interrupts at DMA
 	 * Caution: The DMA Reg type is WRITE to SET or CLEAR
 	 */
-	musbfsh_writel(musbfsh->mregs, MUSBFSH_HSDMA_INTR,
-		       0xFF | (0xFF << MUSBFSH_DMA_INTR_UNMASK_SET_OFFSET));
+	musbfsh_writel(musbfsh->mregs, MUSBFSH_HSDMA_INTR, 0xFF | (0xFF << MUSBFSH_DMA_INTR_UNMASK_SET_OFFSET));
 	musbfsh_writel(musbfsh_base, USB11_L1INTM, musbfsh->context.l1_int);
 }
 
