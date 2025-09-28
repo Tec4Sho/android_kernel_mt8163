@@ -34,6 +34,14 @@
 #include <cust_eint.h>
 #endif
 
+#ifndef URB_RX_REQ_MODE0_ENABLE
+#define URB_RX_REQ_MODE0_ENABLE
+#endif
+
+#ifndef URB_RX_REQ_MODE1_ENABLE
+#define URB_RX_REQ_MODE1_ENABLE
+#endif
+
 /* MUSB HOST status 22-mar-2006
  *
  * - There's still lots of partial code duplication for fault paths, so
