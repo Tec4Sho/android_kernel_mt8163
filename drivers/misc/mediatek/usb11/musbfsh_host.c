@@ -90,9 +90,7 @@
  * "claimed" until its software queue is no longer refilled.  No multiplexing
  * of transfers between endpoints, or anything clever.
  */
-static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
-			       struct urb *urb, int is_out, u8 *buf,
-			       u32 offset, u32 len);
+static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum, struct urb *urb, int is_out, u8 *buf, u32 offset, u32 len);
 
 /*
  * Clear TX fifo. Needed to avoid BABBLE errors.
@@ -173,8 +171,7 @@ static inline void musbfsh_h_tx_start(struct musbfsh_hw_ep *ep)
 	}
 }
 
-static void musbfsh_ep_set_qh(struct musbfsh_hw_ep *ep, int is_in,
-			      struct musbfsh_qh *qh)
+static void musbfsh_ep_set_qh(struct musbfsh_hw_ep *ep, int is_in, struct musbfsh_qh *qh)
 {
 	if (is_in != 0 || ep->is_shared_fifo)
 		ep->in_qh = qh;
@@ -194,8 +191,7 @@ static struct musbfsh_qh *musbfsh_ep_get_qh(struct musbfsh_hw_ep *ep, int is_in)
  *
  * Context: controller locked, irqs blocked
  */
-static void musbfsh_start_urb(struct musbfsh *musbfsh, int is_in,
-			      struct musbfsh_qh *qh)
+static void musbfsh_start_urb(struct musbfsh *musbfsh, int is_in, struct musbfsh_qh *qh)
 {
 	u32 len;
 	struct urb *urb = next_urb(qh);
@@ -262,8 +258,7 @@ s = "-bulk"; break; default:
 }
 
 /* Context: caller owns controller lock, IRQs are blocked */
-static void musbfsh_giveback(struct musbfsh *musbfsh, struct urb *urb,
-			     int status) __releases(musbfsh->lock)
+static void musbfsh_giveback(struct musbfsh *musbfsh, struct urb *urb, int status) __releases(musbfsh->lock)
 __acquires(musbfsh->lock)
 {
 
@@ -276,8 +271,7 @@ __acquires(musbfsh->lock)
 }
 
 /* For bulk/interrupt endpoints only */
-static inline void musbfsh_save_toggle(struct musbfsh_qh *qh, int is_in,
-				       struct urb *urb)
+static inline void musbfsh_save_toggle(struct musbfsh_qh *qh, int is_in, struct urb *urb)
 {
 	struct musbfsh *musbfsh = qh->hw_ep->musbfsh;
 	u8 epnum = qh->hw_ep->epnum;
@@ -302,8 +296,7 @@ static inline void musbfsh_save_toggle(struct musbfsh_qh *qh, int is_in,
 		usb_settoggle(urb->dev, qh->epnum, !is_in, 0);
 }
 
-static inline void musbfsh_set_toggle(struct musbfsh_qh *qh, int is_in,
-				      struct urb *urb)
+static inline void musbfsh_set_toggle(struct musbfsh_qh *qh, int is_in, struct urb *urb)
 {
 	struct musbfsh *musbfsh = qh->hw_ep->musbfsh;
 	u8 epnum = qh->hw_ep->epnum;
@@ -339,8 +332,7 @@ static inline void musbfsh_set_toggle(struct musbfsh_qh *qh, int is_in,
  *
  * Context: caller owns controller lock, IRQs are blocked
  */
-static void musbfsh_advance_schedule(struct musbfsh *musbfsh, struct urb *urb,
-				     struct musbfsh_hw_ep *hw_ep, int is_in)
+static void musbfsh_advance_schedule(struct musbfsh *musbfsh, struct urb *urb, struct musbfsh_hw_ep *hw_ep, int is_in)
 {
 	struct musbfsh_qh *qh = musbfsh_ep_get_qh(hw_ep, is_in);
 	struct musbfsh_hw_ep *ep = qh->hw_ep;
@@ -430,8 +422,7 @@ static u16 musbfsh_h_flush_rxfifo(struct musbfsh_hw_ep *hw_ep, u16 csr)
 /*
  * PIO RX for a packet (or part of it).
  */
-static bool musbfsh_host_packet_rx(struct musbfsh *musbfsh, struct urb *urb,
-				   u8 epnum)
+static bool musbfsh_host_packet_rx(struct musbfsh *musbfsh, struct urb *urb, u8 epnum)
 {
 	/*real ep */
 	u16 rx_count;
@@ -493,8 +484,7 @@ static bool musbfsh_host_packet_rx(struct musbfsh *musbfsh, struct urb *urb,
  * the busy/not-empty tests are basically paranoia.
  */
 static void
-musbfsh_rx_reinit(struct musbfsh *musbfsh, struct musbfsh_qh *qh,
-		  struct musbfsh_hw_ep *ep)
+musbfsh_rx_reinit(struct musbfsh *musbfsh, struct musbfsh_qh *qh, struct musbfsh_hw_ep *ep)
 {
 	u16 csr;
 
@@ -548,10 +538,7 @@ musbfsh_rx_reinit(struct musbfsh *musbfsh, struct musbfsh_qh *qh,
 	ep->rx_reinit = 0;
 }
 
-static bool musbfsh_tx_dma_program(struct dma_controller *dma,
-				   struct musbfsh_hw_ep *hw_ep,
-				   struct musbfsh_qh *qh, struct urb *urb,
-				   u32 offset, u32 length)
+static bool musbfsh_tx_dma_program(struct dma_controller *dma, struct musbfsh_hw_ep *hw_ep, struct musbfsh_qh *qh, struct urb *urb, u32 offset, u32 length)
 {
 	struct dma_channel *channel = hw_ep->tx_channel;
 	void __iomem *epio = hw_ep->regs;
@@ -604,9 +591,7 @@ static bool musbfsh_tx_dma_program(struct dma_controller *dma,
  * Program an HDRC endpoint as per the given URB
  * Context: irqs blocked, controller lock held
  */
-static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
-			       struct urb *urb, int is_out,
-			       u8 *buf, u32 offset, u32 len)
+static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum, struct urb *urb, int is_out, u8 *buf, u32 offset, u32 len)
 {
 	struct dma_controller *dma_controller;
 	struct dma_channel *dma_channel;
@@ -638,9 +623,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 			/*maybe return NULL,
 			 *if all of the dma channels have been used.
 			 */
-			dma_channel =
-			    dma_controller->channel_alloc(dma_controller, hw_ep,
-							  is_out);
+			dma_channel = dma_controller->channel_alloc(dma_controller, hw_ep, is_out);
 			if (dma_channel) {
 				INFO("Got a DMA channel for ep%d\n", epnum);
 				if (is_out)
@@ -648,8 +631,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 				else
 					hw_ep->rx_channel = dma_channel;
 			} else
-				WARNING("DMA channel alloc fail for ep%d\n",
-					epnum);
+				WARNING("DMA channel alloc fail for ep%d\n", epnum);
 		}
 	} else {
 		INFO("Using PIO for ep%d\n", epnum);
@@ -680,13 +662,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 			 * the same cycle with the DMAENAB bit, so we clear
 			 * the latter first...
 			 */
-			csr &= ~(MUSBFSH_TXCSR_H_NAKTIMEOUT
-				 | MUSBFSH_TXCSR_AUTOSET
-				 | MUSBFSH_TXCSR_DMAENAB
-				 | MUSBFSH_TXCSR_FRCDATATOG
-				 | MUSBFSH_TXCSR_H_RXSTALL
-				 | MUSBFSH_TXCSR_H_ERROR |
-				 MUSBFSH_TXCSR_TXPKTRDY);
+			csr &= ~(MUSBFSH_TXCSR_H_NAKTIMEOUT | MUSBFSH_TXCSR_AUTOSET | MUSBFSH_TXCSR_DMAENAB | MUSBFSH_TXCSR_FRCDATATOG | MUSBFSH_TXCSR_H_RXSTALL | MUSBFSH_TXCSR_H_ERROR | MUSBFSH_TXCSR_TXPKTRDY);
 
 			musbfsh_set_toggle(qh, !is_out, urb);
 
@@ -705,8 +681,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 			musbfsh_write_txfunaddr(mbase, epnum, qh->addr_reg);
 			musbfsh_write_txhubaddr(mbase, epnum, qh->h_addr_reg);
 			musbfsh_write_txhubport(mbase, epnum, qh->h_port_reg);
-			INFO("set address! h_port_reg 0x%x h_addr_reg 0x%x\n",
-			     qh->h_port_reg, qh->h_addr_reg);
+			INFO("set address! h_port_reg 0x%x h_addr_reg 0x%x\n", qh->h_port_reg, qh->h_addr_reg);
 		} else {
 			/*set the address of the device,very important!! */
 			musbfsh_writeb(mbase, MUSBFSH_FADDR, qh->addr_reg);
@@ -724,15 +699,12 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 		} else {	/*ep0 */
 			musbfsh_writeb(epio, MUSBFSH_NAKLIMIT0, qh->intv_reg);
 			if (musbfsh->is_multipoint)
-				musbfsh_writeb(epio, MUSBFSH_TYPE0,
-					       qh->type_reg);
+				musbfsh_writeb(epio, MUSBFSH_TYPE0, qh->type_reg);
 		}
 		load_count = min_t(u32, packet_sz, len);
 
 		/*write data to the fifo */
-		if (dma_channel && musbfsh_tx_dma_program(dma_controller,
-							  hw_ep, qh, urb,
-							  offset, len))
+		if (dma_channel && musbfsh_tx_dma_program(dma_controller, hw_ep, qh, urb, offset, len))
 			load_count = 0;
 
 		if (load_count) {	/*dma is not available */
@@ -761,11 +733,8 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 		} else {	/*bulk IN */
 			csr = musbfsh_readw(hw_ep->regs, MUSBFSH_RXCSR);
 
-			if (csr & (MUSBFSH_RXCSR_RXPKTRDY
-				   | MUSBFSH_RXCSR_DMAENAB |
-				   MUSBFSH_RXCSR_H_REQPKT))
-				ERR("broken !rx_reinit, ep%d csr %04x\n",
-				    hw_ep->epnum, csr);
+			if (csr & (MUSBFSH_RXCSR_RXPKTRDY | MUSBFSH_RXCSR_DMAENAB | MUSBFSH_RXCSR_H_REQPKT))
+				ERR("broken !rx_reinit, ep%d csr %04x\n", hw_ep->epnum, csr);
 
 			/* scrub any stale state, leaving toggle alone */
 			csr &= MUSBFSH_RXCSR_DISNYET;
@@ -773,8 +742,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 
 #ifdef USB_HOST_RX_DMAMODE1
 		if (dma_channel) {
-			INFO("urb->transfer_flags = 0x%x, qh->maxpacket = %d\n",
-			     urb->transfer_flags, qh->maxpacket);
+			INFO("urb->transfer_flags = 0x%x, qh->maxpacket = %d\n", urb->transfer_flags, qh->maxpacket);
 
 			if (urb->transfer_flags & URB_RX_REQ_MODE0_ENABLE) {
 				if (qh->maxpacket == 512 && ((urb->transfer_buffer_length - urb->actual_length) > qh->maxpacket)) {
@@ -788,8 +756,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 
 					rx_count = musbfsh_readw(epio, MUSBFSH_RXCOUNT);
 
-					INFO("Using DMA epnum%d: is_out=%d, urb->actual_length = %d, urb->transfer_buffer_length = %d\n", 
-						epnum, is_out, urb->actual_length, urb->transfer_buffer_length);
+					INFO("Using DMA epnum%d: is_out=%d, urb->actual_length = %d, urb->transfer_buffer_length = %d\n", epnum, is_out, urb->actual_length, urb->transfer_buffer_length);
 
 					length = rx_count;
 					buf = urb->transfer_dma + urb->actual_length;
@@ -800,10 +767,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 					csr = musbfsh_readw(epio, MUSBFSH_RXCSR);
 					csr &= ~MUSBFSH_RXCSR_H_REQPKT;
 
-					csr |=
-						(MUSBFSH_RXCSR_H_AUTOREQ
-						| MUSBFSH_RXCSR_AUTOCLEAR)
-						& (~MUSBFSH_RXCSR_DMAMODE);
+					csr |= (MUSBFSH_RXCSR_H_AUTOREQ | MUSBFSH_RXCSR_AUTOCLEAR) & (~MUSBFSH_RXCSR_DMAMODE);
 
 					csr |= MUSBFSH_RXCSR_DMAENAB;
 
@@ -816,8 +780,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 					ret = dma_controller->channel_program( dma_channel, qh->maxpacket, dma_channel->desired_mode, buf, length);
 
 					if (!ret) {
-						dma_controller->channel_release
-						    (dma_channel);
+						dma_controller->channel_release(dma_channel);
 						hw_ep->rx_channel = NULL;
 						dma_channel = NULL;
 						/* REVISIT reset CSR */
@@ -846,10 +809,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 				dma_channel->desired_mode = 1;
 				csr = musbfsh_readw(hw_ep->regs, MUSBFSH_RXCSR);			
 				csr &= ~MUSBFSH_RXCSR_H_REQPKT;
-				csr |=
-				    (MUSBFSH_RXCSR_H_AUTOREQ |
-				     MUSBFSH_RXCSR_AUTOCLEAR) |
-				    MUSBFSH_RXCSR_DMAMODE;
+				csr |= (MUSBFSH_RXCSR_H_AUTOREQ | MUSBFSH_RXCSR_AUTOCLEAR) | MUSBFSH_RXCSR_DMAMODE;
 				csr |= MUSBFSH_RXCSR_DMAENAB;
 
 				musbfsh_writew(hw_ep->regs, MUSBFSH_RXCSR, MUSBFSH_RXCSR_H_WZC_BITS | csr);
@@ -861,8 +821,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 				ret = dma_controller->channel_program( dma_channel, qh->maxpacket, dma_channel->desired_mode, buf, length);
 
 				if (!ret) {
-					dma_controller->channel_release
-					    (dma_channel);
+					dma_controller->channel_release(dma_channel);
 					hw_ep->rx_channel = NULL;
 					dma_channel = NULL;
 					/* REVISIT reset CSR */
@@ -906,8 +865,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
  * Service the default endpoint (ep0) as host.
  * Return false until it's time to start the status stage.
  */
-static bool musbfsh_h_ep0_continue(struct musbfsh *musbfsh, u16 len,
-				   struct urb *urb)
+static bool musbfsh_h_ep0_continue(struct musbfsh *musbfsh, u16 len, struct urb *urb)
 {
 	bool more = false;
 	u8 *fifo_dest = NULL;
@@ -1048,7 +1006,7 @@ irqreturn_t musbfsh_h_ep0_irq(struct musbfsh *musbfsh)
 		/* use the proper sequence to abort the transfer */
 		if (csr & MUSBFSH_CSR0_H_REQPKT) {
 			csr &= ~MUSBFSH_CSR0_H_REQPKT;
-			musbfsh_writew(epio, MUSBFSH_CSR0, csr);
+		    musbfsh_writew(epio, MUSBFSH_CSR0, csr);
 			csr &= ~MUSBFSH_CSR0_H_NAKTIMEOUT;
 			musbfsh_writew(epio, MUSBFSH_CSR0, csr);
 		} else
@@ -1080,8 +1038,7 @@ irqreturn_t musbfsh_h_ep0_irq(struct musbfsh *musbfsh)
 			/*indicate no data stage, so there is no need to
 			 * set the stage in musbfsh_h_ep0_continue
 			 */
-			if (usb_pipeout(urb->pipe)
-			    || !urb->transfer_buffer_length)
+			if (usb_pipeout(urb->pipe) || !urb->transfer_buffer_length)
 				csr = MUSBFSH_CSR0_H_STATUSPKT | MUSBFSH_CSR0_H_REQPKT;
 			else
 				csr = MUSBFSH_CSR0_H_STATUSPKT | MUSBFSH_CSR0_TXPKTRDY;
@@ -1240,8 +1197,7 @@ void musbfsh_host_tx(struct musbfsh *musbfsh, u8 epnum)
 				tx_csr &= ~(MUSBFSH_TXCSR_DMAENAB | MUSBFSH_TXCSR_TXPKTRDY);
 				musbfsh_writew(epio, MUSBFSH_TXCSR, tx_csr | MUSBFSH_TXCSR_H_WZC_BITS);
 			}
-			tx_csr &=
-			    ~(MUSBFSH_TXCSR_DMAMODE | MUSBFSH_TXCSR_TXPKTRDY);
+			tx_csr &= ~(MUSBFSH_TXCSR_DMAMODE | MUSBFSH_TXCSR_TXPKTRDY);
 			musbfsh_writew(epio, MUSBFSH_TXCSR, tx_csr | MUSBFSH_TXCSR_H_WZC_BITS);
 
 			/*
@@ -1371,8 +1327,7 @@ void musbfsh_host_tx(struct musbfsh *musbfsh, u8 epnum)
 /* Schedule next QH from musbfsh->in_bulk and move the current qh to
  * the end; avoids starvation for other endpoints.
  */
-static void musbfsh_bulk_rx_nak_timeout(struct musbfsh *musbfsh,
-					struct musbfsh_hw_ep *ep)
+static void musbfsh_bulk_rx_nak_timeout(struct musbfsh *musbfsh, struct musbfsh_hw_ep *ep)
 {
 	struct dma_channel *dma;
 	struct urb *urb;
@@ -1711,8 +1666,7 @@ finish:
  * host side hardware endpoint + direction; scheduling may activate
  * that hardware endpoint.
  */
-static int musbfsh_schedule(struct musbfsh *musbfsh, struct musbfsh_qh *qh,
-			    int is_in)
+static int musbfsh_schedule(struct musbfsh *musbfsh, struct musbfsh_qh *qh, int is_in)
 {
 	int idle;
 	int best_diff;
@@ -1803,8 +1757,7 @@ success:
 	return 0;
 }
 
-static int musbfsh_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
-			       gfp_t mem_flags)
+static int musbfsh_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flags)
 {
 	unsigned long flags;
 	struct musbfsh *musbfsh = hcd_to_musbfsh(hcd);
@@ -1938,8 +1891,7 @@ static int musbfsh_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
 					qh->h_addr_reg |= 0x80;
 			}
 		}
-		INFO("addr_reg=0x%x, h_addr_reg=0x%x, h_port_reg=0x%x",
-		     qh->addr_reg, qh->h_addr_reg, qh->h_port_reg);
+		INFO("addr_reg=0x%x, h_addr_reg=0x%x, h_port_reg=0x%x", qh->addr_reg, qh->h_addr_reg, qh->h_port_reg);
 	}
 
 	/* invariant: hep->hcpriv is null OR the qh that's already scheduled.
@@ -2085,8 +2037,7 @@ done:
 }
 
 /* disable an endpoint */
-static void musbfsh_h_disable(struct usb_hcd *hcd,
-			      struct usb_host_endpoint *hep)
+static void musbfsh_h_disable(struct usb_hcd *hcd, struct usb_host_endpoint *hep)
 {
 	u8 is_in = hep->desc.bEndpointAddress & USB_DIR_IN;
 	unsigned long flags;
