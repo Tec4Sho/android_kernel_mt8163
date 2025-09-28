@@ -833,9 +833,7 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 							  MUSBFSH_RXCOUNT);
 
 					INFO("Using DMA epnum%d: is_out=%d, urb->actual_length = %d, urb->transfer_buffer_length = %d\n", 
-						epnum, is_out,
-						urb->actual_length,
-						urb->transfer_buffer_length);
+						epnum, is_out, urb->actual_length, urb->transfer_buffer_length);
 
 					length = rx_count;
 					buf =
@@ -897,21 +895,15 @@ static void musbfsh_ep_program(struct musbfsh *musbfsh, u8 epnum,
 
 			}	else if (urb->transfer_flags &
 				URB_RX_REQ_MODE1_ENABLE) {
-				int length =
-				    urb->transfer_buffer_length -
-				    urb->actual_length;
-
+				int length = urb->transfer_buffer_length - urb->actual_length;
 				int ret;
 				dma_addr_t buf;
-
 				dma_channel->actual_len = 0;
 				qh->segsize = len;
-
 				buf = urb->transfer_dma + urb->actual_length;
 				/* multi-packet flag of dma */
 				dma_channel->desired_mode = 1;
-
-				csr = musbfsh_readw(hw_ep->regs, MUSBFSH_RXCSR);
+				csr = musbfsh_readw(hw_ep->regs, MUSBFSH_RXCSR);			
 				csr &= ~MUSBFSH_RXCSR_H_REQPKT;
 				csr |=
 				    (MUSBFSH_RXCSR_H_AUTOREQ |
