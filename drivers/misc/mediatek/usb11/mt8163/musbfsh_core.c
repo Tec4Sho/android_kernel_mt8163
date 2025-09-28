@@ -81,23 +81,20 @@ MODULE_ALIAS("platform:" MUSBFSH_DRIVER_NAME);
 DEFINE_SPINLOCK(musbfs_io_lock);
 /*-------------------------------------------------------------------------*/
 #ifdef IC_USB
-static ssize_t show_start(struct device *dev, struct device_attribute *attr,
-			  char *buf)
+static ssize_t show_start(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	return sprintf(buf, "start session under IC-USB mode\n");
 }
 
 static ssize_t
-store_start(struct device *dev, struct device_attribute *attr, const char *buf,
-	    size_t size)
+store_start(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
 	char *pvalue = NULL;
 	unsigned int value = 0;
 	size_t count = 0;
 	u8 devctl = 0;
 
-	devctl =
-	    musbfsh_readb((unsigned char __iomem *)USB11_BASE, MUSBFSH_DEVCTL);
+	devctl = musbfsh_readb((unsigned char __iomem *)USB11_BASE, MUSBFSH_DEVCTL);
 
 	/*value = simple_strtoul(buf, &pvalue, 10); */
 	/* KS format requirement, sscanf -> kstrtol */
@@ -289,8 +286,7 @@ void musbfsh_load_testpacket(struct musbfsh *musbfsh)
  * @param power
  */
 
-static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb,
-				      u8 devctl, u8 power)
+static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb, u8 devctl, u8 power)
 {
 	irqreturn_t handled = IRQ_NONE;
 
@@ -1255,7 +1251,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	unsigned long usb_phy11_base;
 	int retval = 0
 
-	INFO("[Flow][USB11]%s:%d,CONFIG_OF\n", __func__, __LINE__);
+	INFO("[Flow][USB11]%s:%d, CONFIG_OF\n", __func__, __LINE__);
 #if 0
 	pr_info("musb probe\n");
 	if (usb11_dts_np) {
@@ -1332,7 +1328,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 
 #endif
 	INFO("++\n");
-	INFO("[Flow][USB11]%s: %d\n", __func__, __LINE__);
+	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 
 #ifndef CONFIG_MUSBFSH_PIO_ONLY	/*using DMA */
 	/* clobbered by use_dma=n */
