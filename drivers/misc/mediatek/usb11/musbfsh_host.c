@@ -35,11 +35,11 @@
 #endif
 
 #ifndef URB_RX_REQ_MODE0_ENABLE
-#define URB_RX_REQ_MODE0_ENABLE
+#define URB_RX_REQ_MODE0_ENABLE  1
 #endif
 
 #ifndef URB_RX_REQ_MODE1_ENABLE
-#define URB_RX_REQ_MODE1_ENABLE
+#define URB_RX_REQ_MODE1_ENABLE  0
 #endif
 
 /* MUSB HOST status 22-mar-2006
