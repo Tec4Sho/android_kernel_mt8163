@@ -688,8 +688,7 @@ static struct musbfsh_fifo_cfg ep0_cfg __initdata = {
  * returns negative errno or offset for next fifo.
  */
 static int __init
-fifo_setup(struct musbfsh *musbfsh, struct musbfsh_hw_ep *hw_ep,
-	   const struct musbfsh_fifo_cfg *cfg, u16 offset)
+fifo_setup(struct musbfsh *musbfsh, struct musbfsh_hw_ep *hw_ep, const struct musbfsh_fifo_cfg *cfg, u16 offset)
 {
 	void __iomem *mbase = musbfsh->mregs;
 	int size = 0;
