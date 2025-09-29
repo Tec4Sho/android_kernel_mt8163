@@ -980,8 +980,7 @@ void musbfsh_dma_completion(struct musbfsh *musbfsh, u8 epnum, u8 transmit)
  */
 
 static struct musbfsh *__init
-allocate_instance(struct device *dev, struct musbfsh_hdrc_config *config,
-		  void __iomem *mbase)
+allocate_instance(struct device *dev, struct musbfsh_hdrc_config *config, void __iomem *mbase)
 {
 	struct musbfsh *musbfsh;
 	struct musbfsh_hw_ep *ep;
@@ -1067,7 +1066,7 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	/* The driver might handle more features than the board; OK.
 	 * Fail when the board needs a feature that's not enabled.
 	 */
-	INFO("[Flow][USB11]%s:%d,pbase= 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp);
+	INFO("[Flow][USB11]%s:%d, pbase = 0x%lx\n", __func__, __LINE__ , (unsigned long)ctrlp);
 	if (!plat) {
 		dev_dbg(dev, "no platform_data?\n");
 		status = -ENODEV;
@@ -1103,11 +1102,11 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	 */
 	musbfsh_Device = musbfsh;
 #ifdef CONFIG_OF
-	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
+	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__ , (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
 	musbfsh_Device->phy_reg_base = ctrlp;
 #endif
 	musbfsh->isr = generic_interrupt;
-	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
+	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__ , (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
 	status = musbfsh_platform_init(musbfsh);
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 	if (status < 0) {
@@ -1121,7 +1120,7 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	}
 #ifndef CONFIG_MUSBFSH_PIO_ONLY
 	INFO("DMA mode\n");
-	INFO("[Flow][USB11]%s:%d  DMA Mode\n", __func__, __LINE__);
+	INFO("[Flow][USB11]%s:%d DMA Mode\n", __func__, __LINE__);
 	if (use_dma && dev->dma_mask) {
 		struct dma_controller *c;
 
@@ -1154,7 +1153,7 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	}
 
 	/* attach to the IRQ */
-	INFO("[Flow][USB11]%s:%d ,request_irq %d\n", __func__, __LINE__, nIrq);
+	INFO("[Flow][USB11]%s:%d, request_irq %d\n", __func__, __LINE__ , nIrq);
 	/*usb_add_hcd will also try do request_irq, if hcd_driver.irq is set */
 	if (request_irq
 	    (nIrq, musbfsh->isr, IRQF_TRIGGER_LOW, dev_name(dev), musbfsh)) {
@@ -1322,7 +1321,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	usb_phy11_base = (unsigned long)pbase;
 	irq = usb1_irq_number;
 
-	INFO("[Flow][USB11]musb probe reg: 0x%lx , usb_phy11_base == 0x%lx , pbase == 0x%lx irq: 0x%d\n", usb_mac_base, usb_phy11_base, (unsigned long)pbase, usb1_irq_number);
+	INFO("[Flow][USB11]musb probe reg: 0x%lx, usb_phy11_base == 0x%lx, pbase == 0x%lx irq: 0x%d\n", usb_mac_base, usb_phy11_base, (unsigned long)pbase, usb1_irq_number);
 
 #endif
 	INFO("++\n");
@@ -1336,7 +1335,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 #ifdef CONFIG_OF
 	status = musb_init_controller(dev, irq, base, (void __iomem *)pbase);
 #else
-	INFO("[Flow][USB11]%s:%d, base == %p\n", __func__, __LINE__, USB_BASE);
+	INFO("[Flow][USB11]%s:%d, base == %p\n", __func__, __LINE__ , USB_BASE);
 	base = (void *)USB_BASE;
 	status = musb_init_controller(dev, irq, base);
 #endif
@@ -1386,7 +1385,7 @@ static int __exit musbfsh_remove(struct platform_device *pdev)
 	return 0;
 }
 
-#ifdef	CONFIG_PM
+#ifdef CONFIG_PM
 
 static void musbfsh_save_context(struct musbfsh *musbfsh)
 {
