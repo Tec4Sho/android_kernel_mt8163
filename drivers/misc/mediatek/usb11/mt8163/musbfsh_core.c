@@ -1030,7 +1030,7 @@ static void musbfsh_free(struct musbfsh *musbfsh)
 	if (musbfsh->nIrq >= 0) {
 		if (musbfsh->irq_wake)
 			disable_irq_wake(musbfsh->nIrq);
-		free_irq(musbfsh->nIrq, musbfsh);
+		    free_irq(musbfsh->nIrq, musbfsh);
 	}
 	if (is_dma_capable() && musbfsh->dma_controller) {
 		struct dma_controller *c = musbfsh->dma_controller;
@@ -1066,7 +1066,7 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	/* The driver might handle more features than the board; OK.
 	 * Fail when the board needs a feature that's not enabled.
 	 */
-	INFO("[Flow][USB11]%s:%d, pbase = 0x%lx\n", __func__, __LINE__ , (unsigned long)ctrlp);
+	INFO("[Flow][USB11]%s:%d, pbase = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp);
 	if (!plat) {
 		dev_dbg(dev, "no platform_data?\n");
 		status = -ENODEV;
@@ -1102,11 +1102,11 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	 */
 	musbfsh_Device = musbfsh;
 #ifdef CONFIG_OF
-	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__ , (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
+	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
 	musbfsh_Device->phy_reg_base = ctrlp;
 #endif
 	musbfsh->isr = generic_interrupt;
-	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__ , (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
+	INFO("[Flow][USB11]%s:%d unsigned longbase == 0x%lx, musbfsh_Device->phy_reg_base = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp, (unsigned long)(musbfsh_Device->phy_reg_base));
 	status = musbfsh_platform_init(musbfsh);
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 	if (status < 0) {
@@ -1153,7 +1153,7 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	}
 
 	/* attach to the IRQ */
-	INFO("[Flow][USB11]%s:%d, request_irq %d\n", __func__, __LINE__ , nIrq);
+	INFO("[Flow][USB11]%s:%d, request_irq %d\n", __func__, __LINE__, nIrq);
 	/*usb_add_hcd will also try do request_irq, if hcd_driver.irq is set */
 	if (request_irq
 	    (nIrq, musbfsh->isr, IRQF_TRIGGER_LOW, dev_name(dev), musbfsh)) {
@@ -1243,12 +1243,13 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	int irq = MT_USB1_IRQ_ID;
 	int status;
 	unsigned char __iomem *base = (unsigned char __iomem *)USB11_BASE;
+	
 #ifdef CONFIG_OF
 	void __iomem *pbase;
 	unsigned long usb_mac_base;
 	unsigned long usb_phy11_base;
 	int retval = 0
-	INFO("[Flow][USB11]%s:%d, CONFIG_OF\n", __func__, __LINE__);
+	INFO("[Flow][USB11]%s:%d CONFIG_OF\n", __func__, __LINE__);
 #if 0
 	pr_info("musb probe\n");
 	if (usb11_dts_np) {
@@ -1335,7 +1336,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 #ifdef CONFIG_OF
 	status = musb_init_controller(dev, irq, base, (void __iomem *)pbase);
 #else
-	INFO("[Flow][USB11]%s:%d, base == %p\n", __func__, __LINE__ , USB_BASE);
+	INFO("[Flow][USB11]%s:%d, base == %p\n", __func__, __LINEd_, USB_BASE);
 	base = (void *)USB_BASE;
 	status = musb_init_controller(dev, irq, base);
 #endif
@@ -1557,7 +1558,7 @@ late_initcall_sync(musbfsh_init);
 static void __exit musbfsh_cleanup(void)
 {
 	/*wakeup_source_unregister(musbfsh_suspend_lock); */
-	platform_driver_unregister(&musbfsh_driver);
+	platform_driver_unregister(&musbfsh_ddiver);
 	usb11_exit();
 }
 
