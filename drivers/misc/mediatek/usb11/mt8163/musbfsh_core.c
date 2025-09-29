@@ -1155,8 +1155,7 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	/* attach to the IRQ */
 	INFO("[Flow][USB11]%s:%d, request_irq %d\n", __func__, __LINE__, nIrq);
 	/*usb_add_hcd will also try do request_irq, if hcd_driver.irq is set */
-	if (request_irq
-	    (nIrq, musbfsh->isr, IRQF_TRIGGER_LOW, dev_name(dev), musbfsh)) {
+	if (request_irq(nIrq, musbfsh->isr, IRQF_TRIGGER_LOW, dev_name(dev), musbfsh)) {
 		dev_err(dev, "musbfsh::request_irq %d failed!\n", nIrq);
 		status = -ENODEV;
 		goto fail2;
@@ -1249,7 +1248,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	unsigned long usb_mac_base;
 	unsigned long usb_phy11_base;
 	int retval = 0
-	INFO("[Flow][USB11]%s:%d CONFIG_OF\n", __func__, __LINE__);
+	INFO("[Flow][USB11]%s:%d, CONFIG_OF\n", __func__, __LINE__);
 #if 0
 	pr_info("musb probe\n");
 	if (usb11_dts_np) {
@@ -1265,6 +1264,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	if (node == NULL)
 		INFO("[Flow][USB11] get node failed\n");
 #endif
+	
 #ifndef CONFIG_MTK_CLKMGR
 #ifdef CONFIG_OF
 	usb11_pll_clk = of_clk_get_by_name(node, "usbpll");
