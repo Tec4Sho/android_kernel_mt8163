@@ -14,22 +14,21 @@
 #ifndef __MUSBFSH_LINUX_DEBUG_H__
 #define __MUSBFSH_LINUX_DEBUG_H__
 
-
-/* for normal log, very detail, impact performance a lot*/
 extern int musbfsh_debug;
 
+if (musbfsh_debug) {
+/* for normal log, very detail, impact performance a lot*/
 #define yprintk(facility, format, args...) \
-    if (musbfsh_debug) { \
         printk(facility "[MUSBFSH] %s %d: " format, \
-        __func__, __LINE__, ## args); \
-    }
+        __func__, __LINE__, ## args)
 
 #define INFO(fmt, args...) yprintk(KERN_NOTICE, fmt, ## args)
+}
 
 /* for critical log */
 #define zprintk(facility, format, args...) \
-    printk(facility "[MUSBFSH] %s %d: " format, \
-    __func__, __LINE__, ## args)
+        printk(facility "[MUSBFSH] %s %d: " format, \
+        __func__, __LINE__, ## args)
 
 #define WARNING(fmt, args...) zprintk(KERN_WARNING, fmt, ## args)
 #define ERR(fmt, args...) zprintk(KERN_ERR, fmt, ## args)
