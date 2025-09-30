@@ -15,11 +15,10 @@
 #define __MUSBFSH_LINUX_DEBUG_H__
 
 /* for normal log, very detail, impact performance a lot*/
-#define yprintk(facility, format, args...) (do { \
- if (musbfsh_debug) \
-        printk(facility "[MUSBFSH] %s %d: " format, \
-        __func__, __LINE__, ## args); \
-} while(0))
+#define yprintk(facility, format, args...) do { \
+    if (musbfsh_debug) \
+        printk(facility "[MUSBFSH] %s %d: " format, __func__, __LINE__, ## args); \
+} while (0)
 
 /* for critical log */
 #define zprintk(facility, format, args...) \
