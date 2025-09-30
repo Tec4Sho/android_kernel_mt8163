@@ -16,14 +16,16 @@
 
 extern int musbfsh_debug;
 
-if (musbfsh_debug) {
 /* for normal log, very detail, impact performance a lot*/
 #define yprintk(facility, format, args...) \
-        printk(facility "[MUSBFSH] %s %d: " format, \
-        __func__, __LINE__, ## args)
+do { \
+        if (musbfsh_debug) { \
+                printk(facility "[MUSBFSH] %s %d: " format, \
+                __func__, __LINE__, ## args) \
+        } \
+} while (0)
 
 #define INFO(fmt, args...) yprintk(KERN_NOTICE, fmt, ## args)
-}
 
 /* for critical log */
 #define zprintk(facility, format, args...) \
