@@ -14,8 +14,6 @@
 #ifndef __MUSBFSH_LINUX_DEBUG_H__
 #define __MUSBFSH_LINUX_DEBUG_H__
 
-extern int musbfsh_debug;
-
 /* for normal log, very detail, impact performance a lot*/
 #define yprintk(facility, format, args...) \
 do { \
