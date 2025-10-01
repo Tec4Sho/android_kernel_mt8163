@@ -1558,7 +1558,7 @@ late_initcall_sync(musbfsh_init);
 static void __exit musbfsh_cleanup(void)
 {
 	/*wakeup_source_unregister(musbfsh_suspend_lock); */
-	platform_driver_unregister(&musbfsh_ddiver);
+	platform_driver_unregister(&musbfsh_driver);
 	usb11_exit();
 }
 
