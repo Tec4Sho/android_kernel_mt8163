@@ -18,8 +18,20 @@
 #undef yprintk
 #endif
 
+#ifdef zprintk
+#undef zprintk
+#endif
+
+#ifdef WARNING
+#undef WARNING
+#endif
+
 #ifdef INFO
 #undef INFO
+#endif
+
+#ifdef ERR
+#undef ERR
 #endif
 
 /* for normal log, very detail, impact performance a lot*/
