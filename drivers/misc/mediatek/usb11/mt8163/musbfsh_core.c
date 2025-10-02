@@ -86,8 +86,7 @@ static ssize_t show_start(struct device *dev, struct device_attribute *attr, cha
 	return sprintf(buf, "start session under IC-USB mode\n");
 }
 
-static ssize_t
-store_start(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
+static ssize_t store_start(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
 	char *pvalue = NULL;
 	unsigned int value = 0;
@@ -687,8 +686,7 @@ static struct musbfsh_fifo_cfg ep0_cfg __initdata = {
  *
  * returns negative errno or offset for next fifo.
  */
-static int __init
-fifo_setup(struct musbfsh *musbfsh, struct musbfsh_hw_ep *hw_ep, const struct musbfsh_fifo_cfg *cfg, u16 offset)
+static int __init fifo_setup(struct musbfsh *musbfsh, struct musbfsh_hw_ep *hw_ep, const struct musbfsh_fifo_cfg *cfg, u16 offset)
 {
 	void __iomem *mbase = musbfsh->mregs;
 	int size = 0;
@@ -979,8 +977,7 @@ void musbfsh_dma_completion(struct musbfsh *musbfsh, u8 epnum, u8 transmit)
  * Init support
  */
 
-static struct musbfsh *__init
-allocate_instance(struct device *dev, struct musbfsh_hdrc_config *config, void __iomem *mbase)
+static struct musbfsh *__init allocate_instance(struct device *dev, struct musbfsh_hdrc_config *config, void __iomem *mbase)
 {
 	struct musbfsh *musbfsh;
 	struct musbfsh_hw_ep *ep;
@@ -1051,8 +1048,7 @@ static void musbfsh_free(struct musbfsh *musbfsh)
  *	not yet corrected for platform-specific offsets
  */
 #ifdef CONFIG_OF
-static int
-musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl, void __iomem *ctrlp)
+static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl, void __iomem *ctrlp)
 #else
 static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
 #endif
