@@ -34,10 +34,13 @@
 #undef ERR
 #endif
 
+extern int musbfsh_debug;
 /* for normal log, very detail, impact performance a lot*/
 #define yprintk(facility, format, args...) do { \
-    if (musbfsh_debug) \
-        printk(facility "[MUSBFSH] %s %d: " format , __func__, __LINE__ , ## args); \
+    if (musbfsh_debug) { \
+        printk(facility "[MUSBFSH] %s %d: " format , \
+        __func__, __LINE__ , ## args); \
+    } \
 } while (0)
 
 /* for critical log */
@@ -49,7 +52,7 @@
 #define INFO(fmt, args...) yprintk(KERN_NOTICE, fmt, ## args)
 #define ERR(fmt, args...) zprintk(KERN_ERR, fmt, ## args)
 
-extern int musbfsh_debug;
+
 extern int musbfsh_init_debugfs(struct musbfsh *musb);
 extern void musbfsh_exit_debugfs(struct musbfsh *musb);
 
