@@ -1248,7 +1248,7 @@ static int __init musbfsh_probe(struct platform_device *pdev)
 	unsigned long usb_mac_base;
 	unsigned long usb_phy11_base;
 	int retval = 0
-	INFO("[Flow][USB11]%s:%d CONFIG OF:%d\n", __func__, __LINE__, CONFIG_OF);
+	INFO("[Flow][USB11]%s:%d config_of\n", __func__, __LINE__);
 #if 0
 	pr_info("musb probe\n");
 	if (usb11_dts_np) {
