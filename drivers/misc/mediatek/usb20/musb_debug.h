@@ -15,8 +15,8 @@
 #define __MUSB_LINUX_DEBUG_H__
 
 #define yprintk(facility, format, args...) \
-		printk(facility "%s %d: " format, \
-		__func__, __LINE__, ## args)
+		printk(facility "%s %d: " format , \
+		__func__, __LINE__ , ## args)
 
 /* workaroud for redefine warning in usb_dump.c */
 #ifdef WARNING
@@ -37,13 +37,13 @@
 
 #define xprintk(level,  format, args...) do { \
 	if (_dbg_level(level)) { \
-		if (musb_uart_debug) {\
-			pr_notice("[MUSB]%s %d: " format, \
-				__func__, __LINE__, ## args); \
+		if (musb_uart_debug) { \
+			pr_notice("[MUSB]%s %d: " format , \
+				__func__, __LINE__ , ## args); \
 		} \
-		else{\
-			pr_debug("[MUSB]%s %d: " format, \
-				__func__, __LINE__, ## args); \
+		else { \
+			pr_debug("[MUSB]%s %d: " format , \
+				__func__, __LINE__ , ## args); \
 		} \
 	} } while (0)
 
