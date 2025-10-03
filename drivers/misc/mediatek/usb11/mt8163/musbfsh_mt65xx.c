@@ -109,21 +109,13 @@ void mt65xx_usb11_phy_poweron(void)
 	/*udelay(100); */
 #if 0
 	/* reverse preloader's sin @mt6575_usbphy.c */
-	USB11PHY_CLR8(U1PHTCR2 + 3,
-		force_usb11_avalid | force_usb11_bvalid | force_usb11_sessend |
-		force_usb11_vbusvalid);
-	USB11PHY_CLR8(U1PHTCR2 + 2,
-		RG_USB11_AVALID | RG_USB11_BVALID | RG_USB11_SESSEND |
-		RG_USB11_VBUSVALID);
-	USB11PHY_CLR8(U1PHYCR1 + 2, force_usb11_en_fs_ls_rcv |
-		force_usb11_en_fs_ls_tx);
+	USB11PHY_CLR8(U1PHTCR2 + 3, force_usb11_avalid | force_usb11_bvalid | force_usb11_sessend | force_usb11_vbusvalid);
+	USB11PHY_CLR8(U1PHTCR2 + 2, RG_USB11_AVALID | RG_USB11_BVALID | RG_USB11_SESSEND | RG_USB11_VBUSVALID);
+	USB11PHY_CLR8(U1PHYCR1 + 2, force_usb11_en_fs_ls_rcv | force_usb11_en_fs_ls_tx);
 	/**************************************/
 
 	USB11PHY_SET8(U1PHYCR0 + 1, RG_USB11_FSLS_ENBGRI);
-
-	USB11PHY_SET8(U1PHTCR2 + 3,
-		force_usb11_avalid | force_usb11_sessend |
-		force_usb11_vbusvalid);
+	USB11PHY_SET8(U1PHTCR2 + 3, force_usb11_avalid | force_usb11_sessend | force_usb11_vbusvalid);
 	USB11PHY_SET8(U1PHTCR2 + 2, RG_USB11_AVALID | RG_USB11_VBUSVALID);
 	USB11PHY_CLR8(U1PHTCR2 + 2, RG_USB11_SESSEND);
 #endif
@@ -248,18 +240,14 @@ void mt65xx_usb11_phy_savecurrent(void)
 	INFO("mt65xx_usb11_phy_savecurrent++\r\n");
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 #if 0
-	USB11PHY_SET8(U1PHTCR2 + 3,
-		force_usb11_avalid | force_usb11_sessend |
-		force_usb11_vbusvalid);
+	USB11PHY_SET8(U1PHTCR2 + 3, force_usb11_avalid | force_usb11_sessend | force_usb11_vbusvalid);
 	USB11PHY_CLR8(U1PHTCR2 + 2, RG_USB11_AVALID | RG_USB11_VBUSVALID);
 	USB11PHY_SET8(U1PHTCR2 + 2, RG_USB11_SESSEND);
 
 	USB11PHY_CLR8(U1PHYCR0 + 1, RG_USB11_FSLS_ENBGRI);
 
-	USB11PHY_SET8(U1PHYCR1 + 2,
-		force_usb11_en_fs_ls_rcv | force_usb11_en_fs_ls_tx);
-	USB11PHY_CLR8(U1PHYCR1 + 3,
-		RG_USB11_EN_FS_LS_RCV | RG_USB11_EN_FS_LS_TX);
+	USB11PHY_SET8(U1PHYCR1 + 2, force_usb11_en_fs_ls_rcv | force_usb11_en_fs_ls_tx); 
+	USB11PHY_CLR8(U1PHYCR1 + 3, RG_USB11_EN_FS_LS_RCV | RG_USB11_EN_FS_LS_TX);
 #endif
 
 	/*4 1. swtich to USB function.
@@ -395,17 +383,12 @@ void mt81xx_usb11_phy_recover(void)
 	enable_phy_clock(true);
 
 #if 0
-	USB11PHY_SET8(U1PHTCR2 + 3,
-		force_usb11_avalid | force_usb11_sessend |
-		force_usb11_vbusvalid);
+	USB11PHY_SET8(U1PHTCR2 + 3, force_usb11_avalid | force_usb11_sessend | force_usb11_vbusvalid);
 	USB11PHY_SET8(U1PHTCR2 + 2, RG_USB11_AVALID | RG_USB11_VBUSVALID);
 	USB11PHY_CLR8(U1PHTCR2 + 2, RG_USB11_SESSEND);
 
-	USB11PHY_CLR8(U1PHYCR1 + 2,
-		force_usb11_en_fs_ls_rcv | force_usb11_en_fs_ls_tx);
-	USB11PHY_CLR8(U1PHYCR1 + 3,
-		RG_USB11_EN_FS_LS_RCV | RG_USB11_EN_FS_LS_TX);
-
+	USB11PHY_CLR8(U1PHYCR1 + 2, force_usb11_en_fs_ls_rcv | force_usb11_en_fs_ls_tx);
+	USB11PHY_CLR8(U1PHYCR1 + 3, RG_USB11_EN_FS_LS_RCV | RG_USB11_EN_FS_LS_TX);
 	USB11PHY_SET8(U1PHYCR0 + 1, RG_USB11_FSLS_ENBGRI);
 
 	udelay(100);
@@ -603,8 +586,7 @@ void mt_usb11_set_vbus(struct musbfsh *musbfsh, int is_on)
 	if (is_on == 1) {
 		if (oned)
 			else {
-				mt_set_gpio_out(GPIO_OTG_DRVVBUS_PIN,
-					GPIO_OUT_ONE);
+				mt_set_gpio_out(GPIO_OTG_DRVVBUS_PIN, GPIO_OUT_ONE);
 				oned = 1;
 			}
 	} else {
@@ -622,43 +604,16 @@ void musbfs_check_mpu_violation(u32 addr, int wr_vio)
 	void __iomem *mregs = (void *)USB_BASE;
 
 	INFO(KERN_CRIT "MUSB checks EMI MPU violation.\n");
-	INFO(KERN_CRIT "addr = 0x%x, %s violation.\n",
-		addr, wr_vio ? "Write" : "Read");
-	INFO(KERN_CRIT "POWER = 0x%x,DEVCTL= 0x%x.\n",
-		musbfsh_readb(mregs, MUSBFSH_POWER),
-	musbfsh_readb((void __iomem *)USB11_BASE, MUSBFSH_DEVCTL));
-	INFO(KERN_CRIT "DMA_CNTLch0 0x%04x,DMA_ADDRch0 0x%08x,
-		DMA_COUNTch0 0x%08x\n",
-		musbfsh_readw(mregs, 0x204), musbfsh_readl(mregs, 0x208),
-		musbfsh_readl(mregs, 0x20C));
-	INFO(KERN_CRIT "DMA_CNTLch1 0x%04x,DMA_ADDRch1 0x%08x,
-		DMA_COUNTch1 0x%08x\n",
-		musbfsh_readw(mregs, 0x214), musbfsh_readl(mregs, 0x218),
-		musbfsh_readl(mregs, 0x21C));
-	INFO(KERN_CRIT "DMA_CNTLch2 0x%04x,DMA_ADDRch2 0x%08x,
-		DMA_COUNTch2 0x%08x\n",
-		musbfsh_readw(mregs, 0x224), musbfsh_readl(mregs, 0x228),
-		musbfsh_readl(mregs, 0x22C));
-	INFO(KERN_CRIT "DMA_CNTLch3 0x%04x,DMA_ADDRch3 0x%08x,
-		DMA_COUNTch3 0x%08x\n",
-		musbfsh_readw(mregs, 0x234), musbfsh_readl(mregs, 0x238),
-		musbfsh_readl(mregs, 0x23C));
-	INFO(KERN_CRIT "DMA_CNTLch4 0x%04x,DMA_ADDRch4 0x%08x,
-		DMA_COUNTch4 0x%08x\n",
-		musbfsh_readw(mregs, 0x244), musbfsh_readl(mregs, 0x248),
-		musbfsh_readl(mregs, 0x24C));
-	INFO(KERN_CRIT "DMA_CNTLch5 0x%04x,DMA_ADDRch5 0x%08x,
-		DMA_COUNTch5 0x%08x\n",
-		musbfsh_readw(mregs, 0x254), musbfsh_readl(mregs, 0x258),
-		musbfsh_readl(mregs, 0x25C));
-	INFO(KERN_CRIT "DMA_CNTLch6 0x%04x,DMA_ADDRch6 0x%08x,
-		DMA_COUNTch6 0x%08x\n",
-		musbfsh_readw(mregs, 0x264), musbfsh_readl(mregs, 0x268),
-		musbfsh_readl(mregs, 0x26C));
-	INFO(KERN_CRIT "DMA_CNTLch7 0x%04x,DMA_ADDRch7 0x%08x,
-		DMA_COUNTch7 0x%08x\n",
-		musbfsh_readw(mregs, 0x274), musbfsh_readl(mregs, 0x278),
-		musbfsh_readl(mregs, 0x27C));
+	INFO(KERN_CRIT "addr = 0x%x, %s violation.\n", addr, wr_vio ? "Write" : "Read");
+	INFO(KERN_CRIT "POWER = 0x%x, DEVCTL = 0x%x.\n", musbfsh_readb(mregs, MUSBFSH_POWER), musbfsh_readb((void __iomem *)USB11_BASE, MUSBFSH_DEVCTL));
+	INFO(KERN_CRIT "DMA_CNTLch0 0x%04x,DMA_ADDRch0 0x%08x, DMA_COUNTch0 0x%08x\n", musbfsh_readw(mregs, 0x204), musbfsh_readl(mregs, 0x208), musbfsh_readl(mregs, 0x20C));
+	INFO(KERN_CRIT "DMA_CNTLch1 0x%04x,DMA_ADDRch1 0x%08x, DMA_COUNTch1 0x%08x\n", musbfsh_readw(mregs, 0x214), musbfsh_readl(mregs, 0x218), musbfsh_readl(mregs, 0x21C));
+	INFO(KERN_CRIT "DMA_CNTLch2 0x%04x,DMA_ADDRch2 0x%08x, DMA_COUNTch2 0x%08x\n", musbfsh_readw(mregs, 0x224), musbfsh_readl(mregs, 0x228), musbfsh_readl(mregs, 0x22C));
+	INFO(KERN_CRIT "DMA_CNTLch3 0x%04x,DMA_ADDRch3 0x%08x, DMA_COUNTch3 0x%08x\n", musbfsh_readw(mregs, 0x234), musbfsh_readl(mregs, 0x238), musbfsh_readl(mregs, 0x23C));
+	INFO(KERN_CRIT "DMA_CNTLch4 0x%04x,DMA_ADDRch4 0x%08x, DMA_COUNTch4 0x%08x\n", musbfsh_readw(mregs, 0x244), musbfsh_readl(mregs, 0x248), musbfsh_readl(mregs, 0x24C));
+	INFO(KERN_CRIT "DMA_CNTLch5 0x%04x,DMA_ADDRch5 0x%08x, DMA_COUNTch5 0x%08x\n", musbfsh_readw(mregs, 0x254), musbfsh_readl(mregs, 0x258), musbfsh_readl(mregs, 0x25C));
+	INFO(KERN_CRIT "DMA_CNTLch6 0x%04x,DMA_ADDRch6 0x%08x, DMA_COUNTch6 0x%08x\n", musbfsh_readw(mregs, 0x264), musbfsh_readl(mregs, 0x268), musbfsh_readl(mregs, 0x26C));
+	INFO(KERN_CRIT "DMA_CNTLch7 0x%04x,DMA_ADDRch7 0x%08x, DMA_COUNTch7 0x%08x\n", musbfsh_readw(mregs, 0x274), musbfsh_readl(mregs, 0x278), musbfsh_readl(mregs, 0x27C));
 }
 
 int mt_usb11_init(struct musbfsh *musbfsh)
@@ -759,8 +714,7 @@ static int __init mt_usb11_probe(struct platform_device *pdev)
 	 */
 
 	pdata->config = config;
-	INFO("[Flow][USB11]mode = %d ,num_eps = %d,multipoint = %d\n",
-		pdata->mode, config->num_eps, config->multipoint);
+	INFO("[Flow][USB11]mode = %d ,num_eps = %d,multipoint = %d\n", pdata->mode, config->num_eps, config->multipoint);
 #endif
 
 	musbfsh->id = musbfshid;
@@ -780,8 +734,7 @@ static int __init mt_usb11_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, glue);
 
-	ret = platform_device_add_resources(musbfsh,
-					pdev->resource, pdev->num_resources);
+	ret = platform_device_add_resources(musbfsh, pdev->resource, pdev->num_resources);
 	if (ret) {
 		dev_err(&pdev->dev, "failed to add resources\n");
 		goto err3;
