@@ -36,12 +36,11 @@
 
 extern int musbfsh_debug;
 /* for normal log, very detail, impact performance a lot*/
-#define yprintk(facility, format, args...) do { \
-    if (musbfsh_debug) { \
+#define yprintk(facility, format, args...) \
+do { if (musbfsh_debug) { \
         printk(facility "[MUSBFSH] %s %d: " format , \
         __func__, __LINE__ , ## args); \
-    } \
-} while (0)
+};} while (0)
 
 /* for critical log */
 #define zprintk(facility, format, args...) \
