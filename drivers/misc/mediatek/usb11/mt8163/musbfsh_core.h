@@ -144,8 +144,7 @@ struct musbfsh_platform_ops {
 	void (*set_vbus)(struct musbfsh *musbfsh, int on);
 	void (*set_power)(struct musbfsh *musbfsh, int action);
 
-	int (*adjust_channel_params)(struct dma_channel *channel,
-	u16 packet_sz, u8 *mode, dma_addr_t *dma_addr, u32 *len);
+	int (*adjust_channel_params)(struct dma_channel *channel, u16 packet_sz, u8 *mode, dma_addr_t *dma_addr, u32 *len);
 };
 
 /*
@@ -312,16 +311,14 @@ extern void musbfsh_stop(struct musbfsh *musbfsh);
 extern int musbfsh_get_id(struct device *dev, gfp_t gfp_mask);
 extern void musbfsh_put_id(struct device *dev, int id);
 
-extern void musbfsh_write_fifo(struct musbfsh_hw_ep *ep,
-			u16 len, const u8 *src);
+extern void musbfsh_write_fifo(struct musbfsh_hw_ep *ep, u16 len, const u8 *src);
 extern void musbfsh_read_fifo(struct musbfsh_hw_ep *ep, u16 len, u8 *dst);
 
 extern void musbfsh_load_testpacket(struct musbfsh *musbfsh);
 
 extern irqreturn_t musbfsh_interrupt(struct musbfsh *musbfsh);
 
-static inline void musbfsh_platform_set_power(struct musbfsh *musbfsh,
-							int action)
+static inline void musbfsh_platform_set_power(struct musbfsh *musbfsh, int action)
 {
 	if (musbfsh->ops->set_power)
 		musbfsh->ops->set_power(musbfsh, action);
@@ -359,8 +356,7 @@ static inline int musbfsh_platform_set_mode(struct musbfsh *musbfsh, u8 mode)
 	return musbfsh->ops->set_mode(musbfsh, mode);
 }
 
-static inline void musbfsh_platform_try_idle(struct musbfsh *musbfsh,
-					unsigned long timeout)
+static inline void musbfsh_platform_try_idle(struct musbfsh *musbfsh, unsigned long timeout)
 {
 	if (musbfsh->ops->try_idle)
 		musbfsh->ops->try_idle(musbfsh, timeout);
