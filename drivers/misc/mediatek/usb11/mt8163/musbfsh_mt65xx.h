@@ -24,13 +24,10 @@ typedef void (*EINT_FUNC_PTR)(void);
 
 extern void mt65xx_eint_unmask(unsigned int line);
 extern void mt65xx_eint_mask(unsigned int line);
-extern void mt65xx_eint_set_polarity(uint8_t eintno,
-					enum kal_bool ACT_Polarity);
+extern void mt65xx_eint_set_polarity(uint8_t eintno, enum kal_bool ACT_Polarity);
 extern void mt65xx_eint_set_hw_debounce(uint8_t eintno, unsigned int ms);
 extern unsigned int mt65xx_eint_set_sens(uint8_t eintno, enum kal_bool sens);
-extern void mt65xx_eint_registration(uint8_t eintno, enum kal_bool Dbounce_En,
-		     enum kal_bool ACT_Polarity, EINT_FUNC_PTR func,
-		     enum kal_bool auto_umask);
+extern void mt65xx_eint_registration(uint8_t eintno, enum kal_bool Dbounce_En, enum kal_bool ACT_Polarity, EINT_FUNC_PTR func, enum kal_bool auto_umask);
 #endif
 extern int usb11_init(void);
 extern void usb11_exit(void);
@@ -90,14 +87,11 @@ extern void wifi_set_high(void);
 
 /*USB11 PHY access macro: Need Modify Later*/
 #define USB11PHY_READ32(offset) \
-	__raw_readl((void __iomem *)(musbfsh_Device->phy_reg_base \
-	+ 0x900 + (offset)))
+	__raw_readl((void __iomem *)(musbfsh_Device->phy_reg_base + 0x900 + (offset)))
 #define USB11PHY_READ8(offset) \
-	__raw_readb((void __iomem *)(musbfsh_Device->phy_reg_base \
-	+ 0x900 + (offset)))
-#define USB11PHY_WRITE8(offset, value)  \
-	__raw_writeb(value, \
-	(void __iomem *)(musbfsh_Device->phy_reg_base + 0x900 + (offset)))
+	__raw_readb((void __iomem *)(musbfsh_Device->phy_reg_base + 0x900 + (offset)))
+#define USB11PHY_WRITE8(offset, value) \
+	__raw_writeb(value, (void __iomem *)(musbfsh_Device->phy_reg_base + 0x900 + (offset)))
 #define USB11PHY_SET8(offset, mask) \
 	USB11PHY_WRITE8((offset), USB11PHY_READ8(offset) | (mask))
 #define USB11PHY_CLR8(offset, mask) \
