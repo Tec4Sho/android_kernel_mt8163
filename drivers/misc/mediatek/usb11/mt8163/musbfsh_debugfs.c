@@ -101,19 +101,13 @@ static int musbfsh_regdump_show(struct seq_file *s, void *unused)
 	for (i = 0; i < ARRAY_SIZE(musbfsh_regmap); i++) {
 		switch (musbfsh_regmap[i].size) {
 		case 8:
-			seq_printf(s, "%-12s: %02x\n", musbfsh_regmap[i].name,
-			musbfsh_readb(musbfsh->mregs,
-					musbfsh_regmap[i].offset));
+			seq_printf(s, "%-12s: %02x\n", musbfsh_regmap[i].name, musbfsh_readb(musbfsh->mregs, musbfsh_regmap[i].offset));
 			break;
 		case 16:
-			seq_printf(s, "%-12s: %04x\n", musbfsh_regmap[i].name,
-			musbfsh_readw(musbfsh->mregs,
-					musbfsh_regmap[i].offset));
+			seq_printf(s, "%-12s: %04x\n", musbfsh_regmap[i].name, musbfsh_readw(musbfsh->mregs, musbfsh_regmap[i].offset));
 			break;
 		case 32:
-			seq_printf(s, "%-12s: %08x\n", musbfsh_regmap[i].name,
-			musbfsh_readl(musbfsh->mregs,
-					musbfsh_regmap[i].offset));
+			seq_printf(s, "%-12s: %08x\n", musbfsh_regmap[i].name, musbfsh_readl(musbfsh->mregs, musbfsh_regmap[i].offset));
 			break;
 		}
 	}
@@ -184,14 +178,12 @@ void musbfshdebugfs_otg_write_fifo(u16 len, u8 *buf, struct musbfsh *mtk_musb)
 		musbfsh_writeb(mtk_musb->mregs, 0x20, *(buf + i));
 }
 
-void musbfshdebugfs_h_setup(struct usb_ctrlrequest *setup,
-						struct musbfsh *mtk_musb)
+void musbfshdebugfs_h_setup(struct usb_ctrlrequest *setup, struct musbfsh *mtk_musb)
 {
 	unsigned short csr0;
 
 	INFO("musbfsh_h_setup++\n");
-	musbfshdebugfs_otg_write_fifo(sizeof(struct usb_ctrlrequest),
-						(u8 *) setup, mtk_musb);
+	musbfshdebugfs_otg_write_fifo(sizeof(struct usb_ctrlrequest), (u8 *) setup, mtk_musb);
 	csr0 = musbfsh_readw(mtk_musb->mregs, MUSBFSH_OTG_CSR0);
 	INFO("musbfsh_h_setup,csr0=0x%x\n", csr0);
 	csr0 |= MUSBFSH_CSR0_H_SETUPPKT | MUSBFSH_CSR0_TXPKTRDY;
@@ -200,9 +192,7 @@ void musbfshdebugfs_h_setup(struct usb_ctrlrequest *setup,
 	INFO("musbfsh_h_setup--\n");
 }
 
-static ssize_t musbfsh_test_mode_write(struct file *file,
-				       const char __user *ubuf,
-				       size_t count, loff_t *ppos)
+static ssize_t musbfsh_test_mode_write(struct file *file, const char __user *ubuf, size_t count, loff_t *ppos)
 {
 	struct seq_file *s = file->private_data;
 	struct musbfsh *musbfsh = s->private;
@@ -211,8 +201,7 @@ static ssize_t musbfsh_test_mode_write(struct file *file,
 	unsigned char power;
 	struct usb_ctrlrequest setup_packet;
 
-	setup_packet.bRequestType = USB_DIR_IN |
-					USB_TYPE_STANDARD | USB_RECIP_DEVICE;
+	setup_packet.bRequestType = USB_DIR_IN | USB_TYPE_STANDARD | USB_RECIP_DEVICE;
 	setup_packet.bRequest = USB_REQ_GET_DESCRIPTOR;
 	setup_packet.wIndex = 0;
 	setup_packet.wValue = 0x0100;
@@ -316,8 +305,7 @@ static inline int my_isdigit(char c)
 	return (c >= '0' && c <= '9');
 }
 
-static unsigned int my_strtoul(const char *nptr,
-					char **endptr, unsigned int base)
+static unsigned int my_strtoul(const char *nptr, char **endptr, unsigned int base)
 {
 	const char *s = nptr;
 	unsigned long acc;
@@ -331,16 +319,14 @@ static unsigned int my_strtoul(const char *nptr,
 	if (c == '-') {
 		neg = 1;
 		c = *s++;
-	} else if (c == '+')
+	} else if (c == '+') {
 		c = *s++;
-
-	if ((base == 0 || base == 16) &&
-		c == '0' && (*s == 'x' || *s == 'X')) {
+	}
+	if ((base == 0 || base == 16) && c == '0' && (*s == 'x' || *s == 'X')) {
 		c = s[1];
 		s += 2;
 		base = 16;
-	} else if ((base == 0 || base == 2) &&
-			c == '0' && (*s == 'b' || *s == 'B')) {
+	} else if ((base == 0 || base == 2) && c == '0' && (*s == 'b' || *s == 'B')) {
 		c = s[1];
 		s += 2;
 		base = 2;
@@ -361,7 +347,7 @@ static unsigned int my_strtoul(const char *nptr,
 
 		if (c >= base)
 			break;
-		if ((any < 0 || acc > cutoff || acc == cutoff) && c > cutlim)
+		if ((any < 0 || acc > cutoff || acc == cutoff) && c > cutlim) {
 			any = -1;
 		else {
 			any = 1;
@@ -396,13 +382,11 @@ static int musbfsh_regw_open(struct inode *inode, struct file *file)
 	return single_open(file, musbfsh_regw_show, inode->i_private);
 }
 
-static ssize_t musbfsh_regw_mode_write(struct file *file,
-				    const char __user *ubuf,
-				    size_t count, loff_t *ppos)
+static ssize_t musbfsh_regw_mode_write(struct file *file, const char __user *ubuf, size_t count, loff_t *ppos)
 {
 	struct seq_file *s = file->private_data;
 	struct musbfsh *musbfsh = s->private;
-	char			buf[20];
+	char buf[20];
 	u8 is_mac = 0;
 	char *tmp1 = NULL;
 	char *tmp2 = NULL;
@@ -445,13 +429,10 @@ static ssize_t musbfsh_regw_mode_write(struct file *file,
 	phybase = musbfsh_Device->phy_reg_base;
 
 	if (is_mac == 1) {
-		pr_warn("Mac base adddr 0x%lx, Write %d[%d]\n",
-			(unsigned long)musbfsh->mregs, offset, data);
+		pr_warn("Mac base adddr 0x%lx, Write %d[%d]\n", (unsigned long)musbfsh->mregs, offset, data);
 		musbfsh_writeb(musbfsh->mregs, offset, data);
 	} else {
-		pr_warn("Phy base adddr 0x%lx, Write %d[%d]\n",
-		(unsigned long)((void __iomem *)(phybase + 0x900)),
-		offset, data);
+		pr_warn("Phy base adddr 0x%lx, Write %d[%d]\n", (unsigned long)((void __iomem *)(phybase + 0x900)), offset, data);
 		USB11PHY_WRITE8(offset, data);
 	}
 
@@ -482,13 +463,11 @@ static int musbfsh_regr_open(struct inode *inode, struct file *file)
 	return single_open(file, musbfsh_regr_show, inode->i_private);
 }
 
-static ssize_t musbfsh_regr_mode_write(struct file *file,
-						const char __user *ubuf,
-						size_t count, loff_t *ppos)
+static ssize_t musbfsh_regr_mode_write(struct file *file, const char __user *ubuf, size_t count, loff_t *ppos)
 {
 	struct seq_file *s = file->private_data;
 	struct musbfsh *musbfsh = s->private;
-	char			buf[20];
+	char buf[20];
 	u8 is_mac = 0;
 	char *tmp = NULL;
 	unsigned int offset = 0;
@@ -523,13 +502,9 @@ static ssize_t musbfsh_regr_mode_write(struct file *file,
 	phybase = musbfsh_Device->phy_reg_base;
 
 	if (is_mac == 1)
-		pr_warn("Read Mac base adddr 0x%lx, Read %d[%d]\n",
-			(unsigned long)musbfsh->mregs, offset,
-			musbfsh_readb(musbfsh->mregs, offset));
+		pr_warn("Read Mac base adddr 0x%lx, Read %d[%d]\n", (unsigned long)musbfsh->mregs, offset, musbfsh_readb(musbfsh->mregs, offset));
 	else
-		pr_warn("Read Phy base adddr 0x%lx, Read %d[%d]\n",
-			(unsigned long)((void __iomem *)(phybase + 0x900)),
-			offset, USB11PHY_READ8(offset));
+		pr_warn("Read Phy base adddr 0x%lx, Read %d[%d]\n", (unsigned long)((void __iomem *)(phybase + 0x900)), offset, USB11PHY_READ8(offset));
 
 	return count;
 }
@@ -555,30 +530,26 @@ int musbfsh_init_debugfs(struct musbfsh *musbfsh)
 		ret = -ENOMEM;
 		goto err0;
 	}
-	file = debugfs_create_file("regdump", 0444,
-					root, musbfsh, &musbfsh_regdump_fops);
+	file = debugfs_create_file("regdump", 0444, root, musbfsh, &musbfsh_regdump_fops);
 	if (!file) {
 		ret = -ENOMEM;
 		goto err1;
 	}
 
 	INFO("musbfsh_init_debugfs 1\n");
-	file = debugfs_create_file("testmode", 0644,
-					root, musbfsh, &musbfsh_test_mode_fops);
+	file = debugfs_create_file("testmode", 0644, root, musbfsh, &musbfsh_test_mode_fops);
 	if (!file) {
 		ret = -ENOMEM;
 		goto err1;
 	}
 
-	file = debugfs_create_file("regw", 0644, root,
-						musbfsh, &musbfsh_regw_fops);
+	file = debugfs_create_file("regw", 0644, root, musbfsh, &musbfsh_regw_fops);
 	if (!file) {
 		ret = -ENOMEM;
 		goto err1;
 	}
 
-	file = debugfs_create_file("regr", 0644, root,
-						musbfsh, &musbfsh_regr_fops);
+	file = debugfs_create_file("regr", 0644, root, musbfsh, &musbfsh_regr_fops);
 	if (!file) {
 		ret = -ENOMEM;
 		goto err1;
