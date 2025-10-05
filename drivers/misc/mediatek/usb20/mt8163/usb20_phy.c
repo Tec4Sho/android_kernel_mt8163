@@ -546,6 +546,42 @@ void usb_phy_recover(void)
 	USBPHY_CLR8(0x21, 0x03);
 #endif
 
+static DEFINE_SPINLOCK(musb_reg_clock_lock);
+
+static void enable_phy_clock(bool enable)
+{
+    /* USB phy 48M clock , UNIVPLL_CON0[26] */
+    if (enable) {
+        writel(readl((void __iomem *)UNIVPLL_CON0)|(0x04000000),
+			   (void __iomem *)UNIVPLL_CON0);
+    } else {
+        writel(readl((void __iomem *)UNIVPLL_CON0)&~(0x04000000),
+			   (void __iomem *)UNIVPLL_CON0);
+    }
+}
+
+bool usb_enable_clock(bool enable)
+{
+	static int count = 0;
+	bool res = TRUE;
+	unsigned long flags;
+	spin_lock_irqsave(&musb_reg_clock_lock, flags);
+	if (enable && count == 0) {
+		enable_phy_clock(true);
+		res = enable_clock(MT_CG_PERI_USB0, "PERI_USB");
+	} else if (!enable && count == 1) {
+		res = disable_clock(MT_CG_PERI_USB0, "PERI_USB");
+		enable_phy_clock(false);
+	}
+	if (enable)
+		count++;
+	else
+		count = (count==0) ? 0 : (count-1);
+	spin_unlock_irqrestore(&musb_reg_clock_lock, flags);
+	printk(KERN_DEBUG "enable(%d), count(%d) res=%d\n", enable, count, res);
+	return 1;
+}
+
 	/* RG_DPPULLDOWN, 1'b0, RG_DMPULLDOWN, 1'b0 */
 	USBPHY_CLR8(0x68, 0x40);
 	/* 4 7. RG_DMPULLDOWN = 1'b0 */
