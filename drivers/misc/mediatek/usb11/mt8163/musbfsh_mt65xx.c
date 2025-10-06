@@ -25,6 +25,7 @@
 #include "musb.h"
 #include "musbfsh_core.h"
 #include "musbfsh_mt65xx.h"
+#include <mt8163/usb20_phy.h>
 
 #ifdef CONFIG_MTK_CLKMGR
 #include <mach/mt_clkmgr.h>
@@ -250,42 +251,6 @@ void mt65xx_usb11_phy_poweron(void)
 #endif
 	udelay(800);
 
-}
-
-static DEFINE_SPINLOCK(musb_reg_clock_lock);
-
-static void enable_phy_clock(bool enable)
-{
-    /* USB phy 48M clock , UNIVPLL_CON0[26] */
-    if (enable) {
-        writel(readl((void __iomem *)UNIVPLL_CON0)|(0x04000000),
-			   (void __iomem *)UNIVPLL_CON0);
-    } else {
-        writel(readl((void __iomem *)UNIVPLL_CON0)&~(0x04000000),
-			   (void __iomem *)UNIVPLL_CON0);
-    }
-}
-
-bool usb_enable_clock(bool enable)
-{
-	static int count = 0;
-	bool res = TRUE;
-	unsigned long flags;
-	spin_lock_irqsave(&musb_reg_clock_lock, flags);
-	if (enable && count == 0) {
-		enable_phy_clock(true);
-		res = enable_clock(MT_CG_PERI_USB0, "PERI_USB");
-	} else if (!enable && count == 1) {
-		res = disable_clock(MT_CG_PERI_USB0, "PERI_USB");
-		enable_phy_clock(false);
-	}
-	if (enable)
-		count++;
-	else
-		count = (count==0) ? 0 : (count-1);
-	spin_unlock_irqrestore(&musb_reg_clock_lock, flags);
-	printk(KERN_DEBUG "enable(%d), count(%d) res=%d\n", enable, count, res);
-	return 1;
 }
 
 void mt65xx_usb11_phy_savecurrent(void)
