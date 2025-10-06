@@ -29,6 +29,18 @@
 #include <mach/mt_clkmgr.h>
 #endif
 
+#ifndef APMIXEDSYS_BASE
+#define APMIXEDSYS_BASE APMIXED_BASE
+#endif
+
+#ifndef UNIVPLL_CON0
+#define UNIVPLL_CON0 (APMIXEDSYS_BASE + 0x0140)
+#endif
+
+#ifndef
+#define UNIVPLL_PWR_CON0 (APMIXEDSYS_BASE + 0x0150)
+#endif
+
 #define FRA (48)
 #define PARA (25)
 bool musbfsh_power;
