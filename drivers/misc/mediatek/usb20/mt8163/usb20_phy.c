@@ -139,6 +139,14 @@ bool in_uart_mode;
 #endif
 
 static DEFINE_SPINLOCK(musb_reg_clock_lock);
+static void enable_phy_clock(bool enable) { 
+/* USB phy 48M clock , UNIVPLL_CON0[26] */ 
+  if (enable) {	
+      writel(readl((void __iomem *)UNIVPLL_CON0)|(0x04000000), (void __iomem *)UNIVPLL_CON0);
+  } else {	
+      writel(readl((void __iomem *)UNIVPLL_CON0)&~(0x04000000), (void __iomem *)UNIVPLL_CON0); 
+  }
+}
 /*#define CONFIG_DEFAULT_DEV_MODE*/
 #ifdef CONFIG_DEFAULT_DEV_MODE
 static int clkenablecnt;
@@ -185,6 +193,7 @@ bool usb_enable_clock(bool enable)
 		enable_clock(MT_CG_INFRA_USB_MCU, "INFRA_USB_MCU");
 		enable_clock(MT_CG_INFRA_ICUSB, "INFRA_ICUSB");
 #else
+		enable_phy_clock(true);
 		clk_enable(usbpll_clk);
 		clk_enable(usb_clk);
 		clk_enable(usbmcu_clk);
@@ -198,6 +207,7 @@ bool usb_enable_clock(bool enable)
 		disable_clock(MT_CG_INFRA_USB, "INFRA_USB");
 		disable_clock(MT_CG_INFRA_ICUSB, "INFRA_ICUSB");
 #else
+		enable_phy_clock(false);
 		clk_disable(usbpll_clk);
 		clk_disable(usb_clk);
 		clk_disable(usbmcu_clk);
