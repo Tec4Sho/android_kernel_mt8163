@@ -43,7 +43,7 @@ static void __iomem *apmixed_base;
 #define UNIVPLL_CON0 (APMIXEDSYS_BASE + 0x0140)
 #endif
 
-#ifndef
+#ifndef UNIVPLL_PWR_CON0
 #define UNIVPLL_PWR_CON0 (APMIXEDSYS_BASE + 0x0150)
 #endif
 
