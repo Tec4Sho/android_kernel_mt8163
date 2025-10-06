@@ -26,6 +26,23 @@
 
 /*#include <mach/mt_gpio.h>*/
 
+#ifndef APMIXED_BASE
+static void __iomem *apmixed_base;
+#define APMIXED_BASE ((unsigned long)apmixed_base)
+#endif
+
+#ifndef APMIXEDSYS_BASE
+#define APMIXEDSYS_BASE APMIXED_BASE
+#endif
+
+#ifndef UNIVPLL_CON0
+#define UNIVPLL_CON0 (APMIXEDSYS_BASE + 0x0140)
+#endif
+
+#ifndef UNIVPLL_PWR_CON0
+#define UNIVPLL_PWR_CON0 (APMIXEDSYS_BASE + 0x0150)
+#endif
+
 #define FRA (48)
 #define PARA (28)
 
