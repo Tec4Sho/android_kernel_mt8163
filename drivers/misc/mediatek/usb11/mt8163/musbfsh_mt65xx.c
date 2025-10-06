@@ -25,8 +25,14 @@
 #include "musb.h"
 #include "musbfsh_core.h"
 #include "musbfsh_mt65xx.h"
+
 #ifdef CONFIG_MTK_CLKMGR
 #include <mach/mt_clkmgr.h>
+#endif
+
+#ifndef APMIXED_BASE
+static void __iomem *apmixed_base;
+#define APMIXED_BASE ((unsigned long)apmixed_base)
 #endif
 
 #ifndef APMIXEDSYS_BASE
