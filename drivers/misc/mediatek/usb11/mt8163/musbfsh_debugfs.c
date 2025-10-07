@@ -347,13 +347,13 @@ static unsigned int my_strtoul(const char *nptr, char **endptr, unsigned int bas
 
 		if (c >= base)
 			break;
-		if ((any < 0 || acc > cutoff || acc == cutoff) && c > cutlim) {
+		
+		if ((any < 0 || acc > cutoff || acc == cutoff) && c > cutlim)
 			any = -1;
-		else {
+	    else
 			any = 1;
 			acc *= base;
 			acc += c;
-		}
 	}
 	if (any < 0)
 		acc = ULONG_MAX;
