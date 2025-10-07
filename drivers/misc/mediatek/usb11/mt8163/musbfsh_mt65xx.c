@@ -293,7 +293,7 @@ void mt65xx_usb11_phy_savecurrent(void)
 	/*4 13.  wait 1us*/
 	udelay(1);
 	/*4 14. turn off internal 48Mhz PLL.*/
-	enable_phy_clock(false);
+	/*enable_phy_clock(false);*/
 }
 
 void mt81xx_usb11_phy_recover(void)
@@ -380,7 +380,7 @@ void mt81xx_usb11_phy_recover(void)
 	INFO("[Flow][USB11]%s:%d\n", __func__, __LINE__);
 	INFO("mt65xx_usb11_phy_recover++\r\n");
 	/*4 1. turn on USB reference clock.  */
-	enable_phy_clock(true);
+	/*enable_phy_clock(true);*/
 
 #if 0
 	USB11PHY_SET8(U1PHTCR2 + 3, force_usb11_avalid | force_usb11_sessend | force_usb11_vbusvalid);
