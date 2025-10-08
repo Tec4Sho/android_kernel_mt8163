@@ -2313,6 +2313,7 @@ static int mtkfb_probe(struct platform_device *pdev)
 	int init_state;
 	int r = 0;
 	int i = 0;
+	int ret = 0;
 	int bug_idx = -1;
 
 	DISPFUNC();
@@ -2466,7 +2467,7 @@ static int mtkfb_probe(struct platform_device *pdev)
 		fbPA += DISP_GetFBRamSize();
 #ifndef CONFIG_FREE_FB_BUFFER
 		// Add this line to declare 'ret' as an integer
-        int ret = DAL_Init(fbVA, fbPA);
+        ret = DAL_Init(fbVA, fbPA);
 #endif
 		/* DAL_Printf("===================================\n"); */
 		/* DAL_Printf("===================================\n"); */
