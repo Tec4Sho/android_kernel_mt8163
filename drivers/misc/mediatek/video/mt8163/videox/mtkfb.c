@@ -1365,7 +1365,7 @@ struct compat_fb_overlay_layer {
 	compat_int_t ion_fd;   /* 8135 CL 2340210 */
 };
 
-#define COMPAT_MTKFB_SET_OVERLAY_LAYER                                         \ 
+#define COMPAT_MTKFB_SET_OVERLAY_LAYER                                         \
 MTK_IOW(0, struct compat_fb_overlay_layer)
 #define COMPAT_MTKFB_TRIG_OVERLAY_OUT MTK_IO(1)
 #define COMPAT_MTKFB_SET_VIDEO_LAYERS MTK_IOW(2, struct compat_fb_overlay_layer)
@@ -2466,8 +2466,7 @@ static int mtkfb_probe(struct platform_device *pdev)
 		fbPA += DISP_GetFBRamSize();
 #ifndef CONFIG_FREE_FB_BUFFER
 		// Add this line to declare 'ret' as an integer
-        int ret = 0;
-		ret = DAL_Init(fbVA, fbPA);
+        int ret = DAL_Init(fbVA, fbPA);
 #endif
 		/* DAL_Printf("===================================\n"); */
 		/* DAL_Printf("===================================\n"); */
