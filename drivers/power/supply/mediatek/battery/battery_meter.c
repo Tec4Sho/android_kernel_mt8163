@@ -117,6 +117,9 @@ signed int gFG_DOD1;
 signed int gFG_columb;
 signed int gFG_voltage;
 signed int gFG_current;
+signed int gFG_aging_factor = 10; // Declare the variable with a data type and optional initial value.
+signed int gFG_battery_cycle = 0;
+signed int gFG_columb_sum = 0;
 signed int gFG_capacity;
 signed int gFG_capacity_by_c;
 signed int gFG_capacity_by_c_init;
@@ -3197,6 +3200,7 @@ signed int battery_meter_get_charge_counter(void)
 signed int battery_meter_get_battery_temperature(void)
 {
 	signed int batt_temp = 0;
+	(void)batt_temp; // Tells the compiler this variable is intentionally unused
 
 	if (!init_done)
 		return BAT_INIT_TEMP;
