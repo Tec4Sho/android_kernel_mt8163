@@ -4997,10 +4997,9 @@ unsigned int get_dim_layer_mva_addr(void)
 
 	if (dim_layer_mva == 0) {
 #ifndef CONFIG_FREE_FB_BUFFER
-		int frame_buffer_size = ALIGN_TO(DISP_GetScreenWidth(), MTK_FB_ALIGNMENT) *
-			ALIGN_TO(DISP_GetScreenHeight(), MTK_FB_ALIGNMENT) * 4;
+		int frame_buffer_size = ALIGN_TO(DISP_GetScreenWidth(), MTK_FB_ALIGNMENT) * ALIGN_TO(DISP_GetScreenHeight(), MTK_FB_ALIGNMENT) * 4;
 		dim_layer_mva = pgc->framebuffer_mva + (DISP_GetPages() - 1) * frame_buffer_size;
-		DISPMSG("init dim layer mva %lu, size %d", dim_layer_mva, frame_buffer_size);
+		DISPMSG("init dim layer mva %u, size %d", dim_layer_mva, frame_buffer_size);
 #else
 		dim_layer_mva = (unsigned int)init_dim_buffer();
 #endif
@@ -5337,23 +5336,13 @@ int primary_display_init(char *lcm_name, unsigned int lcm_fps)
 
 	if (primary_display_frame_update_task == NULL) {
 		init_waitqueue_head(&primary_display_frame_update_wq);
-		disp_register_module_irq_callback(
-			DISP_MODULE_RDMA0,
-			primary_display_frame_update_irq_callback);
-		disp_register_module_irq_callback(
-			DISP_MODULE_OVL0,
-			primary_display_frame_update_irq_callback);
-		disp_register_module_irq_callback(
-			DISP_MODULE_WDMA0,
-			primary_display_frame_update_irq_callback);
-		primary_display_frame_update_task =
-			kthread_create(primary_display_frame_update_kthread,
-				       NULL, "frame_update_worker");
+		disp_register_module_irq_callback(DISP_MODULE_RDMA0, primary_display_frame_update_irq_callback);
+		disp_register_module_irq_callback(DISP_MODULE_OVL0, primary_display_frame_update_irq_callback);
+		disp_register_module_irq_callback(DISP_MODULE_WDMA0, primary_display_frame_update_irq_callback);
+		primary_display_frame_update_task = kthread_create(primary_display_frame_update_kthread, NULL, "frame_update_worker");
 		wake_up_process(primary_display_frame_update_task);
 		init_waitqueue_head(&decouple_fence_release_wq);
-		decouple_fence_release_task =
-			kthread_create(decouple_fence_release_kthread, NULL,
-				       "decouple_fence_release_worker");
+		decouple_fence_release_task = kthread_create(decouple_fence_release_kthread, NULL, "decouple_fence_release_worker");
 		wake_up_process(decouple_fence_release_task);
 	}
 	/* primary_display_use_cmdq = CMDQ_ENABLE; */
@@ -5362,12 +5351,9 @@ int primary_display_init(char *lcm_name, unsigned int lcm_fps)
 	if (primary_display_is_video_mode()) {
 #ifdef DISP_SWITCH_DST_MODE
 		primary_display_cur_dst_mode = 1; /* video mode */
-		primary_display_def_dst_mode =
-			1; /* default mode is video mode */
+		primary_display_def_dst_mode = 1; /* default mode is video mode */
 #endif
-		dpmgr_map_event_to_irq(pgc->dpmgr_handle,
-				       DISP_PATH_EVENT_IF_VSYNC,
-				       DDP_IRQ_RDMA0_DONE);
+		dpmgr_map_event_to_irq(pgc->dpmgr_handle, DISP_PATH_EVENT_IF_VSYNC, DDP_IRQ_RDMA0_DONE);
 	} else {
 	}
 
@@ -5382,11 +5368,7 @@ int primary_display_init(char *lcm_name, unsigned int lcm_fps)
 		sPort.Direction = 0;
 		ret = m4u_config_port(&sPort);
 		if (ret != 0) {
-			DISPCHECK("config M4U Port %s to %s FAIL(ret=%d)\n",
-				  ddp_get_module_name(DISP_MODULE_WDMA0),
-				  primary_display_use_m4u ? "virtual"
-							  : "physical",
-				  ret);
+			DISPCHECK("config M4U Port %s to %s FAIL(ret=%d)\n", ddp_get_module_name(DISP_MODULE_WDMA0), primary_display_use_m4u ? "virtual" : "physical", ret);
 			return -1;
 		}
 	}
@@ -5403,9 +5385,7 @@ int primary_display_init(char *lcm_name, unsigned int lcm_fps)
 
 #ifdef MTK_DISP_IDLE_LP
 	init_waitqueue_head(&idle_detect_wq);
-	primary_display_idle_detect_task =
-		kthread_create(_disp_primary_path_idle_detect_thread, NULL,
-			       "display_idle_detect");
+	primary_display_idle_detect_task = kthread_create(_disp_primary_path_idle_detect_thread, NULL, "display_idle_detect");
 	wake_up_process(primary_display_idle_detect_task);
 #endif
 done:
@@ -5429,8 +5409,7 @@ int primary_display_deinit(void)
 	return 0;
 }
 
-static unsigned long primary_display_free_reserved_area(
-		void *start, void *end, int poison, char *s)
+static unsigned long primary_display_free_reserved_area(void *start, void *end, int poison, char *s)
 {
 	void *pos;
 	unsigned long pages = 0;
@@ -5441,43 +5420,36 @@ static unsigned long primary_display_free_reserved_area(
 		free_reserved_page(virt_to_page(pos));
 
 	if (pages && s)
-		pr_info("Freeing %s memory: %ldK\n",
-				s, pages << (PAGE_SHIFT - 10));
+		pr_info("Freeing %s memory: %ldK\n", s, pages << (PAGE_SHIFT - 10));
 
 	return pages;
 }
 
 int primary_display_free_fb_buf(void)
 {
+	int fb_base = 0;
 	int ret = 0;
 	unsigned long va_start = 0;
 	unsigned long va_end = 0;
 	struct fb_info *fbi;
 
 	if (pgc->framebuffer_pa) {
-		ret = m4u_dealloc_mva_fix(pgc->framebuffer_client,
-				M4U_PORT_DISP_OVL0,
-				pgc->framebuffer_mva);
+		ret = m4u_dealloc_mva_fix(pgc->framebuffer_client, M4U_PORT_DISP_OVL0, pgc->framebuffer_mva);
 		if (ret)
-			DISPMSG("free framebuffer mva address fail, ret= %d\n",
-					ret);
+			DISPMSG("free framebuffer mva address fail, ret= %d\n", ret);
 		pgc->framebuffer_mva = 0;
 
 		vunmap((void *)pgc->framebuffer_va);
 		pgc->framebuffer_va = 0;
 
 		va_start = (unsigned long)__va(pgc->framebuffer_pa);
-		va_end = (unsigned long)__va(pgc->framebuffer_pa +
-				(unsigned long)vramsize);
-		primary_display_free_reserved_area((void *)va_start, (void *)va_end, 0,
-				"fbmem");
+		va_end = (unsigned long)__va(pgc->framebuffer_pa + (unsigned long)vramsize);
+		primary_display_free_reserved_area((void *)va_start, (void *)va_end, 0, "fbmem");
 		/*
 		 * free_fb_mem(pgc->framebuffer_pa, pgc->framebuffer_pa +
 		 * (unsigned long)vramsize);
 		 */
-		DISPMSG(
-				"reserve_framebuffer_free framebuffer_mva = 0x%lx, size 0x%x\n",
-				pgc->framebuffer_pa, vramsize);
+		DISPMSG("reserve_framebuffer_free framebuffer_mva = 0x%lx, size 0x%x\n", pgc->framebuffer_pa, vramsize);
 		pgc->framebuffer_pa = 0;
 
 		fbi = mtkfb_get_fb_info();
