@@ -49,7 +49,7 @@ enum ncm_notify_state {
 };
 
 struct f_ncm {
-	struct gether			port;
+	struct gether			*port;
 	u8				ctrl_id, data_id;
 
 	char				ethaddr[14];
