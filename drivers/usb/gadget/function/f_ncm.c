@@ -49,7 +49,7 @@ enum ncm_notify_state {
 };
 
 struct f_ncm {
-	struct gether			*port;
+	struct gether			port;
 	u8				ctrl_id, data_id;
 
 	char				ethaddr[14];
@@ -901,9 +901,6 @@ static int ncm_set_alt(struct usb_function *f, unsigned intf, unsigned alt)
 			 * override for musb_hdrc (avoids txdma ovhead)
 			 */
 			ncm->port.is_zlp_ok = gadget_is_zlp_supported(cdev->gadget);
-			#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 8, 0)
-              ncm->port.no_skb_reserve = gadget_avoids_skb_reserve(cdev->gadget);
-            #endif
 			ncm->port.cdc_filter = DEFAULT_FILTER;
 			DBG(cdev, "activate ncm\n");
 			net = gether_connect(&ncm->port);
