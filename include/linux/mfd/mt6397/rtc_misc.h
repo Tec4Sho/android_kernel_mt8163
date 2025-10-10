@@ -20,10 +20,22 @@
 #undef RTC_GPIO_USER_WIFI
 #define RTC_GPIO_USER_WIFI	8
 #endif
-#define RTC_GPIO_USER_GPS	9
+#ifdef RTC_GPIO_USER_GPS
+#undef RTC_GPIO_USER_GPS
+#define RTC_GPIO_USER_GPS	 9
+#endif
+#ifdef RTC_GPIO_USER_BT
+#undef RTC_GPIO_USER_BT
 #define RTC_GPIO_USER_BT	10
+#endif
+#ifdef RTC_GPIO_USER_FM
+#undef RTC_GPIO_USER_FM
 #define RTC_GPIO_USER_FM	11
+#endif
+#ifdef RTC_GPIO_USER_PMIC
+#undef RTC_GPIO_USER_PMIC
 #define RTC_GPIO_USER_PMIC	12
+#endif
 
 #ifdef CONFIG_MT6397_MISC
 extern void mtk_misc_mark_fast(void);
