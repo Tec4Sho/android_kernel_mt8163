@@ -112,16 +112,12 @@ static int mtk_rtc_write_trigger(void)
 	int ret;
 	u32 data;
 
-	ret = regmap_write(rtc_misc->regmap,
-				rtc_misc->addr_base + RTC_WRTGR,
-				1);
+	ret = regmap_write(rtc_misc->regmap, rtc_misc->addr_base + RTC_WRTGR, 1);
 	if (ret < 0)
 		return ret;
 
 	while (1) {
-		ret = regmap_read(rtc_misc->regmap,
-				rtc_misc->addr_base + RTC_BBPU,
-				&data);
+		ret = regmap_read(rtc_misc->regmap, rtc_misc->addr_base + RTC_BBPU, &data);
 		if (ret < 0)
 			break;
 		if (!(data & RTC_BBPU_CBUSY))
@@ -142,30 +138,23 @@ static u32 __mtk_misc_get_spare_register(enum rtc_spare_enum cmd)
 	u32 data;
 
 	if (cmd >= 0 && cmd < RTC_SPAR_NUM) {
-		ret = regmap_read(rtc_misc->regmap,
-			rtc_misc->addr_base + rtc_spare_reg[cmd][RTC_REG],
-			&data);
+		ret = regmap_read(rtc_misc->regmap, rtc_misc->addr_base + rtc_spare_reg[cmd][RTC_REG], &data);
 
-		data = (data >> rtc_spare_reg[cmd][RTC_SHIFT]) &
-				rtc_spare_reg[cmd][RTC_MASK];
+		data = (data >> rtc_spare_reg[cmd][RTC_SHIFT]) & rtc_spare_reg[cmd][RTC_MASK];
 		return data;
 	}
 	return -EINVAL;
 }
 
-static void __mtk_misc_set_spare_register(enum rtc_spare_enum cmd,
-							u32 val)
+static void __mtk_misc_set_spare_register(enum rtc_spare_enum cmd, u32 val)
 {
 	int ret;
 	u32 data, mask;
 
 	if (cmd >= 0 && cmd < RTC_SPAR_NUM) {
 		data = val << rtc_spare_reg[cmd][RTC_SHIFT];
-		mask = rtc_spare_reg[cmd][RTC_MASK] <<
-			rtc_spare_reg[cmd][RTC_SHIFT];
-		ret = regmap_update_bits(rtc_misc->regmap,
-			rtc_misc->addr_base + rtc_spare_reg[cmd][RTC_REG],
-			mask, data);
+		mask = rtc_spare_reg[cmd][RTC_MASK] << rtc_spare_reg[cmd][RTC_SHIFT];
+		ret = regmap_update_bits(rtc_misc->regmap, rtc_misc->addr_base + rtc_spare_reg[cmd][RTC_REG], mask, data);
 		if (ret < 0)
 			dev_dbg(rtc_misc->dev, "regmap write error!!!\n");
 
@@ -211,19 +200,16 @@ static void mtk_misc_set_gpio_32k_status(u16 user, bool enable)
 	u32 pdn1, temp, con;
 	int ret;
 
-	ret = regmap_read(rtc_misc->regmap,
-			rtc_misc->addr_base + RTC_PDN1, &pdn1);
+	ret = regmap_read(rtc_misc->regmap, rtc_misc->addr_base + RTC_PDN1, &pdn1);
 	if (ret < 0)
 		goto exit;
-	ret = regmap_read(rtc_misc->regmap,
-			rtc_misc->addr_base + RTC_CON, &con);
+	ret = regmap_read(rtc_misc->regmap, rtc_misc->addr_base + RTC_CON, &con);
 	if (ret < 0)
 		goto exit;
 
 	if (!enable) {
 		temp = pdn1 & ~(1 << user);
-		ret = regmap_write(rtc_misc->regmap,
-				rtc_misc->addr_base + RTC_PDN1, temp);
+		ret = regmap_write(rtc_misc->regmap, rtc_misc->addr_base + RTC_PDN1, temp);
 		if (ret < 0)
 			goto exit;
 		mtk_rtc_write_trigger();
@@ -232,15 +218,13 @@ static void mtk_misc_set_gpio_32k_status(u16 user, bool enable)
 	} else {
 		con &= ~RTC_CON_F32KOB;
 		pdn1 |= (1 << user);
-		ret = regmap_write(rtc_misc->regmap,
-				rtc_misc->addr_base + RTC_PDN1, pdn1);
+		ret = regmap_write(rtc_misc->regmap, rtc_misc->addr_base + RTC_PDN1, pdn1);
 		if (ret < 0)
 			goto exit;
 		mtk_rtc_write_trigger();
 	}
 
-	ret = regmap_write(rtc_misc->regmap,
-			rtc_misc->addr_base + RTC_CON, con);
+	ret = regmap_write(rtc_misc->regmap, rtc_misc->addr_base + RTC_CON, con);
 	if (ret < 0)
 		goto exit;
 	mtk_rtc_write_trigger();
@@ -305,25 +289,21 @@ static void mtk_set_kernel_panic_reg(void)
 	mutex_unlock(&rtc_misc->lock);
 }
 
-static int rtc_mark_kernel_panic(struct notifier_block *self,
-			    unsigned long val,
-			    void *data)
+static int rtc_mark_kernel_panic(struct notifier_block *self, unsigned long val, void *data)
 {
 	dev_dbg(rtc_misc->dev, "[LY]rtc_mark_kernel_panic!!!\n");
 	mtk_set_kernel_panic_reg();
 	return 0;
 }
 
-static int rtc_mark_aee_kernel_panic(struct notifier_block *self,
-						unsigned long cmd, void *ptr)
+static int rtc_mark_aee_kernel_panic(struct notifier_block *self, unsigned long cmd, void *ptr)
 {
 	dev_dbg(rtc_misc->dev, "[LY]rtc_mark_aee_kernel_panic!!!\n");
 	mtk_set_kernel_panic_reg();
 	return 0;
 }
 
-static int rtc_mark_kernel_restart(struct notifier_block *this,
-					unsigned long code, void *unused)
+static int rtc_mark_kernel_restart(struct notifier_block *this, unsigned long code, void *unused)
 {
 	dev_dbg(rtc_misc->dev, "[LY]rtc_mark_kernel_reboot!!!\n");
 	mutex_lock(&rtc_misc->lock);
@@ -360,8 +340,7 @@ static void mt_power_off(void)
 
 	mutex_lock(&rtc_misc->lock);
 	bbpu = RTC_BBPU_KEY | RTC_BBPU_AUTO | RTC_BBPU_PWREN;
-	ret = regmap_write(rtc_misc->regmap,
-			rtc_misc->addr_base + RTC_BBPU, bbpu);
+	ret = regmap_write(rtc_misc->regmap, rtc_misc->addr_base + RTC_BBPU, bbpu);
 	if (ret < 0)
 		dev_dbg(rtc_misc->dev, "regmap write error!!!\n");
 
@@ -393,14 +372,12 @@ static int mt6397_misc_probe(struct platform_device *pdev)
 	rtc_misc = misc;
 	platform_set_drvdata(pdev, misc);
 
-	pm_off = of_property_read_bool(np,
-				"mediatek,system-power-controller");
+	pm_off = of_property_read_bool(np, "mediatek,system-power-controller");
 
 	if (pm_off && !pm_power_off)
 		pm_power_off = mt_power_off;
 
-	atomic_notifier_chain_register(&panic_notifier_list,
-					&rtc_kernel_panic_mark_nb);
+	atomic_notifier_chain_register(&panic_notifier_list, &rtc_kernel_panic_mark_nb);
 	register_die_notifier(&rtc_aee_kernel_panic_mark_nb);
 	register_reboot_notifier(&rtc_kernel_reboot_mark_nb);
 
@@ -420,7 +397,7 @@ static struct platform_driver mt6397_misc_driver = {
 		.name = "mt6397-misc",
 		.of_match_table = mt6397_misc_of_match,
 	},
-	.probe	= mt6397_misc_probe,
+	.probe = mt6397_misc_probe,
 };
 
 module_platform_driver(mt6397_misc_driver);
