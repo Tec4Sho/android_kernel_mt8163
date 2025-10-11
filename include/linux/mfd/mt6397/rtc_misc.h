@@ -11,11 +11,12 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
+#if defined(__GNUC__)
+#pragma GCC system_header
+#endif
 #ifndef __MT6397_RTC_MISC_H__
 #define __MT6397_RTC_MISC_H__
 #include <linux/types.h>
-
 #ifdef RTC_GPIO_USER_WIFI
 #undef RTC_GPIO_USER_WIFI
 #define RTC_GPIO_USER_WIFI	8
@@ -36,7 +37,6 @@
 #undef RTC_GPIO_USER_PMIC
 #define RTC_GPIO_USER_PMIC	12
 #endif
-
 #ifdef CONFIG_MT6397_MISC
 extern void mtk_misc_mark_fast(void);
 extern void mtk_misc_mark_recovery(void);
