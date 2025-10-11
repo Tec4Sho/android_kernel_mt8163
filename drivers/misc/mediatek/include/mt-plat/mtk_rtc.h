@@ -11,6 +11,9 @@
  * GNU General Public License for more details.
  */
 
+#if defined(__GNUC__)
+#pragma GCC system_header
+#endif
 #ifndef MTK_RTC_H
 #define MTK_RTC_H
 
