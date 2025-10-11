@@ -17,24 +17,19 @@
 #ifndef __MT6397_RTC_MISC_H__
 #define __MT6397_RTC_MISC_H__
 #include <linux/types.h>
-#ifdef RTC_GPIO_USER_WIFI
-#undef RTC_GPIO_USER_WIFI
+#ifndef RTC_GPIO_USER_WIFI
 #define RTC_GPIO_USER_WIFI	8
 #endif
-#ifdef RTC_GPIO_USER_GPS
-#undef RTC_GPIO_USER_GPS
+#ifndef RTC_GPIO_USER_GPS
 #define RTC_GPIO_USER_GPS	 9
 #endif
-#ifdef RTC_GPIO_USER_BT
-#undef RTC_GPIO_USER_BT
+#ifndef RTC_GPIO_USER_BT
 #define RTC_GPIO_USER_BT	10
 #endif
-#ifdef RTC_GPIO_USER_FM
-#undef RTC_GPIO_USER_FM
+#ifndef RTC_GPIO_USER_FM
 #define RTC_GPIO_USER_FM	11
 #endif
-#ifdef RTC_GPIO_USER_PMIC
-#undef RTC_GPIO_USER_PMIC
+#ifndef RTC_GPIO_USER_PMIC
 #define RTC_GPIO_USER_PMIC	12
 #endif
 #ifdef CONFIG_MT6397_MISC
