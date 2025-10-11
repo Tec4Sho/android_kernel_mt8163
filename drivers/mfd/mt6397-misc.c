@@ -29,6 +29,9 @@
 #include <linux/notifier.h>
 #include <linux/kdebug.h>
 
+#if defined(__GNUC__)
+#pragma GCC system_header
+#endif
 #ifndef CONFIG_MTK_RTC
 #include <mt-plat/mtk_rtc.h>
 #endif
