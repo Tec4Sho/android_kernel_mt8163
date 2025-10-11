@@ -29,10 +29,6 @@
 #include <linux/notifier.h>
 #include <linux/kdebug.h>
 
-#ifndef CONFIG_MTK_RTC
-#include <mt-plat/mtk_rtc.h>
-#endif
-
 #define RTC_BBPU		0x0000
 #define RTC_BBPU_CBUSY		BIT(6)
 
