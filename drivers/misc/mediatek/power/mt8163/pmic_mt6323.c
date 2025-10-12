@@ -83,14 +83,16 @@ static unsigned long timer_pre;
 static unsigned long timer_pos;
 #define LONG_PWRKEY_PRESS_TIME	500000000
 #endif
-
-#define RELEASE_PWRKEY_TIME		(3)	/* 3sec */
+/* 3sec */
+#define RELEASE_PWRKEY_TIME		(3)
 #define PWRKEY_INITIAL_STATE (0)
 
 #ifdef CONFIG_MTK_PMIC_KPOC_LONGPRESS_TIME_10S
-#define LONG_PRESS_PWRKEY_SHUTDOWN_TIME		(10)	/* 10sec */
-#else
-#define LONG_PRESS_PWRKEY_SHUTDOWN_TIME		(6)	/* 6sec */
+/* 10sec */
+#define LONG_PRESS_PWRKEY_SHUTDOWN_TIME		(10)
+#else 
+/* 6sec */
+#define LONG_PRESS_PWRKEY_SHUTDOWN_TIME		(6)
 #endif
 __attribute__ ((weak))
 void rtc_irq_handler(void)
@@ -200,8 +202,7 @@ u32 pmic_read_interface_nolock(u32 RegNum, u32 *val, u32 MASK, u32 SHIFT)
 	return_value = regmap_read(pwrap_regmap, RegNum, &rdata);
 	pmic6323_reg = rdata;
 	if (return_value != 0) {
-		pr_notice("Reg[%x]= pmic_wrap read data fail\n",
-			  RegNum);
+		pr_notice("Reg[%x]= pmic_wrap read data fail\n", RegNum);
 		return return_value;
 	}
 
@@ -258,8 +259,7 @@ u32 pmic_is_auxadc_busy(void)
 	u32 ret = 0;
 	u32 int_status_val_0 = 0;
 
-	ret = pmic_read_interface_nolock(0x73a, (&int_status_val_0), 0x7FFF,
-					 0x1);
+	ret = pmic_read_interface_nolock(0x73a, (&int_status_val_0), 0x7FFF, 0x1);
 	return int_status_val_0;
 }
 
@@ -272,17 +272,14 @@ void PMIC_IMM_PollingAuxadcChannel(void)
 			spin_lock_irqsave(&pmic_adc_lock, flags);
 			if (pmic_is_auxadc_busy() == 0) {
 				/* upmu_set_rg_adc_deci_gdly(0); */
-				pmic_config_interface_nolock(AUXADC_CON19, 0,
-						PMIC_RG_ADC_DECI_GDLY_MASK,
-						PMIC_RG_ADC_DECI_GDLY_SHIFT);
+				pmic_config_interface_nolock(AUXADC_CON19, 0, PMIC_RG_ADC_DECI_GDLY_MASK, PMIC_RG_ADC_DECI_GDLY_SHIFT);
 			}
 			spin_unlock_irqrestore(&pmic_adc_lock, flags);
 		}
 	}
 }
 
-int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
-				int trimd)
+int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount, int trimd)
 {
 	s32 ret_data;
 	s32 count = 0;
@@ -319,39 +316,23 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 		if (dwChannel < 9) {
 			upmu_set_rg_vbuf_en(1);
 			/* set 0 */
-			pmic_read_interface(AUXADC_CON22, &adc_reg_val,
-					    PMIC_RG_AP_RQST_LIST_MASK,
-					    PMIC_RG_AP_RQST_LIST_SHIFT);
+			pmic_read_interface(AUXADC_CON22, &adc_reg_val, PMIC_RG_AP_RQST_LIST_MASK, PMIC_RG_AP_RQST_LIST_SHIFT);
 			adc_reg_val = adc_reg_val & (~(1 << dwChannel));
-			pmic_config_interface(AUXADC_CON22, adc_reg_val,
-					      PMIC_RG_AP_RQST_LIST_MASK,
-					      PMIC_RG_AP_RQST_LIST_SHIFT);
+			pmic_config_interface(AUXADC_CON22, adc_reg_val, PMIC_RG_AP_RQST_LIST_MASK, PMIC_RG_AP_RQST_LIST_SHIFT);
 
 			/* set 1 */
-			pmic_read_interface(AUXADC_CON22, &adc_reg_val,
-					    PMIC_RG_AP_RQST_LIST_MASK,
-					    PMIC_RG_AP_RQST_LIST_SHIFT);
+			pmic_read_interface(AUXADC_CON22, &adc_reg_val, PMIC_RG_AP_RQST_LIST_MASK, PMIC_RG_AP_RQST_LIST_SHIFT);
 			adc_reg_val = adc_reg_val | (1 << dwChannel);
-			pmic_config_interface(AUXADC_CON22, adc_reg_val,
-					      PMIC_RG_AP_RQST_LIST_MASK,
-					      PMIC_RG_AP_RQST_LIST_SHIFT);
+			pmic_config_interface(AUXADC_CON22, adc_reg_val, PMIC_RG_AP_RQST_LIST_MASK, PMIC_RG_AP_RQST_LIST_SHIFT);
 		} else if (dwChannel >= 9 && dwChannel <= 16) {
-			pmic_read_interface(AUXADC_CON23, &adc_reg_val,
-					    PMIC_RG_AP_RQST_LIST_RSV_MASK,
-					    PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
+			pmic_read_interface(AUXADC_CON23, &adc_reg_val, PMIC_RG_AP_RQST_LIST_RSV_MASK, PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
 			adc_reg_val = adc_reg_val & (~(1 << (dwChannel - 9)));
-			pmic_config_interface(AUXADC_CON23, adc_reg_val,
-					      PMIC_RG_AP_RQST_LIST_RSV_MASK,
-					      PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
+			pmic_config_interface(AUXADC_CON23, adc_reg_val, PMIC_RG_AP_RQST_LIST_RSV_MASK, PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
 
 			/* set 1 */
-			pmic_read_interface(AUXADC_CON23, &adc_reg_val,
-					    PMIC_RG_AP_RQST_LIST_RSV_MASK,
-					    PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
+			pmic_read_interface(AUXADC_CON23, &adc_reg_val, PMIC_RG_AP_RQST_LIST_RSV_MASK, PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
 			adc_reg_val = adc_reg_val | (1 << (dwChannel - 9));
-			pmic_config_interface(AUXADC_CON23, adc_reg_val,
-					      PMIC_RG_AP_RQST_LIST_RSV_MASK,
-					      PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
+			pmic_config_interface(AUXADC_CON23, adc_reg_val, PMIC_RG_AP_RQST_LIST_RSV_MASK, PMIC_RG_AP_RQST_LIST_RSV_SHIFT);
 		}
 
 		mutex_unlock(&pmic_adc_mutex);
@@ -368,8 +349,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_baton2() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc(%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc(%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -380,8 +360,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_ch6() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -392,8 +371,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_thr_sense2() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -403,8 +381,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_thr_sense1() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -414,8 +391,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_vcdt() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -425,8 +401,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_baton1() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -436,8 +411,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_isense() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -447,8 +421,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_batsns() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -471,8 +444,7 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 			while (upmu_get_rg_adc_rdy_int() != 1) {
 				usleep_range(1000, 2000);
 				if ((count++) > ADC_COUNT_TIMEOUT) {
-					pr_err("auxadc (%d) Time out!\n",
-					       dwChannel);
+					pr_err("auxadc (%d) Time out!\n", dwChannel);
 					break;
 				}
 			}
@@ -497,48 +469,39 @@ int PMIC_IMM_GetOneChannelValue(unsigned int dwChannel, int deCount,
 	switch (dwChannel) {
 	case 0:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 1:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 2:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 3:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 4:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 5:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 6:
 		r_val_temp = 4;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 7:
 		r_val_temp = 4;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 8:
 		r_val_temp = 1;
-		adc_result =
-		(adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
+		adc_result = (adc_result_temp * r_val_temp * VOLTAGE_FULL) / ADC_PRECISE;
 		break;
 	case 9:
 	case 10:
@@ -617,21 +580,18 @@ static unsigned int mt6323_get_event_mask(struct mt6323_chip_priv *chip)
 }
 
 /* mt6323 irq chip event mask write: initial setup */
-static void mt6323_set_event_mask_locked(struct mt6323_chip_priv *chip,
-					 unsigned int event_mask)
+static void mt6323_set_event_mask_locked(struct mt6323_chip_priv *chip, unsigned int event_mask)
 {
 	unsigned int val;
 
 	regmap_write(pwrap_regmap, chip->int_con[0], event_mask & 0xFFFF);
-	regmap_write(pwrap_regmap, chip->int_con[1],
-		    (event_mask >> 16) & 0xFFFF);
+	regmap_write(pwrap_regmap, chip->int_con[1], (event_mask >> 16) & 0xFFFF);
 	regmap_read(pwrap_regmap, chip->int_con[0], &val);
 	regmap_read(pwrap_regmap, chip->int_con[1], &val);
 	chip->event_mask = event_mask;
 }
 
-static void mt6323_set_event_mask(struct mt6323_chip_priv *chip,
-				  unsigned int event_mask)
+static void mt6323_set_event_mask(struct mt6323_chip_priv *chip, unsigned int event_mask)
 {
 	pmic_lock();
 	mt6323_set_event_mask_locked(chip, event_mask);
@@ -651,12 +611,10 @@ static void mt6323_irq_mask_unmask_locked(struct irq_data *d, bool enable)
 		clear_bit(hw_irq, (unsigned long *)&mt_chip->event_mask);
 
 	if (port) {
-		regmap_write(pwrap_regmap, mt_chip->int_con[1],
-			    (mt_chip->event_mask >> 16) & 0xFFFF);
+		regmap_write(pwrap_regmap, mt_chip->int_con[1], (mt_chip->event_mask >> 16) & 0xFFFF);
 		regmap_read(pwrap_regmap, mt_chip->int_con[1], &val);
 	} else {
-		regmap_write(pwrap_regmap, mt_chip->int_con[0],
-			     mt_chip->event_mask & 0xFFFF);
+		regmap_write(pwrap_regmap, mt_chip->int_con[0], mt_chip->event_mask & 0xFFFF);
 		regmap_read(pwrap_regmap, mt_chip->int_con[0], &val);
 #if defined(CONFIG_MTK_BATTERY_PROTECT)
 		/* lbat irq src need toggle to enable again. */
@@ -676,14 +634,12 @@ static void mt6323_irq_enable(struct irq_data *d)
 	mt6323_irq_mask_unmask_locked(d, true);
 }
 
-static void mt6323_irq_ack_locked(struct mt6323_chip_priv *chip,
-				  unsigned int event_mask)
+static void mt6323_irq_ack_locked(struct mt6323_chip_priv *chip, unsigned int event_mask)
 {
 	unsigned int val[2];
 
 	regmap_write(pwrap_regmap, chip->int_stat[0], event_mask & 0xFFFF);
-	regmap_write(pwrap_regmap, chip->int_stat[1],
-		    (event_mask >> 16) & 0xFFFF);
+	regmap_write(pwrap_regmap, chip->int_stat[1], (event_mask >> 16) & 0xFFFF);
 	regmap_read(pwrap_regmap, chip->int_stat[0], &val[0]);
 	regmap_read(pwrap_regmap, chip->int_stat[1], &val[1]);
 }
@@ -816,13 +772,9 @@ static irqreturn_t pwrkey_int_handler(int irq, void *dev_id)
 			timer_pos = sched_clock();
 			if (timer_pos - timer_pre >= LONG_PWRKEY_PRESS_TIME)
 				long_pwrkey_press = true;
-			pr_notice
-			("pos = %ld, pre = %ld, diff = %ld, press = %d\n",
-			 timer_pos, timer_pre, timer_pos - timer_pre,
-			 long_pwrkey_press);
+			pr_notice("pos = %ld, pre = %ld, diff = %ld, press = %d\n", timer_pos, timer_pre, timer_pos - timer_pre, long_pwrkey_press);
 			if (long_pwrkey_press) {
-				pr_notice
-				    ("Power Key Pressed kernel power off\n");
+				pr_notice("Power Key Pressed kernel power off\n");
 				orderly_reboot();
 			}
 		}
@@ -843,8 +795,7 @@ static irqreturn_t pwrkey_int_handler(int irq, void *dev_id)
 #if defined(CONFIG_MTK_KERNEL_POWER_OFF_CHARGING)
 		#if defined(CONFIG_abe123) || defined(CONFIG_MTK_PMIC_KPOC_LONGPRESS_TIME_0MS) || defined(CONFIG_MTK_PMIC_KPOC_ONETOUCH)
 		if (get_boot_mode() == KERNEL_POWER_OFF_CHARGING_BOOT) {
-			pr_notice
-				("Power Key Pressed during kpoc, reboot\r\n");
+			pr_notice("Power Key Pressed during kpoc, reboot\r\n");
 			orderly_reboot();
 		}
 		#else
@@ -853,11 +804,9 @@ static irqreturn_t pwrkey_int_handler(int irq, void *dev_id)
 #endif
 #endif
 		ktime = ktime_set(RELEASE_PWRKEY_TIME, 0);
-		hrtimer_start(&chip->check_pwrkey_release_timer, ktime,
-			      HRTIMER_MODE_REL);
+		hrtimer_start(&chip->check_pwrkey_release_timer, ktime, HRTIMER_MODE_REL);
 		ktime_lp = ktime_set(chip->shutdown_time, 0);
-		hrtimer_start(&chip->long_press_pwrkey_shutdown_timer,
-			      ktime_lp, HRTIMER_MODE_REL);
+		hrtimer_start(&chip->long_press_pwrkey_shutdown_timer, ktime_lp, HRTIMER_MODE_REL);
 		kpd_pwrkey_pmic_handler(0x1);
 		upmu_set_rg_pwrkey_int_sel(1);
 	}
@@ -895,8 +844,7 @@ static irqreturn_t chrdet_int_handler(int irq, void *dev_id)
 
 		if (boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT
 		    || boot_mode == LOW_POWER_OFF_CHARGING_BOOT) {
-			pr_notice
-			    ("Unplug Charger Power Off Charging Mode!\n");
+			pr_notice("Unplug Charger Power Off Charging Mode!\n");
 			#ifdef CONFIG_MTK_RTC
 			mt_power_off();
 			#endif
@@ -926,10 +874,8 @@ static irqreturn_t vbat_ov_int_handler(int irq, void *dev_id)
 
 static irqreturn_t ldo_oc_int_handler(int irq, void *dev_id)
 {
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0,
-		  upmu_get_reg_value(OCSTATUS0));
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1,
-		  upmu_get_reg_value(OCSTATUS1));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0, upmu_get_reg_value(OCSTATUS0));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1, upmu_get_reg_value(OCSTATUS1));
 	return IRQ_HANDLED;
 }
 
@@ -971,10 +917,8 @@ static irqreturn_t rtc_int_handler(int irq, void *dev_id)
 
 static irqreturn_t vproc_oc_int_handler(int irq, void *dev_id)
 {
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0,
-		  upmu_get_reg_value(OCSTATUS0));
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1,
-		  upmu_get_reg_value(OCSTATUS1));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0, upmu_get_reg_value(OCSTATUS0));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1, upmu_get_reg_value(OCSTATUS1));
 
 	upmu_set_rg_pwmoc_ck_pdn(1);
 	upmu_set_rg_int_en_vproc(0);
@@ -983,10 +927,8 @@ static irqreturn_t vproc_oc_int_handler(int irq, void *dev_id)
 
 static irqreturn_t vsys_oc_int_handler(int irq, void *dev_id)
 {
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0,
-		  upmu_get_reg_value(OCSTATUS0));
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1,
-		  upmu_get_reg_value(OCSTATUS1));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0, upmu_get_reg_value(OCSTATUS0));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1, upmu_get_reg_value(OCSTATUS1));
 
 	upmu_set_rg_pwmoc_ck_pdn(1);
 	upmu_set_rg_int_en_vsys(0);
@@ -995,10 +937,8 @@ static irqreturn_t vsys_oc_int_handler(int irq, void *dev_id)
 
 static irqreturn_t vpa_oc_int_handler(int irq, void *dev_id)
 {
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0,
-		  upmu_get_reg_value(OCSTATUS0));
-	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1,
-		  upmu_get_reg_value(OCSTATUS1));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS0, upmu_get_reg_value(OCSTATUS0));
+	pr_notice("[PMIC] Reg[0x%x]=0x%x\n", OCSTATUS1, upmu_get_reg_value(OCSTATUS1));
 
 	upmu_set_rg_pwmoc_ck_pdn(1);
 	upmu_set_rg_int_en_vpa(0);
@@ -1118,8 +1058,7 @@ static struct mt6323_irq_data mt6323_irqs[] = {
 	 },
 };
 
-static inline void mt6323_do_handle_events(struct mt6323_chip_priv *chip,
-					   unsigned int events)
+static inline void mt6323_do_handle_events(struct mt6323_chip_priv *chip, unsigned int events)
 {
 	int event_hw_irq;
 	int e = events;
@@ -1128,8 +1067,7 @@ static inline void mt6323_do_handle_events(struct mt6323_chip_priv *chip,
 	     events &= ~(1 << event_hw_irq), event_hw_irq = __ffs(events)) {
 		int event_irq = irq_find_mapping(chip->domain, event_hw_irq);
 
-		pr_debug("%s: event=%d, event_irq %d\n", __func__,
-			 event_hw_irq, event_irq);
+		pr_debug("%s: event=%d, event_irq %d\n", __func__, event_hw_irq, event_irq);
 
 		if (event_irq)
 			handle_nested_irq(event_irq);
@@ -1147,15 +1085,9 @@ static irqreturn_t mt6323_irq(int irq, void *d)
 	 * unless it is a wakeup interrupt
 	 */
 	if (events & ~(chip->event_mask | chip->wake_mask)) {
-		pr_err("%s: is raising events %08X which are not enabled\n"
-		       "\t(mask 0x%lx, wakeup 0x%lx). HW BUG. Stop\n",
-		       __func__, events, chip->event_mask, chip->wake_mask);
-		pr_err("int ctrl: %08x, status: %08x\n",
-		       mt6323_get_event_mask_locked(chip),
-		       mt6323_get_events(chip));
-		pr_err("int ctrl: %08x, status: %08x\n",
-		       mt6323_get_event_mask_locked(chip),
-		       mt6323_get_events(chip));
+		pr_err("%s: is raising events %08X which are not enabled\n" "\t(mask 0x%lx, wakeup 0x%lx). HW BUG. Stop\n", __func__, events, chip->event_mask, chip->wake_mask);
+		pr_err("int ctrl: %08x, status: %08x\n", mt6323_get_event_mask_locked(chip), mt6323_get_events(chip));
+		pr_err("int ctrl: %08x, status: %08x\n", mt6323_get_event_mask_locked(chip), mt6323_get_events(chip));
 		WARN_ON(1);
 	}
 
@@ -1192,8 +1124,7 @@ static void mt6323_irq_chip_resume(struct mt6323_chip_priv *chip)
 		event = __ffs(events);
 
 	mt6323_set_event_mask(chip, chip->saved_mask);
-	pr_debug("%s: saved_mask = %08X, events = %x\n", __func__,
-		 chip->saved_mask, events);
+	pr_debug("%s: saved_mask = %08X, events = %x\n", __func__, chip->saved_mask, events);
 }
 
 static int mt6323_irq_set_wake_locked(struct irq_data *d, unsigned int on)
@@ -1216,8 +1147,7 @@ static struct irq_chip mt6323_irq_chip = {
 	.irq_bus_sync_unlock = mt6323_irq_bus_sync_unlock,
 };
 
-static int mt6323_irq_domain_map(struct irq_domain *d, unsigned int irq,
-					irq_hw_number_t hw)
+static int mt6323_irq_domain_map(struct irq_domain *d, unsigned int irq, irq_hw_number_t hw)
 {
 	struct mt6323_chip_priv *mt6323 = d->host_data;
 
@@ -1246,8 +1176,7 @@ static int mt6323_irq_init(struct mt6323_chip_priv *chip)
 
 	mt6323_set_event_mask(chip, 0);
 
-	ret = request_threaded_irq(chip->irq, NULL, mt6323_irq,
-				    IRQF_ONESHOT, mt6323_irq_chip.name, chip);
+	ret = request_threaded_irq(chip->irq, NULL, mt6323_irq, IRQF_ONESHOT, mt6323_irq_chip.name, chip);
 	if (ret < 0) {
 		pr_err("%s: PMIC master irq request err: %d\n", __func__, ret);
 		goto err_free_domain;
@@ -1273,12 +1202,9 @@ static int mt6323_irq_handler_init(struct mt6323_chip_priv *chip)
 		struct mt6323_irq_data *data = &mt6323_irqs[i];
 
 		irq = irq_create_mapping(chip->domain, data->irq_id);
-		ret = request_threaded_irq(irq, NULL, data->action_fn,
-					   IRQF_TRIGGER_HIGH | IRQF_ONESHOT,
-					   data->name, chip);
+		ret = request_threaded_irq(irq, NULL, data->action_fn, IRQF_TRIGGER_HIGH | IRQF_ONESHOT, data->name, chip);
 		if (ret) {
-			pr_err("%s: failed irq = %d (%d) %s err: %d\n",
-				__func__, irq, data->irq_id, data->name, ret);
+			pr_err("%s: failed irq = %d (%d) %s err: %d\n", __func__, irq, data->irq_id, data->name, ret);
 			continue;
 		}
 		if (!data->enabled)
@@ -1290,17 +1216,13 @@ static int mt6323_irq_handler_init(struct mt6323_chip_priv *chip)
 }
 
 u32 g_reg_value;
-static ssize_t show_pmic_access(struct device *dev,
-				struct device_attribute *attr, char *buf)
+static ssize_t show_pmic_access(struct device *dev, struct device_attribute *attr, char *buf)
 {
 	pr_notice("[show_pmic_access] 0x%x\n", g_reg_value);
 	return sprintf(buf, "%u\n", g_reg_value);
 }
 
-static ssize_t store_pmic_access(struct device *dev,
-				 struct device_attribute *attr,
-				 const char *buf,
-				 size_t size)
+static ssize_t store_pmic_access(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
 	int ret = 0;
 	char temp_buf[32];
@@ -1314,27 +1236,21 @@ static ssize_t store_pmic_access(struct device *dev,
 
 	if (size != 0) {
 		if (size > 5) {
-			ret = kstrtouint(strsep(&pvalue, " "), 16,
-					 &reg_address);
+			ret = kstrtouint(strsep(&pvalue, " "), 16, &reg_address);
 			if (ret)
 				return ret;
 			ret = kstrtouint(pvalue, 16, &reg_value);
 			if (ret)
 				return ret;
-			pr_notice("write PMU reg 0x%x with value 0x%x !\n",
-				  reg_address, reg_value);
-			pmic_config_interface(reg_address, reg_value,
-					      0xFFFF, 0x0);
+			pr_notice("write PMU reg 0x%x with value 0x%x !\n", reg_address, reg_value);
+			pmic_config_interface(reg_address, reg_value, 0xFFFF, 0x0);
 		} else {
 			ret = kstrtouint(pvalue, 16, &reg_address);
 			if (ret)
 				return ret;
-			pmic_read_interface(reg_address, &g_reg_value,
-					    0xFFFF, 0x0);
-			pr_notice("read PMU reg 0x%x with value 0x%x !\n",
-				  reg_address, g_reg_value);
-			pr_notice
-			    ("Please use \"cat pmic_access\" to get value\n");
+			pmic_read_interface(reg_address, &g_reg_value, 0xFFFF, 0x0);
+			pr_notice("read PMU reg 0x%x with value 0x%x !\n", reg_address, g_reg_value);
+			pr_notice("Please use \"cat pmic_access\" to get value\n");
 		}
 	}
 	return size;
@@ -1704,8 +1620,7 @@ void pmic_setting_depends_rtc(void)
 		ret = pmic_config_interface(ANALDO_CON1, 0, 0x1, 0);
 		/* [0] =0(VTCXO_LP_SEL), */
 
-		pr_notice("With 32K. Reg[0x%x]=0x%x\n",
-			  ANALDO_CON1, upmu_get_reg_value(ANALDO_CON1));
+		pr_notice("With 32K. Reg[0x%x]=0x%x\n", ANALDO_CON1, upmu_get_reg_value(ANALDO_CON1));
 	} else {
 		/* without 32K */
 		ret = pmic_config_interface(ANALDO_CON1, 0, 0x1, 11);
@@ -1713,8 +1628,7 @@ void pmic_setting_depends_rtc(void)
 		ret = pmic_config_interface(ANALDO_CON1, 1, 0x1, 0);
 		/* [0] =1(VTCXO_LP_SEL), */
 
-		pr_notice("Without 32K. Reg[0x%x]=0x%x\n",
-			  ANALDO_CON1, upmu_get_reg_value(ANALDO_CON1));
+		pr_notice("Without 32K. Reg[0x%x]=0x%x\n", ANALDO_CON1, upmu_get_reg_value(ANALDO_CON1));
 	}
 #else
 	pr_notice("[pmic_setting_depends_rtc] no define CONFIG_MTK_RTC\n");
@@ -1757,8 +1671,7 @@ static int pmic_mt6323_probe(struct platform_device *dev)
 	chip->int_stat[1] = INT_STATUS1;
 
 	chip->shutdown_time = LONG_PRESS_PWRKEY_SHUTDOWN_TIME;
-	of_property_read_u32(np, "long-press-shutdown-time",
-			    (u32 *)&chip->shutdown_time);
+	of_property_read_u32(np, "long-press-shutdown-time", (u32 *)&chip->shutdown_time);
 	pr_info("long press shutdown time is %ds\n", chip->shutdown_time);
 	dev_set_drvdata(chip->dev, chip);
 
@@ -1779,15 +1692,11 @@ static int pmic_mt6323_probe(struct platform_device *dev)
 	pmic_config_interface(0x402, 0x1, 0x1, 11);
 	/* [11:11]: VTCXO_ON_CTRL; */
 
-	hrtimer_init(&chip->check_pwrkey_release_timer, CLOCK_MONOTONIC,
-		     HRTIMER_MODE_REL);
-	chip->check_pwrkey_release_timer.function =
-	check_pwrkey_release_timer_func;
+	hrtimer_init(&chip->check_pwrkey_release_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	chip->check_pwrkey_release_timer.function = check_pwrkey_release_timer_func;
 
-	hrtimer_init(&chip->long_press_pwrkey_shutdown_timer, CLOCK_MONOTONIC,
-		     HRTIMER_MODE_REL);
-	chip->long_press_pwrkey_shutdown_timer.function =
-	lp_pwrkey_shutdown_timer_func;
+	hrtimer_init(&chip->long_press_pwrkey_shutdown_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+	chip->long_press_pwrkey_shutdown_timer.function = lp_pwrkey_shutdown_timer_func;
 
 	/* LPRST is for preloader check only. It should be cleared in next boot. */
 	rtc_mark_clear_lprst();
