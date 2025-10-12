@@ -94,31 +94,31 @@ static unsigned long timer_pos;
 /* 6sec */
 #define LONG_PRESS_PWRKEY_SHUTDOWN_TIME		(6)
 #endif
-__attribute__((weak))
+__attribute__((weak));
 void rtc_irq_handler(void)
 {
 	pr_notice("need rtc porting!\n");
 }
 
-__attribute__((weak))
+__attribute__((weak));
 void kpd_pwrkey_pmic_handler(unsigned long pressed)
 {
 	pr_notice("need kpd porting!\n");
 }
 
-__attribute__((weak))
+__attribute__((weak));
 void do_chrdet_int_task(void)
 {
 	pr_notice("need chrdet porting!\n");
 }
 
-__attribute__((weak))
+__attribute__((weak));
 void kpd_pmic_rstkey_handler(unsigned long pressed)
 {
 	pr_notice("need kpd porting!\n");
 }
 
-__attribute__((weak))
+__attribute__((weak));
 int accdet_irq_handler(void)
 {
 	pr_notice("need accdet porting!\n");
