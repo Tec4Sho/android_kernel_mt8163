@@ -61,7 +61,7 @@ extern void rtc_bbpu_power_down(void);
 extern void rtc_read_pwron_alarm(struct rtc_wkalrm *alm);
 extern int get_rtc_spare_fg_value(void);
 extern int set_rtc_spare_fg_value(int val);
-extern void rtc_irq_handler(void);
+/*extern void rtc_irq_handler(void);*/
 extern bool crystal_exist_status(void);
 extern bool rtc_lprst_detected(void);
 
@@ -92,9 +92,9 @@ extern bool rtc_lprst_detected(void);
 #ifndef set_rtc_spare_fg_value
 #define set_rtc_spare_fg_value(val)  ({ 0; })
 #endif
-#ifndef rtc_irq_handler
+/*#ifndef rtc_irq_handler
 #define rtc_irq_handler()  ({ 0; })
-#endif
+#endif*/
 #ifndef crystal_exist_status
 #define crystal_exist_status()  ({ 0; })
 #endif
