@@ -57,6 +57,7 @@
 #include <linux/regmap.h>
 #include <linux/mfd/mt6397/core.h>
 #include <linux/mfd/mt6323/core.h>
+#include <linux/mfd/mt6397/rtc_misc.h>
 #include <linux/mfd/mt6323/registers.h>
 #include "pmic_mt6323.h"
 
