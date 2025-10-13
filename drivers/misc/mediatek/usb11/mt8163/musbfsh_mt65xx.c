@@ -780,7 +780,7 @@ static int __exit mt_usb_remove(struct platform_device *pdev)
 	return 0;
 }
 
-static struct platform_driver mt_usb11_driver = {
+static struct platform_driver mt_usb11_driver __initdata = {
 	.remove = __exit_p(mt_usb_remove),
 	.probe = mt_usb11_probe,
 	.driver = {
