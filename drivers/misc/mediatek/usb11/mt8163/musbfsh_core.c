@@ -1533,7 +1533,7 @@ static struct platform_driver musbfsh_driver = {
 
 
 /*-------------------------------------------------------------------------*/
-static int __init musbfsh_init(void)
+static int __init* musbfsh_init(void)
 {
 	if (usb_disabled())	/*based on the config variable. */
 		return 0;
