@@ -1518,7 +1518,7 @@ static const struct dev_pm_ops musbfsh_dev_pm_ops = {
 #define	MUSBFSH_DEV_PM_OPS	NULL
 #endif
 
-static struct platform_driver __initdata musbfsh_driver = {
+static struct platform_driver musbfsh_driver __initdata = {
 	.driver = {
 		   .name = (char *)musbfsh_driver_name,
 		   .bus = &platform_bus_type,
