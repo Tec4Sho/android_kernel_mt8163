@@ -1230,7 +1230,7 @@ static void wifi_hw_reset(void)
 }
 #endif
 
-static int __init musbfsh_probe(struct platform_device *pdev)
+static int __init* musbfsh_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *node;
