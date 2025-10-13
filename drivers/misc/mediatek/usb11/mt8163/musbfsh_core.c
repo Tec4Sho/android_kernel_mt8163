@@ -1230,7 +1230,7 @@ static void wifi_hw_reset(void)
 }
 #endif
 
-static int __initdata musbfsh_probe(struct platform_device *pdev)
+static int __init musbfsh_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *node;
@@ -1533,7 +1533,7 @@ static struct platform_driver musbfsh_driver = {
 
 
 /*-------------------------------------------------------------------------*/
-static int __initdata musbfsh_init(void)
+static int __init musbfsh_init(void)
 {
 	if (usb_disabled())	/*based on the config variable. */
 		return 0;
