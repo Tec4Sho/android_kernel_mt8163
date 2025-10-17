@@ -1518,7 +1518,7 @@ static const struct dev_pm_ops musbfsh_dev_pm_ops = {
 #define	MUSBFSH_DEV_PM_OPS	NULL
 #endif
 
-static struct platform_driver musbfsh_driver __refdata = {
+static struct platform_driver musbfsh_driver = {
 	.driver = {
 		   .name = (char *)musbfsh_driver_name,
 		   .bus = &platform_bus_type,
@@ -1526,7 +1526,7 @@ static struct platform_driver musbfsh_driver __refdata = {
 		   .owner = THIS_MODULE,
 		   .pm = MUSBFSH_DEV_PM_OPS,
 		   },
-	.probe = musbfsh_probe,
+	.probe = __init_p(musbfsh_probe),
 	.remove = __exit_p(musbfsh_remove),
 	.shutdown = musbfsh_shutdown,
 };
