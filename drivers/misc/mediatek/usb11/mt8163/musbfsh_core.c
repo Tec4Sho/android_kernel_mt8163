@@ -1230,7 +1230,7 @@ static void wifi_hw_reset(void)
 }
 #endif
 
-static int __init musbfsh_probe(struct platform_device *pdev)
+static int musbfsh_probe(struct platform_device *pdev)
 {
 	struct device *dev = &pdev->dev;
 	struct device_node *node;
@@ -1526,7 +1526,7 @@ static struct platform_driver musbfsh_driver = {
 		   .owner = THIS_MODULE,
 		   .pm = MUSBFSH_DEV_PM_OPS,
 		   },
-	.probe = __init_p(musbfsh_probe),
+	.probe = musbfsh_probe,
 	.remove = __exit_p(musbfsh_remove),
 	.shutdown = musbfsh_shutdown,
 };
