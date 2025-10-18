@@ -1526,7 +1526,7 @@ static struct platform_driver musbfsh_driver = {
 		   .owner = THIS_MODULE,
 		   .pm = MUSBFSH_DEV_PM_OPS,
 		   },
-	.probe = __initdata(musbfsh_probe),
+	.probe = musbfsh_probe,
 	.remove = __exit_p(musbfsh_remove),
 	.shutdown = musbfsh_shutdown,
 };
