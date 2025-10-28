@@ -6,7 +6,7 @@
     FormatStyle:            none
     InheritParentConfig:    true
     User:                   user
-    SystemHeaders:          '.*'
+    SystemHeaders:          true
     UseColor:               true
     CheckOptions:
       enable-check-profile: true
