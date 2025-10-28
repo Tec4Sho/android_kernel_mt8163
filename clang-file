@@ -10,7 +10,7 @@
     UseColor:               true
     EnableCheckProfile:     true
     FixErrors:              true
-    FixMotes:               true
+    FixNotes:               true
     Quiet:                  true
     Fix:                    true
-    #CheckOptions:
+    # CheckOptions:
