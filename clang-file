@@ -8,9 +8,9 @@
     User:                   user
     SystemHeaders:          '.*'
     UseColor:               true
-    CheckOptions:
-      enable-check-profile: true
-      fix-errors:           true
-      fix-notes:            true
-      quiet:                true
-      fix:                  true
+    EnableCheckProfile:     true
+    FixErrors:              true
+    FixMotes:               true
+    Quiet:                  true
+    Fix:                    true
+    #CheckOptions:
