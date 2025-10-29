@@ -9,7 +9,5 @@
     SystemHeaders:          true
     UseColor:               true
     CheckOptions:
-      --enable-check-profile:
-      --fix-errors:
-      --fix-notes:
-      --quiet:
+      enable-check-profile: true
+      
