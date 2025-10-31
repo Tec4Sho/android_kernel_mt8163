@@ -1,0 +1,85 @@
+name: Check File Deploy 2025
+on:
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+    inputs:
+      checkfile:
+        description: 'CHECK FILE'
+        type: string
+        required: false
+        default: ''
+      checktext:
+        description: 'CHECK TEXT'
+        type: string
+        required: false
+        default: ''
+      DEVICE_TREE:
+        description: 'DEVICE TREE'
+        required: true
+        default: 'https://github.com/Tec4Sho/android_kernel_mt8163.git'
+      DEVICE_TREE_BRANCH:
+        description: 'DEVICE TREE BRANCH'
+        required: true
+        default: 'android-9.0'
+      DEVICE_PATH:
+        description: 'DEVICE PATH'
+        required: true
+        default: 'kernel/alps/tb8163p3_bsp'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Create Workspace
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/workspace
+          set -o allexport
+          export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+          export TARGET_FORCE_PREBUILT_KERNEL=false
+          echo "PREBUILT_KERNEL=false" >> $GITHUB_ENV
+          if [[ `which git` ]]; then
+          echo -e "\n`git --version`\n";
+          git config --global core.longpaths true
+          git config --global core.protectNTFS false
+          git config --global http.postBuffer 524288000 # Increase post buffer size (example value in bytes)
+          git config --global http.lowSpeedLimit 0      # Disable low speed limit
+          git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
+          else
+          echo -e "\nGit needed installing now....\n";
+          sudo DEBIAN_FRONTEND=noninteractive sudo apt-get install -yq git >/dev/null;
+          git config --global core.longpaths true
+          git config --global core.protectNTFS false
+          git config --global http.postBuffer 524288000 # Increase post buffer size (example value in bytes)
+          git config --global http.lowSpeedLimit 0      # Disable low speed limit
+          git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
+          fi
+          set +e
+        continue-on-error: true
+          
+      - name: Clone Recovery Repo
+        if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
+          ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
+          clean: false
+          
+      - name: Check Workspace
+        run: |
+          du . -h -d 4
+          
+      - name: Check File
+        if: inputs.checkfile != '' || inputs.checktext != ''
+        uses: Tec4Sho/check-file-action@v2
+        with:
+          filename: ${{ inputs.checkfile }}
+          filetext: ${{ inputs.checktext }}
+          #filetype: .c .h
+          clangfix: true
+          dirname: workspace
+          rootdir: false
+          content: true
+          include: true
+          update: true
+          report: true
+        continue-on-error: true
