@@ -130,13 +130,13 @@ static inline struct musbfsh *dev_to_musbfsh(struct device *dev)
 
 int musbfsh_get_id(struct device *dev, gfp_t gfp_mask)
 {
-	int ret;
-	int id;
+  int ret = 0;
+  int id = 0;
 
-	ret = ida_pre_get(&musbfsh_ida, gfp_mask);
-	if (!ret) {
-		dev_err(dev, "failed to reserve resource for id\n");
-		return -ENOMEM;
+  ret = ida_pre_get(&musbfsh_ida, gfp_mask);
+  if (!ret) {
+    dev_err(dev, "failed to reserve resource for id\n");
+    return -ENOMEM;
 	}
 
 	ret = ida_get_new(&musbfsh_ida, &id);
@@ -371,23 +371,31 @@ static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb, u8 de
 			musbfsh->port1_status |= USB_PORT_STAT_OVERCURRENT | (USB_PORT_STAT_C_OVERCURRENT << 16);
 		}
 
-		ERR("VBUS_ERROR (%02x, %s), retry #%d, port1_status 0x%08x\n", devctl, ({
-				char *s;
+                ERR("VBUS_ERROR (%02x, %s), retry #%d, port1_status 0x%08x\n",
+                    devctl, ({
+                      char *s = NULL;
 
-				switch (devctl & MUSBFSH_DEVCTL_VBUS) {
-				case 0 << MUSBFSH_DEVCTL_VBUS_SHIFT:
-					s = "<SessEnd"; break;
-				case 1 << MUSBFSH_DEVCTL_VBUS_SHIFT:
-					s = "<AValid"; break;
-				case 2 << MUSBFSH_DEVCTL_VBUS_SHIFT:
-					s = "<VBusValid"; break;
-				/*case 3 << MUSBFSH_DEVCTL_VBUS_SHIFT:*/
-				default:
-					s = "VALID"; break; };
-			     s; }
-		    ), VBUSERR_RETRY_COUNT - musbfsh->vbuserr_retry, musbfsh->port1_status);
+                      switch (devctl & MUSBFSH_DEVCTL_VBUS) {
+                        case 0 << MUSBFSH_DEVCTL_VBUS_SHIFT:
+                          s = "<SessEnd";
+                          break;
+                        case 1 << MUSBFSH_DEVCTL_VBUS_SHIFT:
+                          s = "<AValid";
+                          break;
+                        case 2 << MUSBFSH_DEVCTL_VBUS_SHIFT:
+                          s = "<VBusValid";
+                          break;
+                        /*case 3 << MUSBFSH_DEVCTL_VBUS_SHIFT:*/
+                        default:
+                          s = "VALID";
+                          break;
+                      };
+                      s;
+                    }),
+                    VBUSERR_RETRY_COUNT - musbfsh->vbuserr_retry,
+                    musbfsh->port1_status);
 
-		/* go through A_WAIT_VFALL then start a new session */
+                /* go through A_WAIT_VFALL then start a new session */
 		if (!ignore)
 			musbfsh_platform_set_vbus(musbfsh, 0);
 		handled = IRQ_HANDLED;
@@ -633,9 +641,9 @@ void musbfsh_stop(struct musbfsh *musbfsh)
 static void musbfsh_shutdown(struct platform_device *pdev)
 {
 	struct musbfsh *musbfsh = dev_to_musbfsh(&pdev->dev);
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	INFO("++\n");
+        INFO("++\n");
 	spin_lock_irqsave(&musbfsh->lock, flags);
 	musbfsh_platform_disable(musbfsh);
 	musbfsh_generic_disable(musbfsh);
@@ -863,20 +871,20 @@ void musbfsh_read_clear_generic_interrupt(struct musbfsh *musbfsh)
 
 static irqreturn_t generic_interrupt(int irq, void *__hci)
 {
-	unsigned long flags;
-	irqreturn_t retval = IRQ_NONE;
-	struct musbfsh *musbfsh = __hci;
-	u16 int_level1 = 0;
+  unsigned long flags = 0;
+  irqreturn_t retval = IRQ_NONE;
+  struct musbfsh *musbfsh = __hci;
+  u16 int_level1 = 0;
 
-	INFO("musbfsh:generic_interrupt++\r\n");
-	spin_lock_irqsave(&musbfsh->lock, flags);
+  INFO("musbfsh:generic_interrupt++\r\n");
+  spin_lock_irqsave(&musbfsh->lock, flags);
 
-	musbfsh_read_clear_generic_interrupt(musbfsh);
-	int_level1 = musbfsh_readw(musbfsh->mregs, USB11_L1INTS);
-	INFO("Level 1 Interrupt Status 0x%x\r\n", int_level1);
+  musbfsh_read_clear_generic_interrupt(musbfsh);
+  int_level1 = musbfsh_readw(musbfsh->mregs, USB11_L1INTS);
+  INFO("Level 1 Interrupt Status 0x%x\r\n", int_level1);
 
-	if (musbfsh->int_usb || musbfsh->int_tx || musbfsh->int_rx)
-		retval = musbfsh_interrupt(musbfsh);
+  if (musbfsh->int_usb || musbfsh->int_tx || musbfsh->int_rx)
+    retval = musbfsh_interrupt(musbfsh);
 #ifndef CONFIG_MUSBFSH_PIO_ONLY
 	if (musbfsh->int_dma)
 		retval = musbfsh_dma_controller_irq(irq, musbfsh->musbfsh_dma_controller);
@@ -897,8 +905,8 @@ irqreturn_t musbfsh_interrupt(struct musbfsh *musbfsh)
 {
 	irqreturn_t retval = IRQ_NONE;
 	u8 devctl, power;
-	int ep_num;
-	u32 reg;
+        int ep_num = 0;
+        u32 reg;
 
 	devctl = musbfsh_readb(musbfsh->mregs, MUSBFSH_DEVCTL);
 	power = musbfsh_readb(musbfsh->mregs, MUSBFSH_POWER);
@@ -1053,20 +1061,21 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl)
 #endif
 {
-	int status;
-	struct musbfsh *musbfsh;
-	struct musbfsh_hdrc_platform_data *plat = dev->platform_data;
-	struct usb_hcd *hcd;
+  int status = 0;
+  struct musbfsh *musbfsh = NULL;
+  struct musbfsh_hdrc_platform_data *plat = dev->platform_data;
+  struct usb_hcd *hcd = NULL;
 
-	INFO("++\n");
-	/* The driver might handle more features than the board; OK.
-	 * Fail when the board needs a feature that's not enabled.
-	 */
-	INFO("[Flow][USB11]%s:%d, pbase = 0x%lx\n", __func__, __LINE__, (unsigned long)ctrlp);
-	if (!plat) {
-		dev_dbg(dev, "no platform_data?\n");
-		status = -ENODEV;
-		goto fail0;
+  INFO("++\n");
+  /* The driver might handle more features than the board; OK.
+   * Fail when the board needs a feature that's not enabled.
+   */
+  INFO("[Flow][USB11]%s:%d, pbase = 0x%lx\n", __func__, __LINE__,
+       (unsigned long)ctrlp);
+  if (!plat) {
+    dev_dbg(dev, "no platform_data?\n");
+    status = -ENODEV;
+    goto fail0;
 	}
 
 	/* allocate */
@@ -1118,13 +1127,12 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	INFO("DMA mode\n");
 	INFO("[Flow][USB11]%s:%d DMA Mode\n", __func__, __LINE__);
 	if (use_dma && dev->dma_mask) {
-		struct dma_controller *c;
+          struct dma_controller *c = NULL;
 
-		/*only software config */
-		c = musbfsh_dma_controller_create(musbfsh, musbfsh->mregs);
-		musbfsh->dma_controller = c;
-		if (c)
-			(void)c->start(c);	/*do nothing in fact */
+          /*only software config */
+          c = musbfsh_dma_controller_create(musbfsh, musbfsh->mregs);
+          musbfsh->dma_controller = c;
+          if (c) (void)c->start(c); /*do nothing in fact */
 	}
 #else
 	INFO("PIO mode\n");
