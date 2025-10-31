@@ -75,7 +75,7 @@ jobs:
           filename: ${{ inputs.checkfile }}
           filetext: ${{ inputs.checktext }}
           #filetype: .c .h
-          clangfix: true
+          filefix: true
           #dirname: workspace
           rootdir: false
           content: true
