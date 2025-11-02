@@ -84,6 +84,7 @@ jobs:
           rootdir: false
           content: true
           include: true
+          recheck: true
           update: false
-          report: true
+          report: false
         continue-on-error: true
