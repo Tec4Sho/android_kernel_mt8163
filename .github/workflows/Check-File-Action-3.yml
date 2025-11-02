@@ -78,10 +78,10 @@ jobs:
           filetext: ${{ inputs.checktext }}
           #filetype: .c .h
           dirname: workspace
-          content: true
-          include: true
+          content: false
+          include: false
           rootdir: false
-          recheck: true
+          recheck: false
           repair: true
           report: false
           update: false
