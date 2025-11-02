@@ -1,0 +1,114 @@
+name: Check File Deploy 2025
+on:
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+    inputs:
+      check-file:
+        description: 'CHECK FILENAME'
+        type: string
+        required: true
+        default: ''
+      check-text:
+        description: 'CHECK PATTERN'
+        type: string
+        required: true
+        default: ''
+      file-type:
+        description: 'CHECK FILE TYPES'
+        type: string
+        required: false
+        default: ''
+      dir-name:
+        description: 'WORKSPACE DIRECTORY'
+        type: string
+        required: false
+        default: 'workspace'
+      DEVICE_TREE_A:
+        description: 'DEVICE TREE A'
+        required: true
+        default: 'https://github.com/add-repo-here'
+      DEVICE_TREE_BRANCH_A:
+        description: 'DEVICE TREE BRANCH A'
+        required: true
+        default: ''
+      DEVICE_PATH_A:
+        description: 'DEVICE PATH A'
+        required: true
+        default: 'add/device/path'
+      DEVICE_TREE_B:
+        description: 'DEVICE TREE B'
+        required: false
+        default: 'https://github.com/add-repo-here'
+      DEVICE_TREE_BRANCH_B:
+        description: 'DEVICE TREE BRANCH B'
+        required: true
+        default: ''
+      DEVICE_PATH_B:
+        description: 'DEVICE PATH B'
+        required: true
+        default: 'add/device/path'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Create Workspace
+        run: |
+          mkdir -p ${GITHUB_WORKSPACE}/workspace
+          set -o allexport
+          export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
+          if [[ `which git` ]]; then
+            echo -e "\n`git --version`\n";
+            git config --global core.longpaths true
+            git config --global core.protectNTFS false
+            git config --global http.postBuffer 524288000 # Increase post buffer size (example value in bytes)
+            git config --global http.lowSpeedLimit 0      # Disable low speed limit
+            git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
+          else
+            echo -e "\nGit needed installing now....\n";
+            sudo DEBIAN_FRONTEND=noninteractive sudo apt-get install -yq git >/dev/null;
+            git config --global core.longpaths true
+            git config --global core.protectNTFS false
+            git config --global http.postBuffer 524288000 # Increase post buffer size (example value in bytes)
+            git config --global http.lowSpeedLimit 0      # Disable low speed limit
+            git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
+          fi;
+          set +e
+        continue-on-error: true
+
+      - name: Clone Repo A
+        if: inputs.DEVICE_TREE_BRANCH_A != ''
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          path: ./${{ github.event.inputs.DEVICE_PATH_A }}
+          ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH_A }}
+
+    # Setup triple clone start
+      - name: Clone Repo B
+        if: inputs.DEVICE_TREE_BRANCH_B != ''
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.actor }}/add_second_repo_here
+          path: ././${{ github.event.inputs.DEVICE_PATH_B }}
+          ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH_B }}
+
+      - name: Check Workspace
+        run: |
+          du . -h -d 8
+          
+      - name: Check File
+        if: inputs.check-file != ''
+        uses: Tec4Sho/check-file-action@master
+        with:
+          filename: ${{ inputs.check-file }}
+          filetext: ${{ inputs.check-text }}
+          filetype: ${{ inputs.file-type }}
+          dirname: ${{ inputs.dir-name }}
+          content: true
+          include: true
+          rootdir: false
+          recheck: false
+          repair: false
+          report: false
+          update: false
+        continue-on-error: true
