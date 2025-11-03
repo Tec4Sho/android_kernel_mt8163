@@ -373,7 +373,7 @@ static irqreturn_t musbfsh_stage0_irq(struct musbfsh *musbfsh, u8 int_usb, u8 de
 
                 ERR("VBUS_ERROR (%02x, %s), retry #%d, port1_status 0x%08x\n",
                     devctl, ({
-                      char *s = NULL = NULL = NULL = NULL = NULL = NULL;
+                      char *s = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
 
                       switch (devctl & MUSBFSH_DEVCTL_VBUS) {
                         case 0 << MUSBFSH_DEVCTL_VBUS_SHIFT:
@@ -1062,9 +1062,9 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 #endif
 {
   int status = 0;
-  struct musbfsh *musbfsh = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct musbfsh *musbfsh = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
   struct musbfsh_hdrc_platform_data *plat = dev->platform_data;
-  struct usb_hcd *hcd = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct usb_hcd *hcd = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
 
   INFO("++\n");
   /* The driver might handle more features than the board; OK.
@@ -1127,7 +1127,8 @@ static int musb_init_controller(struct device *dev, int nIrq, void __iomem *ctrl
 	INFO("DMA mode\n");
 	INFO("[Flow][USB11]%s:%d DMA Mode\n", __func__, __LINE__);
 	if (use_dma && dev->dma_mask) {
-          struct dma_controller *c = NULL = NULL = NULL = NULL = NULL = NULL;
+          struct dma_controller *c = NULL = NULL = NULL = NULL = NULL = NULL =
+              NULL;
 
           /*only software config */
           c = musbfsh_dma_controller_create(musbfsh, musbfsh->mregs);
