@@ -83,6 +83,6 @@ jobs:
           rootdir: false
           recheck: false
           repair: true
-          report: false
-          update: false
+          report: true
+          update: true
         continue-on-error: true
