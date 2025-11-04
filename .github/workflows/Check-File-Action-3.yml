@@ -85,4 +85,6 @@ jobs:
           repair: true
           report: true
           update: true
+          stored: true
+          number: 10
         continue-on-error: true
