@@ -91,12 +91,14 @@ MODULE_PARM_DESC(enable, "Enable Sun DBRI soundcard.");
 
 #undef DBRI_DEBUG
 
-#define D_INT	(1<<0)
-#define D_GEN	(1<<1)
-#define D_CMD	(1<<2)
-#define D_MM	(1<<3)
-#define D_USR	(1<<4)
-#define D_DESC	(1<<5)
+enum {
+  D_INT = (1 << 0),
+  D_GEN = (1 << 1),
+  D_CMD = (1 << 2),
+  D_MM = (1 << 3),
+  D_USR = (1 << 4),
+  D_DESC = (1 << 5)
+};
 
 static int dbri_debug;
 module_param(dbri_debug, int, 0644);
@@ -139,61 +141,71 @@ struct cs4215 {
  */
 
 /* Time Slot 1, Status register */
-#define CS4215_CLB	(1<<2)	/* Control Latch Bit */
-#define CS4215_OLB	(1<<3)	/* 1: line: 2.0V, speaker 4V */
-				/* 0: line: 2.8V, speaker 8V */
-#define CS4215_MLB	(1<<4)	/* 1: Microphone: 20dB gain disabled */
-#define CS4215_RSRVD_1  (1<<5)
-
-/* Time Slot 2, Data Format Register */
-#define CS4215_DFR_LINEAR16	0
-#define CS4215_DFR_ULAW		1
-#define CS4215_DFR_ALAW		2
-#define CS4215_DFR_LINEAR8	3
-#define CS4215_DFR_STEREO	(1<<2)
-static struct {
-	unsigned short freq;
-	unsigned char xtal;
-	unsigned char csval;
-} CS4215_FREQ[] = {
-	{  8000, (1 << 4), (0 << 3) },
-	{ 16000, (1 << 4), (1 << 3) },
-	{ 27429, (1 << 4), (2 << 3) },	/* Actually 24428.57 */
-	{ 32000, (1 << 4), (3 << 3) },
-     /* {    NA, (1 << 4), (4 << 3) }, */
-     /* {    NA, (1 << 4), (5 << 3) }, */
-	{ 48000, (1 << 4), (6 << 3) },
-	{  9600, (1 << 4), (7 << 3) },
-	{  5512, (2 << 4), (0 << 3) },	/* Actually 5512.5 */
-	{ 11025, (2 << 4), (1 << 3) },
-	{ 18900, (2 << 4), (2 << 3) },
-	{ 22050, (2 << 4), (3 << 3) },
-	{ 37800, (2 << 4), (4 << 3) },
-	{ 44100, (2 << 4), (5 << 3) },
-	{ 33075, (2 << 4), (6 << 3) },
-	{  6615, (2 << 4), (7 << 3) },
-	{ 0, 0, 0}
+enum {
+  CS4215_CLB = (1 << 2), /* Control Latch Bit */
+  CS4215_OLB = (1 << 3), /* 1: line: 2.0V, speaker 4V */
+                         /* 0: line: 2.8V, speaker 8V */
+  CS4215_MLB = (1 << 4), /* 1: Microphone: 20dB gain disabled */
+  CS4215_RSRVD_1 = (1 << 5)
 };
 
-#define CS4215_HPF	(1<<7)	/* High Pass Filter, 1: Enabled */
+/* Time Slot 2, Data Format Register */
+enum {
+  CS4215_DFR_LINEAR16 = 0,
+  CS4215_DFR_ULAW = 1,
+  CS4215_DFR_ALAW = 2,
+  CS4215_DFR_LINEAR8 = 3,
+  CS4215_DFR_STEREO = (1 << 2)
+};
+static struct {
+  unsigned short freq;
+  unsigned char xtal;
+  unsigned char csval;
+} CS4215_FREQ[] = {{8000, (1 << 4), (0 << 3)},
+                   {16000, (1 << 4), (1 << 3)},
+                   {27429, (1 << 4), (2 << 3)}, /* Actually 24428.57 */
+                   {32000, (1 << 4), (3 << 3)},
+                   /* {    NA, (1 << 4), (4 << 3) }, */
+                   /* {    NA, (1 << 4), (5 << 3) }, */
+                   {48000, (1 << 4), (6 << 3)},
+                   {9600, (1 << 4), (7 << 3)},
+                   {5512, (2 << 4), (0 << 3)}, /* Actually 5512.5 */
+                   {11025, (2 << 4), (1 << 3)},
+                   {18900, (2 << 4), (2 << 3)},
+                   {22050, (2 << 4), (3 << 3)},
+                   {37800, (2 << 4), (4 << 3)},
+                   {44100, (2 << 4), (5 << 3)},
+                   {33075, (2 << 4), (6 << 3)},
+                   {6615, (2 << 4), (7 << 3)},
+                   {0, 0, 0}};
 
-#define CS4215_12_MASK	0xfcbf	/* Mask off reserved bits in slot 1 & 2 */
+enum {
+  CS4215_HPF = (1 << 7) /* High Pass Filter, 1: Enabled */
+};
+
+enum {
+  CS4215_12_MASK = 0xfcbf /* Mask off reserved bits in slot 1 & 2 */
+};
 
 /* Time Slot 3, Serial Port Control register */
-#define CS4215_XEN	(1<<0)	/* 0: Enable serial output */
-#define CS4215_XCLK	(1<<1)	/* 1: Master mode: Generate SCLK */
-#define CS4215_BSEL_64	(0<<2)	/* Bitrate: 64 bits per frame */
-#define CS4215_BSEL_128	(1<<2)
-#define CS4215_BSEL_256	(2<<2)
-#define CS4215_MCK_MAST (0<<4)	/* Master clock */
-#define CS4215_MCK_XTL1 (1<<4)	/* 24.576 MHz clock source */
-#define CS4215_MCK_XTL2 (2<<4)	/* 16.9344 MHz clock source */
-#define CS4215_MCK_CLK1 (3<<4)	/* Clockin, 256 x Fs */
-#define CS4215_MCK_CLK2 (4<<4)	/* Clockin, see DFR */
+enum {
+  CS4215_XEN = (1 << 0),     /* 0: Enable serial output */
+  CS4215_XCLK = (1 << 1),    /* 1: Master mode: Generate SCLK */
+  CS4215_BSEL_64 = (0 << 2), /* Bitrate: 64 bits per frame */
+  CS4215_BSEL_128 = (1 << 2),
+  CS4215_BSEL_256 = (2 << 2),
+  CS4215_MCK_MAST = (0 << 4), /* Master clock */
+  CS4215_MCK_XTL1 = (1 << 4), /* 24.576 MHz clock source */
+  CS4215_MCK_XTL2 = (2 << 4), /* 16.9344 MHz clock source */
+  CS4215_MCK_CLK1 = (3 << 4), /* Clockin, 256 x Fs */
+  CS4215_MCK_CLK2 = (4 << 4)  /* Clockin, see DFR */
+};
 
 /* Time Slot 4, Test Register */
-#define CS4215_DAD	(1<<0)	/* 0:Digital-Dig loop, 1:Dig-Analog-Dig loop */
-#define CS4215_ENL	(1<<1)	/* Enable Loopback Testing */
+enum {
+  CS4215_DAD = (1 << 0), /* 0:Digital-Dig loop, 1:Dig-Analog-Dig loop */
+  CS4215_ENL = (1 << 1)  /* Enable Loopback Testing */
+};
 
 /* Time Slot 5, Parallel Port Register */
 /* Read only here and the same as the in data mode */
@@ -201,7 +213,9 @@ static struct {
 /* Time Slot 6, Reserved  */
 
 /* Time Slot 7, Version Register  */
-#define CS4215_VERSION_MASK 0xf	/* Known versions 0/C, 1/D, 2/E */
+enum {
+  CS4215_VERSION_MASK = 0xf /* Known versions 0/C, 1/D, 2/E */
+};
 
 /* Time Slot 8, Reserved  */
 
@@ -212,20 +226,26 @@ static struct {
 
 /* Time Slot 5, Output Setting  */
 #define CS4215_LO(v)	v	/* Left Output Attenuation 0x3f: -94.5 dB */
-#define CS4215_LE	(1<<6)	/* Line Out Enable */
-#define CS4215_HE	(1<<7)	/* Headphone Enable */
+enum {
+  CS4215_LE = (1 << 6), /* Line Out Enable */
+  CS4215_HE = (1 << 7)  /* Headphone Enable */
+};
 
 /* Time Slot 6, Output Setting  */
 #define CS4215_RO(v)	v	/* Right Output Attenuation 0x3f: -94.5 dB */
-#define CS4215_SE	(1<<6)	/* Speaker Enable */
-#define CS4215_ADI	(1<<7)	/* A/D Data Invalid: Busy in calibration */
+enum {
+  CS4215_SE = (1 << 6), /* Speaker Enable */
+  CS4215_ADI = (1 << 7) /* A/D Data Invalid: Busy in calibration */
+};
 
 /* Time Slot 7, Input Setting */
 #define CS4215_LG(v)	v	/* Left Gain Setting 0xf: 22.5 dB */
-#define CS4215_IS	(1<<4)	/* Input Select: 1=Microphone, 0=Line */
-#define CS4215_OVR	(1<<5)	/* 1: Over range condition occurred */
-#define CS4215_PIO0	(1<<6)	/* Parallel I/O 0 */
-#define CS4215_PIO1	(1<<7)
+enum {
+  CS4215_IS = (1 << 4),   /* Input Select: 1=Microphone, 0=Line */
+  CS4215_OVR = (1 << 5),  /* 1: Over range condition occurred */
+  CS4215_PIO0 = (1 << 6), /* Parallel I/O 0 */
+  CS4215_PIO1 = (1 << 7)
+};
 
 /* Time Slot 8, Input Setting */
 #define CS4215_RG(v)	v	/* Right Gain Setting 0xf: 22.5 dB */
@@ -236,18 +256,22 @@ static struct {
 ****************************************************************************/
 
 /* DBRI main registers */
-#define REG0	0x00		/* Status and Control */
-#define REG1	0x04		/* Mode and Interrupt */
-#define REG2	0x08		/* Parallel IO */
-#define REG3	0x0c		/* Test */
-#define REG8	0x20		/* Command Queue Pointer */
-#define REG9	0x24		/* Interrupt Queue Pointer */
+enum {
+  REG0 = 0x00, /* Status and Control */
+  REG1 = 0x04, /* Mode and Interrupt */
+  REG2 = 0x08, /* Parallel IO */
+  REG3 = 0x0c, /* Test */
+  REG8 = 0x20, /* Command Queue Pointer */
+  REG9 = 0x24  /* Interrupt Queue Pointer */
+};
 
-#define DBRI_NO_CMDS	64
-#define DBRI_INT_BLK	64
-#define DBRI_NO_DESCS	64
-#define DBRI_NO_PIPES	32
-#define DBRI_MAX_PIPE	(DBRI_NO_PIPES - 1)
+enum {
+  DBRI_NO_CMDS = 64,
+  DBRI_INT_BLK = 64,
+  DBRI_NO_DESCS = 64,
+  DBRI_NO_PIPES = 32
+};
+#define DBRI_MAX_PIPE (DBRI_NO_PIPES - 1)
 
 #define DBRI_REC	0
 #define DBRI_PLAY	1
@@ -321,130 +345,156 @@ struct snd_dbri {
 	struct dbri_streaminfo stream_info[DBRI_NO_STREAMS];
 };
 
-#define DBRI_MAX_VOLUME		63	/* Output volume */
-#define DBRI_MAX_GAIN		15	/* Input gain */
+enum {
+  DBRI_MAX_VOLUME = 63, /* Output volume */
+  DBRI_MAX_GAIN = 15    /* Input gain */
+};
 
 /* DBRI Reg0 - Status Control Register - defines. (Page 17) */
-#define D_P		(1<<15)	/* Program command & queue pointer valid */
-#define D_G		(1<<14)	/* Allow 4-Word SBus Burst */
-#define D_S		(1<<13)	/* Allow 16-Word SBus Burst */
-#define D_E		(1<<12)	/* Allow 8-Word SBus Burst */
-#define D_X		(1<<7)	/* Sanity Timer Disable */
-#define D_T		(1<<6)	/* Permit activation of the TE interface */
-#define D_N		(1<<5)	/* Permit activation of the NT interface */
-#define D_C		(1<<4)	/* Permit activation of the CHI interface */
-#define D_F		(1<<3)	/* Force Sanity Timer Time-Out */
-#define D_D		(1<<2)	/* Disable Master Mode */
-#define D_H		(1<<1)	/* Halt for Analysis */
-#define D_R		(1<<0)	/* Soft Reset */
+enum {
+  D_P = (1 << 15), /* Program command & queue pointer valid */
+  D_G = (1 << 14), /* Allow 4-Word SBus Burst */
+  D_S = (1 << 13), /* Allow 16-Word SBus Burst */
+  D_E = (1 << 12), /* Allow 8-Word SBus Burst */
+  D_X = (1 << 7),  /* Sanity Timer Disable */
+  D_T = (1 << 6),  /* Permit activation of the TE interface */
+  D_N = (1 << 5),  /* Permit activation of the NT interface */
+  D_C = (1 << 4),  /* Permit activation of the CHI interface */
+  D_F = (1 << 3),  /* Force Sanity Timer Time-Out */
+  D_D = (1 << 2),  /* Disable Master Mode */
+  D_H = (1 << 1),  /* Halt for Analysis */
+  D_R = (1 << 0)   /* Soft Reset */
+};
 
 /* DBRI Reg1 - Mode and Interrupt Register - defines. (Page 18) */
-#define D_LITTLE_END	(1<<8)	/* Byte Order */
-#define D_BIG_END	(0<<8)	/* Byte Order */
-#define D_MRR		(1<<4)	/* Multiple Error Ack on SBus (read only) */
-#define D_MLE		(1<<3)	/* Multiple Late Error on SBus (read only) */
-#define D_LBG		(1<<2)	/* Lost Bus Grant on SBus (read only) */
-#define D_MBE		(1<<1)	/* Burst Error on SBus (read only) */
-#define D_IR		(1<<0)	/* Interrupt Indicator (read only) */
+enum {
+  D_LITTLE_END = (1 << 8), /* Byte Order */
+  D_BIG_END = (0 << 8),    /* Byte Order */
+  D_MRR = (1 << 4),        /* Multiple Error Ack on SBus (read only) */
+  D_MLE = (1 << 3),        /* Multiple Late Error on SBus (read only) */
+  D_LBG = (1 << 2),        /* Lost Bus Grant on SBus (read only) */
+  D_MBE = (1 << 1),        /* Burst Error on SBus (read only) */
+  D_IR = (1 << 0)          /* Interrupt Indicator (read only) */
+};
 
 /* DBRI Reg2 - Parallel IO Register - defines. (Page 18) */
-#define D_ENPIO3	(1<<7)	/* Enable Pin 3 */
-#define D_ENPIO2	(1<<6)	/* Enable Pin 2 */
-#define D_ENPIO1	(1<<5)	/* Enable Pin 1 */
-#define D_ENPIO0	(1<<4)	/* Enable Pin 0 */
-#define D_ENPIO		(0xf0)	/* Enable all the pins */
-#define D_PIO3		(1<<3)	/* Pin 3: 1: Data mode, 0: Ctrl mode */
-#define D_PIO2		(1<<2)	/* Pin 2: 1: Onboard PDN */
-#define D_PIO1		(1<<1)	/* Pin 1: 0: Reset */
-#define D_PIO0		(1<<0)	/* Pin 0: 1: Speakerbox PDN */
+enum {
+  D_ENPIO3 = (1 << 7), /* Enable Pin 3 */
+  D_ENPIO2 = (1 << 6), /* Enable Pin 2 */
+  D_ENPIO1 = (1 << 5), /* Enable Pin 1 */
+  D_ENPIO0 = (1 << 4), /* Enable Pin 0 */
+  D_ENPIO = (0xf0),    /* Enable all the pins */
+  D_PIO3 = (1 << 3),   /* Pin 3: 1: Data mode, 0: Ctrl mode */
+  D_PIO2 = (1 << 2),   /* Pin 2: 1: Onboard PDN */
+  D_PIO1 = (1 << 1),   /* Pin 1: 0: Reset */
+  D_PIO0 = (1 << 0)    /* Pin 0: 1: Speakerbox PDN */
+};
 
 /* DBRI Commands (Page 20) */
-#define D_WAIT		0x0	/* Stop execution */
-#define D_PAUSE		0x1	/* Flush long pipes */
-#define D_JUMP		0x2	/* New command queue */
-#define D_IIQ		0x3	/* Initialize Interrupt Queue */
-#define D_REX		0x4	/* Report command execution via interrupt */
-#define D_SDP		0x5	/* Setup Data Pipe */
-#define D_CDP		0x6	/* Continue Data Pipe (reread NULL Pointer) */
-#define D_DTS		0x7	/* Define Time Slot */
-#define D_SSP		0x8	/* Set short Data Pipe */
-#define D_CHI		0x9	/* Set CHI Global Mode */
-#define D_NT		0xa	/* NT Command */
-#define D_TE		0xb	/* TE Command */
-#define D_CDEC		0xc	/* Codec setup */
-#define D_TEST		0xd	/* No comment */
-#define D_CDM		0xe	/* CHI Data mode command */
+enum {
+  D_WAIT = 0x0,  /* Stop execution */
+  D_PAUSE = 0x1, /* Flush long pipes */
+  D_JUMP = 0x2,  /* New command queue */
+  D_IIQ = 0x3,   /* Initialize Interrupt Queue */
+  D_REX = 0x4,   /* Report command execution via interrupt */
+  D_SDP = 0x5,   /* Setup Data Pipe */
+  D_CDP = 0x6,   /* Continue Data Pipe (reread NULL Pointer) */
+  D_DTS = 0x7,   /* Define Time Slot */
+  D_SSP = 0x8,   /* Set short Data Pipe */
+  D_CHI = 0x9,   /* Set CHI Global Mode */
+  D_NT = 0xa,    /* NT Command */
+  D_TE = 0xb,    /* TE Command */
+  D_CDEC = 0xc,  /* Codec setup */
+  D_TEST = 0xd,  /* No comment */
+  D_CDM = 0xe    /* CHI Data mode command */
+};
 
 /* Special bits for some commands */
 #define D_PIPE(v)      ((v)<<0)	/* Pipe No.: 0-15 long, 16-21 short */
 
 /* Setup Data Pipe */
 /* IRM */
-#define D_SDP_2SAME	(1<<18)	/* Report 2nd time in a row value received */
-#define D_SDP_CHANGE	(2<<18)	/* Report any changes */
-#define D_SDP_EVERY	(3<<18)	/* Report any changes */
-#define D_SDP_EOL	(1<<17)	/* EOL interrupt enable */
-#define D_SDP_IDLE	(1<<16)	/* HDLC idle interrupt enable */
+enum {
+  D_SDP_2SAME = (1 << 18),  /* Report 2nd time in a row value received */
+  D_SDP_CHANGE = (2 << 18), /* Report any changes */
+  D_SDP_EVERY = (3 << 18),  /* Report any changes */
+  D_SDP_EOL = (1 << 17),    /* EOL interrupt enable */
+  D_SDP_IDLE = (1 << 16)    /* HDLC idle interrupt enable */
+};
 
 /* Pipe data MODE */
-#define D_SDP_MEM	(0<<13)	/* To/from memory */
-#define D_SDP_HDLC	(2<<13)
-#define D_SDP_HDLC_D	(3<<13)	/* D Channel (prio control) */
-#define D_SDP_SER	(4<<13)	/* Serial to serial */
-#define D_SDP_FIXED	(6<<13)	/* Short only */
-#define D_SDP_MODE(v)	((v)&(7<<13))
+enum {
+  D_SDP_MEM = (0 << 13), /* To/from memory */
+  D_SDP_HDLC = (2 << 13),
+  D_SDP_HDLC_D = (3 << 13), /* D Channel (prio control) */
+  D_SDP_SER = (4 << 13),    /* Serial to serial */
+  D_SDP_FIXED = (6 << 13)   /* Short only */
+};
+#define D_SDP_MODE(v) ((v) & (7 << 13))
 
-#define D_SDP_TO_SER	(1<<12)	/* Direction */
-#define D_SDP_FROM_SER	(0<<12)	/* Direction */
-#define D_SDP_MSB	(1<<11)	/* Bit order within Byte */
-#define D_SDP_LSB	(0<<11)	/* Bit order within Byte */
-#define D_SDP_P		(1<<10)	/* Pointer Valid */
-#define D_SDP_A		(1<<8)	/* Abort */
-#define D_SDP_C		(1<<7)	/* Clear */
+enum {
+  D_SDP_TO_SER = (1 << 12),   /* Direction */
+  D_SDP_FROM_SER = (0 << 12), /* Direction */
+  D_SDP_MSB = (1 << 11),      /* Bit order within Byte */
+  D_SDP_LSB = (0 << 11),      /* Bit order within Byte */
+  D_SDP_P = (1 << 10),        /* Pointer Valid */
+  D_SDP_A = (1 << 8),         /* Abort */
+  D_SDP_C = (1 << 7)          /* Clear */
+};
 
 /* Define Time Slot */
-#define D_DTS_VI	(1<<17)	/* Valid Input Time-Slot Descriptor */
-#define D_DTS_VO	(1<<16)	/* Valid Output Time-Slot Descriptor */
-#define D_DTS_INS	(1<<15)	/* Insert Time Slot */
-#define D_DTS_DEL	(0<<15)	/* Delete Time Slot */
-#define D_DTS_PRVIN(v) ((v)<<10)	/* Previous In Pipe */
+enum {
+  D_DTS_VI = (1 << 17),  /* Valid Input Time-Slot Descriptor */
+  D_DTS_VO = (1 << 16),  /* Valid Output Time-Slot Descriptor */
+  D_DTS_INS = (1 << 15), /* Insert Time Slot */
+  D_DTS_DEL = (0 << 15)  /* Delete Time Slot */
+};
+#define D_DTS_PRVIN(v) ((v) << 10)      /* Previous In Pipe */
 #define D_DTS_PRVOUT(v)        ((v)<<5)	/* Previous Out Pipe */
 
 /* Time Slot defines */
 #define D_TS_LEN(v)	((v)<<24)	/* Number of bits in this time slot */
 #define D_TS_CYCLE(v)	((v)<<14)	/* Bit Count at start of TS */
-#define D_TS_DI		(1<<13)	/* Data Invert */
-#define D_TS_1CHANNEL	(0<<10)	/* Single Channel / Normal mode */
-#define D_TS_MONITOR	(2<<10)	/* Monitor pipe */
-#define D_TS_NONCONTIG	(3<<10)	/* Non contiguous mode */
-#define D_TS_ANCHOR	(7<<10)	/* Starting short pipes */
-#define D_TS_MON(v)    ((v)<<5)	/* Monitor Pipe */
+enum {
+  D_TS_DI = (1 << 13),        /* Data Invert */
+  D_TS_1CHANNEL = (0 << 10),  /* Single Channel / Normal mode */
+  D_TS_MONITOR = (2 << 10),   /* Monitor pipe */
+  D_TS_NONCONTIG = (3 << 10), /* Non contiguous mode */
+  D_TS_ANCHOR = (7 << 10)     /* Starting short pipes */
+};
+#define D_TS_MON(v) ((v) << 5)  /* Monitor Pipe */
 #define D_TS_NEXT(v)   ((v)<<0)	/* Pipe no.: 0-15 long, 16-21 short */
 
 /* Concentration Highway Interface Modes */
 #define D_CHI_CHICM(v)	((v)<<16)	/* Clock mode */
-#define D_CHI_IR	(1<<15)	/* Immediate Interrupt Report */
-#define D_CHI_EN	(1<<14)	/* CHIL Interrupt enabled */
-#define D_CHI_OD	(1<<13)	/* Open Drain Enable */
-#define D_CHI_FE	(1<<12)	/* Sample CHIFS on Rising Frame Edge */
-#define D_CHI_FD	(1<<11)	/* Frame Drive */
-#define D_CHI_BPF(v)	((v)<<0)	/* Bits per Frame */
+enum {
+  D_CHI_IR = (1 << 15), /* Immediate Interrupt Report */
+  D_CHI_EN = (1 << 14), /* CHIL Interrupt enabled */
+  D_CHI_OD = (1 << 13), /* Open Drain Enable */
+  D_CHI_FE = (1 << 12), /* Sample CHIFS on Rising Frame Edge */
+  D_CHI_FD = (1 << 11)  /* Frame Drive */
+};
+#define D_CHI_BPF(v) ((v) << 0) /* Bits per Frame */
 
 /* NT: These are here for completeness */
-#define D_NT_FBIT	(1<<17)	/* Frame Bit */
-#define D_NT_NBF	(1<<16)	/* Number of bad frames to loose framing */
-#define D_NT_IRM_IMM	(1<<15)	/* Interrupt Report & Mask: Immediate */
-#define D_NT_IRM_EN	(1<<14)	/* Interrupt Report & Mask: Enable */
-#define D_NT_ISNT	(1<<13)	/* Configure interface as NT */
-#define D_NT_FT		(1<<12)	/* Fixed Timing */
-#define D_NT_EZ		(1<<11)	/* Echo Channel is Zeros */
-#define D_NT_IFA	(1<<10)	/* Inhibit Final Activation */
-#define D_NT_ACT	(1<<9)	/* Activate Interface */
-#define D_NT_MFE	(1<<8)	/* Multiframe Enable */
-#define D_NT_RLB(v)	((v)<<5)	/* Remote Loopback */
+enum {
+  D_NT_FBIT = (1 << 17),    /* Frame Bit */
+  D_NT_NBF = (1 << 16),     /* Number of bad frames to loose framing */
+  D_NT_IRM_IMM = (1 << 15), /* Interrupt Report & Mask: Immediate */
+  D_NT_IRM_EN = (1 << 14),  /* Interrupt Report & Mask: Enable */
+  D_NT_ISNT = (1 << 13),    /* Configure interface as NT */
+  D_NT_FT = (1 << 12),      /* Fixed Timing */
+  D_NT_EZ = (1 << 11),      /* Echo Channel is Zeros */
+  D_NT_IFA = (1 << 10),     /* Inhibit Final Activation */
+  D_NT_ACT = (1 << 9),      /* Activate Interface */
+  D_NT_MFE = (1 << 8)       /* Multiframe Enable */
+};
+#define D_NT_RLB(v) ((v) << 5)          /* Remote Loopback */
 #define D_NT_LLB(v)	((v)<<2)	/* Local Loopback */
-#define D_NT_FACT	(1<<1)	/* Force Activation */
-#define D_NT_ABV	(1<<0)	/* Activate Bipolar Violation */
+enum {
+  D_NT_FACT = (1 << 1), /* Force Activation */
+  D_NT_ABV = (1 << 0)   /* Activate Bipolar Violation */
+};
 
 /* Codec Setup */
 #define D_CDEC_CK(v)	((v)<<24)	/* Clock Select */
@@ -454,44 +504,47 @@ struct snd_dbri {
 /* Test */
 #define D_TEST_RAM(v)	((v)<<16)	/* RAM Pointer */
 #define D_TEST_SIZE(v)	((v)<<11)	/* */
-#define D_TEST_ROMONOFF	0x5	/* Toggle ROM opcode monitor on/off */
-#define D_TEST_PROC	0x6	/* Microprocessor test */
-#define D_TEST_SER	0x7	/* Serial-Controller test */
-#define D_TEST_RAMREAD	0x8	/* Copy from Ram to system memory */
-#define D_TEST_RAMWRITE	0x9	/* Copy into Ram from system memory */
-#define D_TEST_RAMBIST	0xa	/* RAM Built-In Self Test */
-#define D_TEST_MCBIST	0xb	/* Microcontroller Built-In Self Test */
-#define D_TEST_DUMP	0xe	/* ROM Dump */
+enum {
+  D_TEST_ROMONOFF = 0x5, /* Toggle ROM opcode monitor on/off */
+  D_TEST_PROC = 0x6,     /* Microprocessor test */
+  D_TEST_SER = 0x7,      /* Serial-Controller test */
+  D_TEST_RAMREAD = 0x8,  /* Copy from Ram to system memory */
+  D_TEST_RAMWRITE = 0x9, /* Copy into Ram from system memory */
+  D_TEST_RAMBIST = 0xa,  /* RAM Built-In Self Test */
+  D_TEST_MCBIST = 0xb,   /* Microcontroller Built-In Self Test */
+  D_TEST_DUMP = 0xe      /* ROM Dump */
+};
 
 /* CHI Data Mode */
-#define D_CDM_THI	(1 << 8)	/* Transmit Data on CHIDR Pin */
-#define D_CDM_RHI	(1 << 7)	/* Receive Data on CHIDX Pin */
-#define D_CDM_RCE	(1 << 6)	/* Receive on Rising Edge of CHICK */
-#define D_CDM_XCE	(1 << 2) /* Transmit Data on Rising Edge of CHICK */
-#define D_CDM_XEN	(1 << 1)	/* Transmit Highway Enable */
-#define D_CDM_REN	(1 << 0)	/* Receive Highway Enable */
+enum {
+  D_CDM_THI = (1 << 8), /* Transmit Data on CHIDR Pin */
+  D_CDM_RHI = (1 << 7), /* Receive Data on CHIDX Pin */
+  D_CDM_RCE = (1 << 6), /* Receive on Rising Edge of CHICK */
+  D_CDM_XCE = (1 << 2), /* Transmit Data on Rising Edge of CHICK */
+  D_CDM_XEN = (1 << 1), /* Transmit Highway Enable */
+  D_CDM_REN = (1 << 0)  /* Receive Highway Enable */
+};
 
 /* The Interrupts */
-#define D_INTR_BRDY	1	/* Buffer Ready for processing */
-#define D_INTR_MINT	2	/* Marked Interrupt in RD/TD */
-#define D_INTR_IBEG	3	/* Flag to idle transition detected (HDLC) */
-#define D_INTR_IEND	4	/* Idle to flag transition detected (HDLC) */
-#define D_INTR_EOL	5	/* End of List */
-#define D_INTR_CMDI	6	/* Command has bean read */
-#define D_INTR_XCMP	8	/* Transmission of frame complete */
-#define D_INTR_SBRI	9	/* BRI status change info */
-#define D_INTR_FXDT	10	/* Fixed data change */
-#define D_INTR_CHIL	11	/* CHI lost frame sync (channel 36 only) */
-#define D_INTR_COLL	11	/* Unrecoverable D-Channel collision */
-#define D_INTR_DBYT	12	/* Dropped by frame slip */
-#define D_INTR_RBYT	13	/* Repeated by frame slip */
-#define D_INTR_LINT	14	/* Lost Interrupt */
-#define D_INTR_UNDR	15	/* DMA underrun */
+enum {
+  D_INTR_BRDY = 1,  /* Buffer Ready for processing */
+  D_INTR_MINT = 2,  /* Marked Interrupt in RD/TD */
+  D_INTR_IBEG = 3,  /* Flag to idle transition detected (HDLC) */
+  D_INTR_IEND = 4,  /* Idle to flag transition detected (HDLC) */
+  D_INTR_EOL = 5,   /* End of List */
+  D_INTR_CMDI = 6,  /* Command has bean read */
+  D_INTR_XCMP = 8,  /* Transmission of frame complete */
+  D_INTR_SBRI = 9,  /* BRI status change info */
+  D_INTR_FXDT = 10, /* Fixed data change */
+  D_INTR_CHIL = 11, /* CHI lost frame sync (channel 36 only) */
+  D_INTR_COLL = 11, /* Unrecoverable D-Channel collision */
+  D_INTR_DBYT = 12, /* Dropped by frame slip */
+  D_INTR_RBYT = 13, /* Repeated by frame slip */
+  D_INTR_LINT = 14, /* Lost Interrupt */
+  D_INTR_UNDR = 15  /* DMA underrun */
+};
 
-#define D_INTR_TE	32
-#define D_INTR_NT	34
-#define D_INTR_CHI	36
-#define D_INTR_CMD	38
+enum { D_INTR_TE = 32, D_INTR_NT = 34, D_INTR_CHI = 36, D_INTR_CMD = 38 };
 
 #define D_INTR_GETCHAN(v)	(((v) >> 24) & 0x3f)
 #define D_INTR_GETCODE(v)	(((v) >> 20) & 0xf)
@@ -499,65 +552,77 @@ struct snd_dbri {
 #define D_INTR_GETVAL(v)	((v) & 0xffff)
 #define D_INTR_GETRVAL(v)	((v) & 0xfffff)
 
-#define D_P_0		0	/* TE receive anchor */
-#define D_P_1		1	/* TE transmit anchor */
-#define D_P_2		2	/* NT transmit anchor */
-#define D_P_3		3	/* NT receive anchor */
-#define D_P_4		4	/* CHI send data */
-#define D_P_5		5	/* CHI receive data */
-#define D_P_6		6	/* */
-#define D_P_7		7	/* */
-#define D_P_8		8	/* */
-#define D_P_9		9	/* */
-#define D_P_10		10	/* */
-#define D_P_11		11	/* */
-#define D_P_12		12	/* */
-#define D_P_13		13	/* */
-#define D_P_14		14	/* */
-#define D_P_15		15	/* */
-#define D_P_16		16	/* CHI anchor pipe */
-#define D_P_17		17	/* CHI send */
-#define D_P_18		18	/* CHI receive */
-#define D_P_19		19	/* CHI receive */
-#define D_P_20		20	/* CHI receive */
-#define D_P_21		21	/* */
-#define D_P_22		22	/* */
-#define D_P_23		23	/* */
-#define D_P_24		24	/* */
-#define D_P_25		25	/* */
-#define D_P_26		26	/* */
-#define D_P_27		27	/* */
-#define D_P_28		28	/* */
-#define D_P_29		29	/* */
-#define D_P_30		30	/* */
-#define D_P_31		31	/* */
+enum {
+  D_P_0 = 0,   /* TE receive anchor */
+  D_P_1 = 1,   /* TE transmit anchor */
+  D_P_2 = 2,   /* NT transmit anchor */
+  D_P_3 = 3,   /* NT receive anchor */
+  D_P_4 = 4,   /* CHI send data */
+  D_P_5 = 5,   /* CHI receive data */
+  D_P_6 = 6,   /* */
+  D_P_7 = 7,   /* */
+  D_P_8 = 8,   /* */
+  D_P_9 = 9,   /* */
+  D_P_10 = 10, /* */
+  D_P_11 = 11, /* */
+  D_P_12 = 12, /* */
+  D_P_13 = 13, /* */
+  D_P_14 = 14, /* */
+  D_P_15 = 15, /* */
+  D_P_16 = 16, /* CHI anchor pipe */
+  D_P_17 = 17, /* CHI send */
+  D_P_18 = 18, /* CHI receive */
+  D_P_19 = 19, /* CHI receive */
+  D_P_20 = 20, /* CHI receive */
+  D_P_21 = 21, /* */
+  D_P_22 = 22, /* */
+  D_P_23 = 23, /* */
+  D_P_24 = 24, /* */
+  D_P_25 = 25, /* */
+  D_P_26 = 26, /* */
+  D_P_27 = 27, /* */
+  D_P_28 = 28, /* */
+  D_P_29 = 29, /* */
+  D_P_30 = 30, /* */
+  D_P_31 = 31  /* */
+};
 
 /* Transmit descriptor defines */
-#define DBRI_TD_F	(1 << 31)	/* End of Frame */
-#define DBRI_TD_D	(1 << 30)	/* Do not append CRC */
-#define DBRI_TD_CNT(v)	((v) << 16) /* Number of valid bytes in the buffer */
-#define DBRI_TD_B	(1 << 15)	/* Final interrupt */
-#define DBRI_TD_M	(1 << 14)	/* Marker interrupt */
-#define DBRI_TD_I	(1 << 13)	/* Transmit Idle Characters */
-#define DBRI_TD_FCNT(v)	(v)		/* Flag Count */
-#define DBRI_TD_UNR	(1 << 3) /* Underrun: transmitter is out of data */
-#define DBRI_TD_ABT	(1 << 2)	/* Abort: frame aborted */
-#define DBRI_TD_TBC	(1 << 0)	/* Transmit buffer Complete */
-#define DBRI_TD_STATUS(v)       ((v) & 0xff)	/* Transmit status */
-			/* Maximum buffer size per TD: almost 8KB */
-#define DBRI_TD_MAXCNT	((1 << 13) - 4)
+enum {
+  DBRI_TD_F = (1 << 31), /* End of Frame */
+  DBRI_TD_D = (1 << 30)  /* Do not append CRC */
+};
+#define DBRI_TD_CNT(v) ((v) << 16) /* Number of valid bytes in the buffer */
+enum {
+  DBRI_TD_B = (1 << 15), /* Final interrupt */
+  DBRI_TD_M = (1 << 14), /* Marker interrupt */
+  DBRI_TD_I = (1 << 13)  /* Transmit Idle Characters */
+};
+#define DBRI_TD_FCNT(v) (v) /* Flag Count */
+enum {
+  DBRI_TD_UNR = (1 << 3), /* Underrun: transmitter is out of data */
+  DBRI_TD_ABT = (1 << 2), /* Abort: frame aborted */
+  DBRI_TD_TBC = (1 << 0)  /* Transmit buffer Complete */
+};
+#define DBRI_TD_STATUS(v) ((v) & 0xff) /* Transmit status */
+/* Maximum buffer size per TD: almost 8KB */
+enum { DBRI_TD_MAXCNT = ((1 << 13) - 4) };
 
 /* Receive descriptor defines */
-#define DBRI_RD_F	(1 << 31)	/* End of Frame */
-#define DBRI_RD_C	(1 << 30)	/* Completed buffer */
-#define DBRI_RD_B	(1 << 15)	/* Final interrupt */
-#define DBRI_RD_M	(1 << 14)	/* Marker interrupt */
-#define DBRI_RD_BCNT(v)	(v)		/* Buffer size */
-#define DBRI_RD_CRC	(1 << 7)	/* 0: CRC is correct */
-#define DBRI_RD_BBC	(1 << 6)	/* 1: Bad Byte received */
-#define DBRI_RD_ABT	(1 << 5)	/* Abort: frame aborted */
-#define DBRI_RD_OVRN	(1 << 3)	/* Overrun: data lost */
-#define DBRI_RD_STATUS(v)      ((v) & 0xff)	/* Receive status */
+enum {
+  DBRI_RD_F = (1 << 31), /* End of Frame */
+  DBRI_RD_C = (1 << 30), /* Completed buffer */
+  DBRI_RD_B = (1 << 15), /* Final interrupt */
+  DBRI_RD_M = (1 << 14)  /* Marker interrupt */
+};
+#define DBRI_RD_BCNT(v) (v) /* Buffer size */
+enum {
+  DBRI_RD_CRC = (1 << 7), /* 0: CRC is correct */
+  DBRI_RD_BBC = (1 << 6), /* 1: Bad Byte received */
+  DBRI_RD_ABT = (1 << 5), /* Abort: frame aborted */
+  DBRI_RD_OVRN = (1 << 3) /* Overrun: data lost */
+};
+#define DBRI_RD_STATUS(v) ((v) & 0xff)          /* Receive status */
 #define DBRI_RD_CNT(v) (((v) >> 16) & 0x1fff)	/* Valid bytes in the buffer */
 
 /* stream_info[] access */
@@ -627,16 +692,16 @@ to send them to the DBRI.
 
 */
 
-#define MAXLOOPS 20
+enum { MAXLOOPS = 20 };
 /*
  * Wait for the current command string to execute
  */
 static void dbri_cmdwait(struct snd_dbri *dbri)
 {
 	int maxloops = MAXLOOPS;
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	/* Delay if previous commands are still being processed */
+        /* Delay if previous commands are still being processed */
 	spin_lock_irqsave(&dbri->lock, flags);
 	while ((--maxloops) > 0 && (sbus_readl(dbri->regs + REG0) & D_P)) {
 		spin_unlock_irqrestore(&dbri->lock, flags);
@@ -727,24 +792,22 @@ static void dbri_cmdsend(struct snd_dbri *dbri, s32 *cmd, int len)
 /* Lock must be held when calling this */
 static void dbri_reset(struct snd_dbri *dbri)
 {
-	int i;
-	u32 tmp;
+  int i = 0;
+  u32 tmp;
 
-	dprintk(D_GEN, "reset 0:%x 2:%x 8:%x 9:%x\n",
-		sbus_readl(dbri->regs + REG0),
-		sbus_readl(dbri->regs + REG2),
-		sbus_readl(dbri->regs + REG8), sbus_readl(dbri->regs + REG9));
+  dprintk(D_GEN, "reset 0:%x 2:%x 8:%x 9:%x\n", sbus_readl(dbri->regs + REG0),
+          sbus_readl(dbri->regs + REG2), sbus_readl(dbri->regs + REG8),
+          sbus_readl(dbri->regs + REG9));
 
-	sbus_writel(D_R, dbri->regs + REG0);	/* Soft Reset */
-	for (i = 0; (sbus_readl(dbri->regs + REG0) & D_R) && i < 64; i++)
-		udelay(10);
+  sbus_writel(D_R, dbri->regs + REG0); /* Soft Reset */
+  for (i = 0; (sbus_readl(dbri->regs + REG0) & D_R) && i < 64; i++) udelay(10);
 
-	/* A brute approach - DBRI falls back to working burst size by itself
-	 * On SS20 D_S does not work, so do not try so high. */
-	tmp = sbus_readl(dbri->regs + REG0);
-	tmp |= D_G | D_E;
-	tmp &= ~D_S;
-	sbus_writel(tmp, dbri->regs + REG0);
+  /* A brute approach - DBRI falls back to working burst size by itself
+   * On SS20 D_S does not work, so do not try so high. */
+  tmp = sbus_readl(dbri->regs + REG0);
+  tmp |= D_G | D_E;
+  tmp &= ~D_S;
+  sbus_writel(tmp, dbri->regs + REG0);
 }
 
 /* Lock must not be held before calling this */
@@ -753,10 +816,10 @@ static void dbri_initialize(struct snd_dbri *dbri)
 	u32 dvma_addr = (u32)dbri->dma_dvma;
 	s32 *cmd;
 	u32 dma_addr;
-	unsigned long flags;
-	int n;
+        unsigned long flags = 0;
+        int n = 0;
 
-	spin_lock_irqsave(&dbri->lock, flags);
+        spin_lock_irqsave(&dbri->lock, flags);
 
 	dbri_reset(dbri);
 
@@ -816,14 +879,15 @@ static inline int pipe_active(struct snd_dbri *dbri, int pipe)
  */
 static void reset_pipe(struct snd_dbri *dbri, int pipe)
 {
-	int sdp;
-	int desc;
-	s32 *cmd;
+  int sdp = 0;
+  int desc = 0;
+  s32 *cmd;
 
-	if (pipe < 0 || pipe > DBRI_MAX_PIPE) {
-		printk(KERN_ERR "DBRI: reset_pipe called with "
-			"illegal pipe number\n");
-		return;
+  if (pipe < 0 || pipe > DBRI_MAX_PIPE) {
+    printk(KERN_ERR
+           "DBRI: reset_pipe called with "
+           "illegal pipe number\n");
+    return;
 	}
 
 	sdp = dbri->pipes[pipe].sdp;
@@ -890,9 +954,9 @@ static void link_time_slot(struct snd_dbri *dbri, int pipe,
 			   int length, int cycle)
 {
 	s32 *cmd;
-	int val;
+        int val = 0;
 
-	if (pipe < 0 || pipe > DBRI_MAX_PIPE
+        if (pipe < 0 || pipe > DBRI_MAX_PIPE
 			|| prevpipe < 0 || prevpipe > DBRI_MAX_PIPE
 			|| nextpipe < 0 || nextpipe > DBRI_MAX_PIPE) {
 		printk(KERN_ERR
@@ -997,9 +1061,9 @@ static void unlink_time_slot(struct snd_dbri *dbri, int pipe,
 static void xmit_fixed(struct snd_dbri *dbri, int pipe, unsigned int data)
 {
 	s32 *cmd;
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	if (pipe < 16 || pipe > DBRI_MAX_PIPE) {
+        if (pipe < 16 || pipe > DBRI_MAX_PIPE) {
 		printk(KERN_ERR "DBRI: xmit_fixed: Illegal pipe number\n");
 		return;
 	}
@@ -1083,9 +1147,9 @@ static int setup_descs(struct snd_dbri *dbri, int streamno, unsigned int period)
 	struct dbri_streaminfo *info = &dbri->stream_info[streamno];
 	u32 dvma_addr = (u32)dbri->dma_dvma;
 	__u32 dvma_buffer;
-	int desc;
-	int len;
-	int first_desc = -1;
+        int desc = 0;
+        int len = 0;
+        int first_desc = -1;
 	int last_desc = -1;
 
 	if (info->pipe < 0 || info->pipe > 15) {
@@ -1143,11 +1207,10 @@ static int setup_descs(struct snd_dbri *dbri, int streamno, unsigned int period)
 
 	desc = 0;
 	while (len > 0) {
-		int mylen;
+          int mylen = 0;
 
-		for (; desc < DBRI_NO_DESCS; desc++) {
-			if (!dbri->dma->desc[desc].ba)
-				break;
+          for (; desc < DBRI_NO_DESCS; desc++) {
+            if (!dbri->dma->desc[desc].ba) break;
 		}
 
 		if (desc == DBRI_NO_DESCS) {
@@ -1238,9 +1301,9 @@ static void reset_chi(struct snd_dbri *dbri,
 		      int bits_per_frame)
 {
 	s32 *cmd;
-	int val;
+        int val = 0;
 
-	/* Set CHI Anchor: Pipe 16 */
+        /* Set CHI Anchor: Pipe 16 */
 
 	cmd = dbri_cmdlock(dbri, 4);
 	val = D_DTS_VO | D_DTS_VI | D_DTS_INS
@@ -1312,35 +1375,35 @@ to the DBRI via the CHI interface and few of the DBRI's PIO pins.
 */
 static void cs4215_setup_pipes(struct snd_dbri *dbri)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	spin_lock_irqsave(&dbri->lock, flags);
-	/*
-	 * Data mode:
-	 * Pipe  4: Send timeslots 1-4 (audio data)
-	 * Pipe 20: Send timeslots 5-8 (part of ctrl data)
-	 * Pipe  6: Receive timeslots 1-4 (audio data)
-	 * Pipe 21: Receive timeslots 6-7. We can only receive 20 bits via
-	 *          interrupt, and the rest of the data (slot 5 and 8) is
-	 *          not relevant for us (only for doublechecking).
-	 *
-	 * Control mode:
-	 * Pipe 17: Send timeslots 1-4 (slots 5-8 are read only)
-	 * Pipe 18: Receive timeslot 1 (clb).
-	 * Pipe 19: Receive timeslot 7 (version).
-	 */
+  spin_lock_irqsave(&dbri->lock, flags);
+  /*
+   * Data mode:
+   * Pipe  4: Send timeslots 1-4 (audio data)
+   * Pipe 20: Send timeslots 5-8 (part of ctrl data)
+   * Pipe  6: Receive timeslots 1-4 (audio data)
+   * Pipe 21: Receive timeslots 6-7. We can only receive 20 bits via
+   *          interrupt, and the rest of the data (slot 5 and 8) is
+   *          not relevant for us (only for doublechecking).
+   *
+   * Control mode:
+   * Pipe 17: Send timeslots 1-4 (slots 5-8 are read only)
+   * Pipe 18: Receive timeslot 1 (clb).
+   * Pipe 19: Receive timeslot 7 (version).
+   */
 
-	setup_pipe(dbri, 4, D_SDP_MEM | D_SDP_TO_SER | D_SDP_MSB);
-	setup_pipe(dbri, 20, D_SDP_FIXED | D_SDP_TO_SER | D_SDP_MSB);
-	setup_pipe(dbri, 6, D_SDP_MEM | D_SDP_FROM_SER | D_SDP_MSB);
-	setup_pipe(dbri, 21, D_SDP_FIXED | D_SDP_FROM_SER | D_SDP_MSB);
+  setup_pipe(dbri, 4, D_SDP_MEM | D_SDP_TO_SER | D_SDP_MSB);
+  setup_pipe(dbri, 20, D_SDP_FIXED | D_SDP_TO_SER | D_SDP_MSB);
+  setup_pipe(dbri, 6, D_SDP_MEM | D_SDP_FROM_SER | D_SDP_MSB);
+  setup_pipe(dbri, 21, D_SDP_FIXED | D_SDP_FROM_SER | D_SDP_MSB);
 
-	setup_pipe(dbri, 17, D_SDP_FIXED | D_SDP_TO_SER | D_SDP_MSB);
-	setup_pipe(dbri, 18, D_SDP_FIXED | D_SDP_FROM_SER | D_SDP_MSB);
-	setup_pipe(dbri, 19, D_SDP_FIXED | D_SDP_FROM_SER | D_SDP_MSB);
-	spin_unlock_irqrestore(&dbri->lock, flags);
+  setup_pipe(dbri, 17, D_SDP_FIXED | D_SDP_TO_SER | D_SDP_MSB);
+  setup_pipe(dbri, 18, D_SDP_FIXED | D_SDP_FROM_SER | D_SDP_MSB);
+  setup_pipe(dbri, 19, D_SDP_FIXED | D_SDP_FROM_SER | D_SDP_MSB);
+  spin_unlock_irqrestore(&dbri->lock, flags);
 
-	dbri_cmdwait(dbri);
+  dbri_cmdwait(dbri);
 }
 
 static int cs4215_init_data(struct cs4215 *mm)
@@ -1411,64 +1474,64 @@ static void cs4215_setdata(struct snd_dbri *dbri, int muted)
  */
 static void cs4215_open(struct snd_dbri *dbri)
 {
-	int data_width;
-	u32 tmp;
-	unsigned long flags;
+  int data_width = 0;
+  u32 tmp;
+  unsigned long flags = 0;
 
-	dprintk(D_MM, "cs4215_open: %d channels, %d bits\n",
-		dbri->mm.channels, dbri->mm.precision);
+  dprintk(D_MM, "cs4215_open: %d channels, %d bits\n", dbri->mm.channels,
+          dbri->mm.precision);
 
-	/* Temporarily mute outputs, and wait 1/8000 sec (125 us)
-	 * to make sure this takes.  This avoids clicking noises.
-	 */
+  /* Temporarily mute outputs, and wait 1/8000 sec (125 us)
+   * to make sure this takes.  This avoids clicking noises.
+   */
 
-	cs4215_setdata(dbri, 1);
-	udelay(125);
+  cs4215_setdata(dbri, 1);
+  udelay(125);
 
-	/*
-	 * Data mode:
-	 * Pipe  4: Send timeslots 1-4 (audio data)
-	 * Pipe 20: Send timeslots 5-8 (part of ctrl data)
-	 * Pipe  6: Receive timeslots 1-4 (audio data)
-	 * Pipe 21: Receive timeslots 6-7. We can only receive 20 bits via
-	 *          interrupt, and the rest of the data (slot 5 and 8) is
-	 *          not relevant for us (only for doublechecking).
-	 *
-	 * Just like in control mode, the time slots are all offset by eight
-	 * bits.  The CS4215, it seems, observes TSIN (the delayed signal)
-	 * even if it's the CHI master.  Don't ask me...
-	 */
-	spin_lock_irqsave(&dbri->lock, flags);
-	tmp = sbus_readl(dbri->regs + REG0);
-	tmp &= ~(D_C);		/* Disable CHI */
-	sbus_writel(tmp, dbri->regs + REG0);
+  /*
+   * Data mode:
+   * Pipe  4: Send timeslots 1-4 (audio data)
+   * Pipe 20: Send timeslots 5-8 (part of ctrl data)
+   * Pipe  6: Receive timeslots 1-4 (audio data)
+   * Pipe 21: Receive timeslots 6-7. We can only receive 20 bits via
+   *          interrupt, and the rest of the data (slot 5 and 8) is
+   *          not relevant for us (only for doublechecking).
+   *
+   * Just like in control mode, the time slots are all offset by eight
+   * bits.  The CS4215, it seems, observes TSIN (the delayed signal)
+   * even if it's the CHI master.  Don't ask me...
+   */
+  spin_lock_irqsave(&dbri->lock, flags);
+  tmp = sbus_readl(dbri->regs + REG0);
+  tmp &= ~(D_C); /* Disable CHI */
+  sbus_writel(tmp, dbri->regs + REG0);
 
-	/* Switch CS4215 to data mode - set PIO3 to 1 */
-	sbus_writel(D_ENPIO | D_PIO1 | D_PIO3 |
-		    (dbri->mm.onboard ? D_PIO0 : D_PIO2), dbri->regs + REG2);
+  /* Switch CS4215 to data mode - set PIO3 to 1 */
+  sbus_writel(D_ENPIO | D_PIO1 | D_PIO3 | (dbri->mm.onboard ? D_PIO0 : D_PIO2),
+              dbri->regs + REG2);
 
-	reset_chi(dbri, CHIslave, 128);
+  reset_chi(dbri, CHIslave, 128);
 
-	/* Note: this next doesn't work for 8-bit stereo, because the two
-	 * channels would be on timeslots 1 and 3, with 2 and 4 idle.
-	 * (See CS4215 datasheet Fig 15)
-	 *
-	 * DBRI non-contiguous mode would be required to make this work.
-	 */
-	data_width = dbri->mm.channels * dbri->mm.precision;
+  /* Note: this next doesn't work for 8-bit stereo, because the two
+   * channels would be on timeslots 1 and 3, with 2 and 4 idle.
+   * (See CS4215 datasheet Fig 15)
+   *
+   * DBRI non-contiguous mode would be required to make this work.
+   */
+  data_width = dbri->mm.channels * dbri->mm.precision;
 
-	link_time_slot(dbri, 4, 16, 16, data_width, dbri->mm.offset);
-	link_time_slot(dbri, 20, 4, 16, 32, dbri->mm.offset + 32);
-	link_time_slot(dbri, 6, 16, 16, data_width, dbri->mm.offset);
-	link_time_slot(dbri, 21, 6, 16, 16, dbri->mm.offset + 40);
+  link_time_slot(dbri, 4, 16, 16, data_width, dbri->mm.offset);
+  link_time_slot(dbri, 20, 4, 16, 32, dbri->mm.offset + 32);
+  link_time_slot(dbri, 6, 16, 16, data_width, dbri->mm.offset);
+  link_time_slot(dbri, 21, 6, 16, 16, dbri->mm.offset + 40);
 
-	/* FIXME: enable CHI after _setdata? */
-	tmp = sbus_readl(dbri->regs + REG0);
-	tmp |= D_C;		/* Enable CHI */
-	sbus_writel(tmp, dbri->regs + REG0);
-	spin_unlock_irqrestore(&dbri->lock, flags);
+  /* FIXME: enable CHI after _setdata? */
+  tmp = sbus_readl(dbri->regs + REG0);
+  tmp |= D_C; /* Enable CHI */
+  sbus_writel(tmp, dbri->regs + REG0);
+  spin_unlock_irqrestore(&dbri->lock, flags);
 
-	cs4215_setdata(dbri, 0);
+  cs4215_setdata(dbri, 0);
 }
 
 /*
@@ -1476,81 +1539,79 @@ static void cs4215_open(struct snd_dbri *dbri)
  */
 static int cs4215_setctrl(struct snd_dbri *dbri)
 {
-	int i, val;
-	u32 tmp;
-	unsigned long flags;
+  int i = 0, val = 0;
+  u32 tmp;
+  unsigned long flags = 0;
 
-	/* FIXME - let the CPU do something useful during these delays */
+  /* FIXME - let the CPU do something useful during these delays */
 
-	/* Temporarily mute outputs, and wait 1/8000 sec (125 us)
-	 * to make sure this takes.  This avoids clicking noises.
-	 */
-	cs4215_setdata(dbri, 1);
-	udelay(125);
+  /* Temporarily mute outputs, and wait 1/8000 sec (125 us)
+   * to make sure this takes.  This avoids clicking noises.
+   */
+  cs4215_setdata(dbri, 1);
+  udelay(125);
 
-	/*
-	 * Enable Control mode: Set DBRI's PIO3 (4215's D/~C) to 0, then wait
-	 * 12 cycles <= 12/(5512.5*64) sec = 34.01 usec
-	 */
-	val = D_ENPIO | D_PIO1 | (dbri->mm.onboard ? D_PIO0 : D_PIO2);
-	sbus_writel(val, dbri->regs + REG2);
-	dprintk(D_MM, "cs4215_setctrl: reg2=0x%x\n", val);
-	udelay(34);
+  /*
+   * Enable Control mode: Set DBRI's PIO3 (4215's D/~C) to 0, then wait
+   * 12 cycles <= 12/(5512.5*64) sec = 34.01 usec
+   */
+  val = D_ENPIO | D_PIO1 | (dbri->mm.onboard ? D_PIO0 : D_PIO2);
+  sbus_writel(val, dbri->regs + REG2);
+  dprintk(D_MM, "cs4215_setctrl: reg2=0x%x\n", val);
+  udelay(34);
 
-	/* In Control mode, the CS4215 is a slave device, so the DBRI must
-	 * operate as CHI master, supplying clocking and frame synchronization.
-	 *
-	 * In Data mode, however, the CS4215 must be CHI master to insure
-	 * that its data stream is synchronous with its codec.
-	 *
-	 * The upshot of all this?  We start by putting the DBRI into master
-	 * mode, program the CS4215 in Control mode, then switch the CS4215
-	 * into Data mode and put the DBRI into slave mode.  Various timing
-	 * requirements must be observed along the way.
-	 *
-	 * Oh, and one more thing, on a SPARCStation 20 (and maybe
-	 * others?), the addressing of the CS4215's time slots is
-	 * offset by eight bits, so we add eight to all the "cycle"
-	 * values in the Define Time Slot (DTS) commands.  This is
-	 * done in hardware by a TI 248 that delays the DBRI->4215
-	 * frame sync signal by eight clock cycles.  Anybody know why?
-	 */
-	spin_lock_irqsave(&dbri->lock, flags);
-	tmp = sbus_readl(dbri->regs + REG0);
-	tmp &= ~D_C;		/* Disable CHI */
-	sbus_writel(tmp, dbri->regs + REG0);
+  /* In Control mode, the CS4215 is a slave device, so the DBRI must
+   * operate as CHI master, supplying clocking and frame synchronization.
+   *
+   * In Data mode, however, the CS4215 must be CHI master to insure
+   * that its data stream is synchronous with its codec.
+   *
+   * The upshot of all this?  We start by putting the DBRI into master
+   * mode, program the CS4215 in Control mode, then switch the CS4215
+   * into Data mode and put the DBRI into slave mode.  Various timing
+   * requirements must be observed along the way.
+   *
+   * Oh, and one more thing, on a SPARCStation 20 (and maybe
+   * others?), the addressing of the CS4215's time slots is
+   * offset by eight bits, so we add eight to all the "cycle"
+   * values in the Define Time Slot (DTS) commands.  This is
+   * done in hardware by a TI 248 that delays the DBRI->4215
+   * frame sync signal by eight clock cycles.  Anybody know why?
+   */
+  spin_lock_irqsave(&dbri->lock, flags);
+  tmp = sbus_readl(dbri->regs + REG0);
+  tmp &= ~D_C; /* Disable CHI */
+  sbus_writel(tmp, dbri->regs + REG0);
 
-	reset_chi(dbri, CHImaster, 128);
+  reset_chi(dbri, CHImaster, 128);
 
-	/*
-	 * Control mode:
-	 * Pipe 17: Send timeslots 1-4 (slots 5-8 are read only)
-	 * Pipe 18: Receive timeslot 1 (clb).
-	 * Pipe 19: Receive timeslot 7 (version).
-	 */
+  /*
+   * Control mode:
+   * Pipe 17: Send timeslots 1-4 (slots 5-8 are read only)
+   * Pipe 18: Receive timeslot 1 (clb).
+   * Pipe 19: Receive timeslot 7 (version).
+   */
 
-	link_time_slot(dbri, 17, 16, 16, 32, dbri->mm.offset);
-	link_time_slot(dbri, 18, 16, 16, 8, dbri->mm.offset);
-	link_time_slot(dbri, 19, 18, 16, 8, dbri->mm.offset + 48);
-	spin_unlock_irqrestore(&dbri->lock, flags);
+  link_time_slot(dbri, 17, 16, 16, 32, dbri->mm.offset);
+  link_time_slot(dbri, 18, 16, 16, 8, dbri->mm.offset);
+  link_time_slot(dbri, 19, 18, 16, 8, dbri->mm.offset + 48);
+  spin_unlock_irqrestore(&dbri->lock, flags);
 
-	/* Wait for the chip to echo back CLB (Control Latch Bit) as zero */
-	dbri->mm.ctrl[0] &= ~CS4215_CLB;
-	xmit_fixed(dbri, 17, *(int *)dbri->mm.ctrl);
+  /* Wait for the chip to echo back CLB (Control Latch Bit) as zero */
+  dbri->mm.ctrl[0] &= ~CS4215_CLB;
+  xmit_fixed(dbri, 17, *(int *)dbri->mm.ctrl);
 
-	spin_lock_irqsave(&dbri->lock, flags);
-	tmp = sbus_readl(dbri->regs + REG0);
-	tmp |= D_C;		/* Enable CHI */
-	sbus_writel(tmp, dbri->regs + REG0);
-	spin_unlock_irqrestore(&dbri->lock, flags);
+  spin_lock_irqsave(&dbri->lock, flags);
+  tmp = sbus_readl(dbri->regs + REG0);
+  tmp |= D_C; /* Enable CHI */
+  sbus_writel(tmp, dbri->regs + REG0);
+  spin_unlock_irqrestore(&dbri->lock, flags);
 
-	for (i = 10; ((dbri->mm.status & 0xe4) != 0x20); --i)
-		msleep_interruptible(1);
+  for (i = 10; ((dbri->mm.status & 0xe4) != 0x20); --i) msleep_interruptible(1);
 
-	if (i == 0) {
-		dprintk(D_MM, "CS4215 didn't respond to CLB (0x%02x)\n",
-			dbri->mm.status);
-		return -1;
+  if (i == 0) {
+    dprintk(D_MM, "CS4215 didn't respond to CLB (0x%02x)\n", dbri->mm.status);
+    return -1;
 	}
 
 	/* Disable changes to our copy of the version number, as we are about
@@ -1581,13 +1642,12 @@ static int cs4215_setctrl(struct snd_dbri *dbri)
 static int cs4215_prepare(struct snd_dbri *dbri, unsigned int rate,
 			  snd_pcm_format_t format, unsigned int channels)
 {
-	int freq_idx;
-	int ret = 0;
+  int freq_idx = 0;
+  int ret = 0;
 
-	/* Lookup index for this rate */
-	for (freq_idx = 0; CS4215_FREQ[freq_idx].freq != 0; freq_idx++) {
-		if (CS4215_FREQ[freq_idx].freq == rate)
-			break;
+  /* Lookup index for this rate */
+  for (freq_idx = 0; CS4215_FREQ[freq_idx].freq != 0; freq_idx++) {
+    if (CS4215_FREQ[freq_idx].freq == rate) break;
 	}
 	if (CS4215_FREQ[freq_idx].freq != rate) {
 		printk(KERN_WARNING "DBRI: Unsupported rate %d Hz\n", rate);
@@ -1701,37 +1761,35 @@ interrupts are disabled.
  */
 static void xmit_descs(struct snd_dbri *dbri)
 {
-	struct dbri_streaminfo *info;
-	u32 dvma_addr;
-	s32 *cmd;
-	unsigned long flags;
-	int first_td;
+  struct dbri_streaminfo *info = NULL;
+  u32 dvma_addr;
+  s32 *cmd;
+  unsigned long flags = 0;
+  int first_td = 0;
 
-	if (dbri == NULL)
-		return;		/* Disabled */
+  if (dbri == NULL) return; /* Disabled */
 
-	dvma_addr = (u32)dbri->dma_dvma;
-	info = &dbri->stream_info[DBRI_REC];
-	spin_lock_irqsave(&dbri->lock, flags);
+  dvma_addr = (u32)dbri->dma_dvma;
+  info = &dbri->stream_info[DBRI_REC];
+  spin_lock_irqsave(&dbri->lock, flags);
 
-	if (info->pipe >= 0) {
-		first_td = dbri->pipes[info->pipe].first_desc;
+  if (info->pipe >= 0) {
+    first_td = dbri->pipes[info->pipe].first_desc;
 
-		dprintk(D_DESC, "xmit_descs rec @ TD %d\n", first_td);
+    dprintk(D_DESC, "xmit_descs rec @ TD %d\n", first_td);
 
-		/* Stream could be closed by the time we run. */
-		if (first_td >= 0) {
-			cmd = dbri_cmdlock(dbri, 2);
-			*(cmd++) = DBRI_CMD(D_SDP, 0,
-					    dbri->pipes[info->pipe].sdp
-					    | D_SDP_P | D_SDP_EVERY | D_SDP_C);
-			*(cmd++) = dvma_addr +
-				   dbri_dma_off(desc, first_td);
-			dbri_cmdsend(dbri, cmd, 2);
+    /* Stream could be closed by the time we run. */
+    if (first_td >= 0) {
+      cmd = dbri_cmdlock(dbri, 2);
+      *(cmd++) = DBRI_CMD(
+          D_SDP, 0,
+          dbri->pipes[info->pipe].sdp | D_SDP_P | D_SDP_EVERY | D_SDP_C);
+      *(cmd++) = dvma_addr + dbri_dma_off(desc, first_td);
+      dbri_cmdsend(dbri, cmd, 2);
 
-			/* Reset our admin of the pipe. */
-			dbri->pipes[info->pipe].desc = first_td;
-		}
+      /* Reset our admin of the pipe. */
+      dbri->pipes[info->pipe].desc = first_td;
+    }
 	}
 
 	info = &dbri->stream_info[DBRI_PLAY];
@@ -1777,9 +1835,9 @@ static void transmission_complete_intr(struct snd_dbri *dbri, int pipe)
 {
 	struct dbri_streaminfo *info = &dbri->stream_info[DBRI_PLAY];
 	int td = dbri->pipes[pipe].desc;
-	int status;
+        int status = 0;
 
-	while (td >= 0) {
+        while (td >= 0) {
 		if (td >= DBRI_NO_DESCS) {
 			printk(KERN_ERR "DBRI: invalid td on pipe %d\n", pipe);
 			return;
@@ -1806,13 +1864,13 @@ static void transmission_complete_intr(struct snd_dbri *dbri, int pipe)
 
 static void reception_complete_intr(struct snd_dbri *dbri, int pipe)
 {
-	struct dbri_streaminfo *info;
-	int rd = dbri->pipes[pipe].desc;
-	s32 status;
+  struct dbri_streaminfo *info = NULL;
+  int rd = dbri->pipes[pipe].desc;
+  s32 status;
 
-	if (rd < 0 || rd >= DBRI_NO_DESCS) {
-		printk(KERN_ERR "DBRI: invalid rd on pipe %d\n", pipe);
-		return;
+  if (rd < 0 || rd >= DBRI_NO_DESCS) {
+    printk(KERN_ERR "DBRI: invalid rd on pipe %d\n", pipe);
+    return;
 	}
 
 	dbri->pipes[pipe].desc = dbri->next_desc[rd];
@@ -1923,9 +1981,9 @@ static irqreturn_t snd_dbri_interrupt(int irq, void *dev_id)
 {
 	struct snd_dbri *dbri = dev_id;
 	static int errcnt = 0;
-	int x;
+        int x = 0;
 
-	if (dbri == NULL)
+        if (dbri == NULL)
 		return IRQ_NONE;
 	spin_lock(&dbri->lock);
 
@@ -2005,15 +2063,15 @@ static struct snd_pcm_hardware snd_dbri_pcm_hw = {
 static int snd_hw_rule_format(struct snd_pcm_hw_params *params,
 			      struct snd_pcm_hw_rule *rule)
 {
-	struct snd_interval *c = hw_param_interval(params,
-				SNDRV_PCM_HW_PARAM_CHANNELS);
-	struct snd_mask *f = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-	struct snd_mask fmt;
+  struct snd_interval *c = NULL =
+      hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
+  struct snd_mask *f = NULL = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+  struct snd_mask fmt;
 
-	snd_mask_any(&fmt);
-	if (c->min > 1) {
-		fmt.bits[0] &= SNDRV_PCM_FMTBIT_S16_BE;
-		return snd_mask_refine(f, &fmt);
+  snd_mask_any(&fmt);
+  if (c->min > 1) {
+    fmt.bits[0] &= SNDRV_PCM_FMTBIT_S16_BE;
+    return snd_mask_refine(f, &fmt);
 	}
 	return 0;
 }
@@ -2021,17 +2079,17 @@ static int snd_hw_rule_format(struct snd_pcm_hw_params *params,
 static int snd_hw_rule_channels(struct snd_pcm_hw_params *params,
 				struct snd_pcm_hw_rule *rule)
 {
-	struct snd_interval *c = hw_param_interval(params,
-				SNDRV_PCM_HW_PARAM_CHANNELS);
-	struct snd_mask *f = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
-	struct snd_interval ch;
+  struct snd_interval *c = NULL =
+      hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
+  struct snd_mask *f = NULL = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+  struct snd_interval ch;
 
-	snd_interval_any(&ch);
-	if (!(f->bits[0] & SNDRV_PCM_FMTBIT_S16_BE)) {
-		ch.min = 1;
-		ch.max = 1;
-		ch.integer = 1;
-		return snd_interval_refine(c, &ch);
+  snd_interval_any(&ch);
+  if (!(f->bits[0] & SNDRV_PCM_FMTBIT_S16_BE)) {
+    ch.min = 1;
+    ch.max = 1;
+    ch.integer = 1;
+    return snd_interval_refine(c, &ch);
 	}
 	return 0;
 }
@@ -2040,10 +2098,10 @@ static int snd_dbri_open(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
-	unsigned long flags;
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        unsigned long flags = 0;
 
-	dprintk(D_USR, "open audio output.\n");
+        dprintk(D_USR, "open audio output.\n");
 	runtime->hw = snd_dbri_pcm_hw;
 
 	spin_lock_irqsave(&dbri->lock, flags);
@@ -2069,9 +2127,9 @@ static int snd_dbri_open(struct snd_pcm_substream *substream)
 static int snd_dbri_close(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
 
-	dprintk(D_USR, "close audio output.\n");
+        dprintk(D_USR, "close audio output.\n");
 	info->substream = NULL;
 	info->offset = 0;
 
@@ -2083,11 +2141,11 @@ static int snd_dbri_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
-	int direction;
-	int ret;
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        int direction = 0;
+        int ret = 0;
 
-	/* set sampling rate, audio format and number of channels */
+        /* set sampling rate, audio format and number of channels */
 	ret = cs4215_prepare(dbri, params_rate(hw_params),
 			     params_format(hw_params),
 			     params_channels(hw_params));
@@ -2124,10 +2182,10 @@ static int snd_dbri_hw_params(struct snd_pcm_substream *substream,
 static int snd_dbri_hw_free(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
-	int direction;
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        int direction = 0;
 
-	dprintk(D_USR, "hw_free.\n");
+        dprintk(D_USR, "hw_free.\n");
 
 	/* hw_free can get called multiple times. Only unmap the DMA once.
 	 */
@@ -2152,10 +2210,10 @@ static int snd_dbri_hw_free(struct snd_pcm_substream *substream)
 static int snd_dbri_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
-	int ret;
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        int ret = 0;
 
-	info->size = snd_pcm_lib_buffer_bytes(substream);
+        info->size = snd_pcm_lib_buffer_bytes(substream);
 	if (DBRI_STREAMNO(substream) == DBRI_PLAY)
 		info->pipe = 4;	/* Send pipe */
 	else
@@ -2179,8 +2237,8 @@ static int snd_dbri_prepare(struct snd_pcm_substream *substream)
 static int snd_dbri_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
-	int ret = 0;
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        int ret = 0;
 
 	switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
@@ -2203,8 +2261,8 @@ static int snd_dbri_trigger(struct snd_pcm_substream *substream, int cmd)
 static snd_pcm_uframes_t snd_dbri_pointer(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-	struct dbri_streaminfo *info = DBRI_STREAM(dbri, substream);
-	snd_pcm_uframes_t ret;
+        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        snd_pcm_uframes_t ret;
 
 	ret = bytes_to_frames(substream->runtime, info->offset)
 		% substream->runtime->buffer_size;
@@ -2226,30 +2284,29 @@ static struct snd_pcm_ops snd_dbri_ops = {
 
 static int snd_dbri_pcm(struct snd_card *card)
 {
-	struct snd_pcm *pcm;
-	int err;
+  struct snd_pcm *pcm = NULL;
+  int err = 0;
 
-	if ((err = snd_pcm_new(card,
-			       /* ID */		    "sun_dbri",
-			       /* device */	    0,
-			       /* playback count */ 1,
-			       /* capture count */  1, &pcm)) < 0)
-		return err;
+  if ((err = snd_pcm_new(card,
+                         /* ID */ "sun_dbri",
+                         /* device */ 0,
+                         /* playback count */ 1,
+                         /* capture count */ 1, &pcm)) < 0)
+    return err;
 
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_dbri_ops);
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_dbri_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_dbri_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_dbri_ops);
 
-	pcm->private_data = card->private_data;
-	pcm->info_flags = 0;
-	strcpy(pcm->name, card->shortname);
+  pcm->private_data = card->private_data;
+  pcm->info_flags = 0;
+  strcpy(pcm->name, card->shortname);
 
-	if ((err = snd_pcm_lib_preallocate_pages_for_all(pcm,
-			SNDRV_DMA_TYPE_CONTINUOUS,
-			snd_dma_continuous_data(GFP_KERNEL),
-			64 * 1024, 64 * 1024)) < 0)
-		return err;
+  if ((err = snd_pcm_lib_preallocate_pages_for_all(
+           pcm, SNDRV_DMA_TYPE_CONTINUOUS, snd_dma_continuous_data(GFP_KERNEL),
+           64 * 1024, 64 * 1024)) < 0)
+    return err;
 
-	return 0;
+  return 0;
 }
 
 /*****************************************************************************
@@ -2273,9 +2330,9 @@ static int snd_cs4215_get_volume(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_dbri *dbri = snd_kcontrol_chip(kcontrol);
-	struct dbri_streaminfo *info;
+        struct dbri_streaminfo *info = NULL;
 
-	if (snd_BUG_ON(!dbri))
+        if (snd_BUG_ON(!dbri))
 		return -EINVAL;
 	info = &dbri->stream_info[kcontrol->private_value];
 
@@ -2369,9 +2426,9 @@ static int snd_cs4215_put_single(struct snd_kcontrol *kcontrol,
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 1;
 	int changed = 0;
-	unsigned short val;
+        unsigned short val = 0;
 
-	if (snd_BUG_ON(!dbri))
+        if (snd_BUG_ON(!dbri))
 		return -EINVAL;
 
 	val = (ucontrol->value.integer.value[0] & mask);
@@ -2445,20 +2502,17 @@ static struct snd_kcontrol_new dbri_controls[] = {
 
 static int snd_dbri_mixer(struct snd_card *card)
 {
-	int idx, err;
-	struct snd_dbri *dbri;
+  int idx = 0, err = 0;
+  struct snd_dbri *dbri = NULL;
 
-	if (snd_BUG_ON(!card || !card->private_data))
-		return -EINVAL;
-	dbri = card->private_data;
+  if (snd_BUG_ON(!card || !card->private_data)) return -EINVAL;
+  dbri = card->private_data;
 
-	strcpy(card->mixername, card->shortname);
+  strcpy(card->mixername, card->shortname);
 
-	for (idx = 0; idx < ARRAY_SIZE(dbri_controls); idx++) {
-		err = snd_ctl_add(card,
-				snd_ctl_new1(&dbri_controls[idx], dbri));
-		if (err < 0)
-			return err;
+  for (idx = 0; idx < ARRAY_SIZE(dbri_controls); idx++) {
+    err = snd_ctl_add(card, snd_ctl_new1(&dbri_controls[idx], dbri));
+    if (err < 0) return err;
 	}
 
 	for (idx = DBRI_REC; idx < DBRI_NO_STREAMS; idx++) {
@@ -2510,9 +2564,9 @@ static void dbri_debug_read(struct snd_info_entry *entry,
 static void snd_dbri_proc(struct snd_card *card)
 {
 	struct snd_dbri *dbri = card->private_data;
-	struct snd_info_entry *entry;
+        struct snd_info_entry *entry = NULL;
 
-	if (!snd_card_proc_new(card, "regs", &entry))
+        if (!snd_card_proc_new(card, "regs", &entry))
 		snd_info_set_text_ops(entry, dbri, dbri_regs_read);
 
 #ifdef DBRI_DEBUG
@@ -2535,9 +2589,9 @@ static int snd_dbri_create(struct snd_card *card,
 			   int irq, int dev)
 {
 	struct snd_dbri *dbri = card->private_data;
-	int err;
+        int err = 0;
 
-	spin_lock_init(&dbri->lock);
+        spin_lock_init(&dbri->lock);
 	dbri->op = op;
 	dbri->irq = irq;
 
@@ -2600,18 +2654,17 @@ static void snd_dbri_free(struct snd_dbri *dbri)
 
 static int dbri_probe(struct platform_device *op)
 {
-	struct snd_dbri *dbri;
-	struct resource *rp;
-	struct snd_card *card;
-	static int dev = 0;
-	int irq;
-	int err;
+  struct snd_dbri *dbri = NULL;
+  struct resource *rp = NULL;
+  struct snd_card *card = NULL;
+  static int dev = 0;
+  int irq = 0;
+  int err = 0;
 
-	if (dev >= SNDRV_CARDS)
-		return -ENODEV;
-	if (!enable[dev]) {
-		dev++;
-		return -ENOENT;
+  if (dev >= SNDRV_CARDS) return -ENODEV;
+  if (!enable[dev]) {
+    dev++;
+    return -ENOENT;
 	}
 
 	irq = op->archdata.irqs[0];

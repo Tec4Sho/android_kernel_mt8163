@@ -40,11 +40,11 @@ int __pxa2xx_pcm_hw_params(struct snd_pcm_substream *substream,
 {
 	struct dma_chan *chan = snd_dmaengine_pcm_get_chan(substream);
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-	struct snd_dmaengine_dai_dma_data *dma_params;
-	struct dma_slave_config config;
-	int ret;
+        struct snd_dmaengine_dai_dma_data *dma_params = NULL;
+        struct dma_slave_config config;
+        int ret = 0;
 
-	dma_params = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
+        dma_params = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
 	if (!dma_params)
 		return 0;
 
@@ -96,10 +96,10 @@ int __pxa2xx_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	struct snd_dmaengine_dai_dma_data *dma_params;
-	int ret;
+        struct snd_dmaengine_dai_dma_data *dma_params = NULL;
+        int ret = 0;
 
-	runtime->hw = pxa2xx_pcm_hardware;
+        runtime->hw = pxa2xx_pcm_hardware;
 
 	dma_params = snd_soc_dai_get_dma_data(rtd->cpu_dai, substream);
 	if (!dma_params)
@@ -164,19 +164,17 @@ EXPORT_SYMBOL(pxa2xx_pcm_preallocate_dma_buffer);
 
 void pxa2xx_pcm_free_dma_buffers(struct snd_pcm *pcm)
 {
-	struct snd_pcm_substream *substream;
-	struct snd_dma_buffer *buf;
-	int stream;
+  struct snd_pcm_substream *substream = NULL;
+  struct snd_dma_buffer *buf = NULL;
+  int stream = 0;
 
-	for (stream = 0; stream < 2; stream++) {
-		substream = pcm->streams[stream].substream;
-		if (!substream)
-			continue;
-		buf = &substream->dma_buffer;
-		if (!buf->area)
-			continue;
-		dma_free_wc(pcm->card->dev, buf->bytes, buf->area, buf->addr);
-		buf->area = NULL;
+  for (stream = 0; stream < 2; stream++) {
+    substream = pcm->streams[stream].substream;
+    if (!substream) continue;
+    buf = &substream->dma_buffer;
+    if (!buf->area) continue;
+    dma_free_wc(pcm->card->dev, buf->bytes, buf->area, buf->addr);
+    buf->area = NULL;
 	}
 }
 EXPORT_SYMBOL(pxa2xx_pcm_free_dma_buffers);

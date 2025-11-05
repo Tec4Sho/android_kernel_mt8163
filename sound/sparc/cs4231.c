@@ -150,28 +150,30 @@ struct snd_cs4231 {
 
 /* APCCSR bits */
 
-#define APC_INT_PENDING 0x800000 /* Interrupt Pending */
-#define APC_PLAY_INT    0x400000 /* Playback interrupt */
-#define APC_CAPT_INT    0x200000 /* Capture interrupt */
-#define APC_GENL_INT    0x100000 /* General interrupt */
-#define APC_XINT_ENA    0x80000  /* General ext int. enable */
-#define APC_XINT_PLAY   0x40000  /* Playback ext intr */
-#define APC_XINT_CAPT   0x20000  /* Capture ext intr */
-#define APC_XINT_GENL   0x10000  /* Error ext intr */
-#define APC_XINT_EMPT   0x8000   /* Pipe empty interrupt (0 write to pva) */
-#define APC_XINT_PEMP   0x4000   /* Play pipe empty (pva and pnva not set) */
-#define APC_XINT_PNVA   0x2000   /* Playback NVA dirty */
-#define APC_XINT_PENA   0x1000   /* play pipe empty Int enable */
-#define APC_XINT_COVF   0x800    /* Cap data dropped on floor */
-#define APC_XINT_CNVA   0x400    /* Capture NVA dirty */
-#define APC_XINT_CEMP   0x200    /* Capture pipe empty (cva and cnva not set) */
-#define APC_XINT_CENA   0x100    /* Cap. pipe empty int enable */
-#define APC_PPAUSE      0x80     /* Pause the play DMA */
-#define APC_CPAUSE      0x40     /* Pause the capture DMA */
-#define APC_CDC_RESET   0x20     /* CODEC RESET */
-#define APC_PDMA_READY  0x08     /* Play DMA Go */
-#define APC_CDMA_READY  0x04     /* Capture DMA Go */
-#define APC_CHIP_RESET  0x01     /* Reset the chip */
+enum {
+  APC_INT_PENDING = 0x800000, /* Interrupt Pending */
+  APC_PLAY_INT = 0x400000,    /* Playback interrupt */
+  APC_CAPT_INT = 0x200000,    /* Capture interrupt */
+  APC_GENL_INT = 0x100000,    /* General interrupt */
+  APC_XINT_ENA = 0x80000,     /* General ext int. enable */
+  APC_XINT_PLAY = 0x40000,    /* Playback ext intr */
+  APC_XINT_CAPT = 0x20000,    /* Capture ext intr */
+  APC_XINT_GENL = 0x10000,    /* Error ext intr */
+  APC_XINT_EMPT = 0x8000,     /* Pipe empty interrupt (0 write to pva) */
+  APC_XINT_PEMP = 0x4000,     /* Play pipe empty (pva and pnva not set) */
+  APC_XINT_PNVA = 0x2000,     /* Playback NVA dirty */
+  APC_XINT_PENA = 0x1000,     /* play pipe empty Int enable */
+  APC_XINT_COVF = 0x800,      /* Cap data dropped on floor */
+  APC_XINT_CNVA = 0x400,      /* Capture NVA dirty */
+  APC_XINT_CEMP = 0x200,      /* Capture pipe empty (cva and cnva not set) */
+  APC_XINT_CENA = 0x100,      /* Cap. pipe empty int enable */
+  APC_PPAUSE = 0x80,          /* Pause the play DMA */
+  APC_CPAUSE = 0x40,          /* Pause the capture DMA */
+  APC_CDC_RESET = 0x20,       /* CODEC RESET */
+  APC_PDMA_READY = 0x08,      /* Play DMA Go */
+  APC_CDMA_READY = 0x04,      /* Capture DMA Go */
+  APC_CHIP_RESET = 0x01       /* Reset the chip */
+};
 
 /* EBUS DMA register offsets  */
 
@@ -276,13 +278,12 @@ static void __cs4231_writeb(struct snd_cs4231 *cp, u8 val,
 
 static void snd_cs4231_ready(struct snd_cs4231 *chip)
 {
-	int timeout;
+  int timeout = 0;
 
-	for (timeout = 250; timeout > 0; timeout--) {
-		int val = __cs4231_readb(chip, CS4231U(chip, REGSEL));
-		if ((val & CS4231_INIT) == 0)
-			break;
-		udelay(100);
+  for (timeout = 250; timeout > 0; timeout--) {
+    int val = 0 = __cs4231_readb(chip, CS4231U(chip, REGSEL));
+    if ((val & CS4231_INIT) == 0) break;
+    udelay(100);
 	}
 }
 
@@ -339,28 +340,27 @@ static unsigned char snd_cs4231_in(struct snd_cs4231 *chip, unsigned char reg)
 
 static void snd_cs4231_busy_wait(struct snd_cs4231 *chip)
 {
-	int timeout;
+  int timeout = 0;
 
-	/* looks like this sequence is proper for CS4231A chip (GUS MAX) */
-	for (timeout = 5; timeout > 0; timeout--)
-		__cs4231_readb(chip, CS4231U(chip, REGSEL));
+  /* looks like this sequence is proper for CS4231A chip (GUS MAX) */
+  for (timeout = 5; timeout > 0; timeout--)
+    __cs4231_readb(chip, CS4231U(chip, REGSEL));
 
-	/* end of cleanup sequence */
-	for (timeout = 500; timeout > 0; timeout--) {
-		int val = __cs4231_readb(chip, CS4231U(chip, REGSEL));
-		if ((val & CS4231_INIT) == 0)
-			break;
-		msleep(1);
+  /* end of cleanup sequence */
+  for (timeout = 500; timeout > 0; timeout--) {
+    int val = 0 = __cs4231_readb(chip, CS4231U(chip, REGSEL));
+    if ((val & CS4231_INIT) == 0) break;
+    msleep(1);
 	}
 }
 
 static void snd_cs4231_mce_up(struct snd_cs4231 *chip)
 {
-	unsigned long flags;
-	int timeout;
+  unsigned long flags = 0;
+  int timeout = 0;
 
-	spin_lock_irqsave(&chip->lock, flags);
-	snd_cs4231_ready(chip);
+  spin_lock_irqsave(&chip->lock, flags);
+  snd_cs4231_ready(chip);
 #ifdef CONFIG_SND_DEBUG
 	if (__cs4231_readb(chip, CS4231U(chip, REGSEL)) & CS4231_INIT)
 		snd_printdd("mce_up - auto calibration time out (0)\n");
@@ -379,11 +379,11 @@ static void snd_cs4231_mce_up(struct snd_cs4231 *chip)
 
 static void snd_cs4231_mce_down(struct snd_cs4231 *chip)
 {
-	unsigned long flags, timeout;
-	int reg;
+  unsigned long flags = 0, timeout = 0;
+  int reg = 0;
 
-	snd_cs4231_busy_wait(chip);
-	spin_lock_irqsave(&chip->lock, flags);
+  snd_cs4231_busy_wait(chip);
+  spin_lock_irqsave(&chip->lock, flags);
 #ifdef CONFIG_SND_DEBUG
 	if (__cs4231_readb(chip, CS4231U(chip, REGSEL)) & CS4231_INIT)
 		snd_printdd("mce_down [%p] - auto calibration time out (0)\n",
@@ -443,9 +443,9 @@ static void cs4231_dma_trigger(struct snd_pcm_substream *substream,
 			       unsigned int what, int on)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
-	struct cs4231_dma_control *dma_cont;
+        struct cs4231_dma_control *dma_cont = NULL;
 
-	if (what & CS4231_PLAYBACK_ENABLE) {
+        if (what & CS4231_PLAYBACK_ENABLE) {
 		dma_cont = &chip->p_dma;
 		if (on) {
 			dma_cont->prepare(dma_cont, 0);
@@ -481,10 +481,10 @@ static int snd_cs4231_trigger(struct snd_pcm_substream *substream, int cmd)
 	case SNDRV_PCM_TRIGGER_STOP:
 	{
 		unsigned int what = 0;
-		struct snd_pcm_substream *s;
-		unsigned long flags;
+                struct snd_pcm_substream *s = NULL;
+                unsigned long flags = 0;
 
-		snd_pcm_group_for_each_entry(s, substream) {
+                snd_pcm_group_for_each_entry(s, substream) {
 			if (s == chip->playback_substream) {
 				what |= CS4231_PLAYBACK_ENABLE;
 				snd_pcm_trigger_done(s, substream);
@@ -521,37 +521,36 @@ static int snd_cs4231_trigger(struct snd_pcm_substream *substream, int cmd)
 
 static unsigned char snd_cs4231_get_rate(unsigned int rate)
 {
-	int i;
+  int i = 0;
 
-	for (i = 0; i < 14; i++)
-		if (rate == rates[i])
-			return freq_bits[i];
+  for (i = 0; i < 14; i++)
+    if (rate == rates[i]) return freq_bits[i];
 
-	return freq_bits[13];
+  return freq_bits[13];
 }
 
 static unsigned char snd_cs4231_get_format(struct snd_cs4231 *chip, int format,
 					   int channels)
 {
-	unsigned char rformat;
+  unsigned char rformat = 0;
 
-	rformat = CS4231_LINEAR_8;
-	switch (format) {
-	case SNDRV_PCM_FORMAT_MU_LAW:
-		rformat = CS4231_ULAW_8;
-		break;
-	case SNDRV_PCM_FORMAT_A_LAW:
-		rformat = CS4231_ALAW_8;
-		break;
-	case SNDRV_PCM_FORMAT_S16_LE:
-		rformat = CS4231_LINEAR_16;
-		break;
-	case SNDRV_PCM_FORMAT_S16_BE:
-		rformat = CS4231_LINEAR_16_BIG;
-		break;
-	case SNDRV_PCM_FORMAT_IMA_ADPCM:
-		rformat = CS4231_ADPCM_16;
-		break;
+  rformat = CS4231_LINEAR_8;
+  switch (format) {
+    case SNDRV_PCM_FORMAT_MU_LAW:
+      rformat = CS4231_ULAW_8;
+      break;
+    case SNDRV_PCM_FORMAT_A_LAW:
+      rformat = CS4231_ALAW_8;
+      break;
+    case SNDRV_PCM_FORMAT_S16_LE:
+      rformat = CS4231_LINEAR_16;
+      break;
+    case SNDRV_PCM_FORMAT_S16_BE:
+      rformat = CS4231_LINEAR_16_BIG;
+      break;
+    case SNDRV_PCM_FORMAT_IMA_ADPCM:
+      rformat = CS4231_ADPCM_16;
+      break;
 	}
 	if (channels > 1)
 		rformat |= CS4231_STEREO;
@@ -560,13 +559,13 @@ static unsigned char snd_cs4231_get_format(struct snd_cs4231 *chip, int format,
 
 static void snd_cs4231_calibrate_mute(struct snd_cs4231 *chip, int mute)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mute = mute ? 1 : 0;
-	spin_lock_irqsave(&chip->lock, flags);
-	if (chip->calibrate_mute == mute) {
-		spin_unlock_irqrestore(&chip->lock, flags);
-		return;
+  mute = mute ? 1 : 0;
+  spin_lock_irqsave(&chip->lock, flags);
+  if (chip->calibrate_mute == mute) {
+    spin_unlock_irqrestore(&chip->lock, flags);
+    return;
 	}
 	if (!mute) {
 		snd_cs4231_dout(chip, CS4231_LEFT_INPUT,
@@ -602,46 +601,46 @@ static void snd_cs4231_playback_format(struct snd_cs4231 *chip,
 				       struct snd_pcm_hw_params *params,
 				       unsigned char pdfr)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mutex_lock(&chip->mce_mutex);
-	snd_cs4231_calibrate_mute(chip, 1);
+  mutex_lock(&chip->mce_mutex);
+  snd_cs4231_calibrate_mute(chip, 1);
 
-	snd_cs4231_mce_up(chip);
+  snd_cs4231_mce_up(chip);
 
-	spin_lock_irqsave(&chip->lock, flags);
-	snd_cs4231_out(chip, CS4231_PLAYBK_FORMAT,
-		       (chip->image[CS4231_IFACE_CTRL] & CS4231_RECORD_ENABLE) ?
-		       (pdfr & 0xf0) | (chip->image[CS4231_REC_FORMAT] & 0x0f) :
-		       pdfr);
-	spin_unlock_irqrestore(&chip->lock, flags);
+  spin_lock_irqsave(&chip->lock, flags);
+  snd_cs4231_out(chip, CS4231_PLAYBK_FORMAT,
+                 (chip->image[CS4231_IFACE_CTRL] & CS4231_RECORD_ENABLE)
+                     ? (pdfr & 0xf0) | (chip->image[CS4231_REC_FORMAT] & 0x0f)
+                     : pdfr);
+  spin_unlock_irqrestore(&chip->lock, flags);
 
-	snd_cs4231_mce_down(chip);
+  snd_cs4231_mce_down(chip);
 
-	snd_cs4231_calibrate_mute(chip, 0);
-	mutex_unlock(&chip->mce_mutex);
+  snd_cs4231_calibrate_mute(chip, 0);
+  mutex_unlock(&chip->mce_mutex);
 }
 
 static void snd_cs4231_capture_format(struct snd_cs4231 *chip,
 				      struct snd_pcm_hw_params *params,
 				      unsigned char cdfr)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mutex_lock(&chip->mce_mutex);
-	snd_cs4231_calibrate_mute(chip, 1);
+  mutex_lock(&chip->mce_mutex);
+  snd_cs4231_calibrate_mute(chip, 1);
 
-	snd_cs4231_mce_up(chip);
+  snd_cs4231_mce_up(chip);
 
-	spin_lock_irqsave(&chip->lock, flags);
-	if (!(chip->image[CS4231_IFACE_CTRL] & CS4231_PLAYBACK_ENABLE)) {
-		snd_cs4231_out(chip, CS4231_PLAYBK_FORMAT,
-			       ((chip->image[CS4231_PLAYBK_FORMAT]) & 0xf0) |
-			       (cdfr & 0x0f));
-		spin_unlock_irqrestore(&chip->lock, flags);
-		snd_cs4231_mce_down(chip);
-		snd_cs4231_mce_up(chip);
-		spin_lock_irqsave(&chip->lock, flags);
+  spin_lock_irqsave(&chip->lock, flags);
+  if (!(chip->image[CS4231_IFACE_CTRL] & CS4231_PLAYBACK_ENABLE)) {
+    snd_cs4231_out(
+        chip, CS4231_PLAYBK_FORMAT,
+        ((chip->image[CS4231_PLAYBK_FORMAT]) & 0xf0) | (cdfr & 0x0f));
+    spin_unlock_irqrestore(&chip->lock, flags);
+    snd_cs4231_mce_down(chip);
+    snd_cs4231_mce_up(chip);
+    spin_lock_irqsave(&chip->lock, flags);
 	}
 	snd_cs4231_out(chip, CS4231_REC_FORMAT, cdfr);
 	spin_unlock_irqrestore(&chip->lock, flags);
@@ -665,24 +664,22 @@ static unsigned long snd_cs4231_timer_resolution(struct snd_timer *timer)
 
 static int snd_cs4231_timer_start(struct snd_timer *timer)
 {
-	unsigned long flags;
-	unsigned int ticks;
-	struct snd_cs4231 *chip = snd_timer_chip(timer);
+  unsigned long flags = 0;
+  unsigned int ticks = 0;
+  struct snd_cs4231 *chip = snd_timer_chip(timer);
 
-	spin_lock_irqsave(&chip->lock, flags);
-	ticks = timer->sticks;
-	if ((chip->image[CS4231_ALT_FEATURE_1] & CS4231_TIMER_ENABLE) == 0 ||
-	    (unsigned char)(ticks >> 8) != chip->image[CS4231_TIMER_HIGH] ||
-	    (unsigned char)ticks != chip->image[CS4231_TIMER_LOW]) {
-		snd_cs4231_out(chip, CS4231_TIMER_HIGH,
-			       chip->image[CS4231_TIMER_HIGH] =
-			       (unsigned char) (ticks >> 8));
-		snd_cs4231_out(chip, CS4231_TIMER_LOW,
-			       chip->image[CS4231_TIMER_LOW] =
-			       (unsigned char) ticks);
-		snd_cs4231_out(chip, CS4231_ALT_FEATURE_1,
-			       chip->image[CS4231_ALT_FEATURE_1] |
-					CS4231_TIMER_ENABLE);
+  spin_lock_irqsave(&chip->lock, flags);
+  ticks = timer->sticks;
+  if ((chip->image[CS4231_ALT_FEATURE_1] & CS4231_TIMER_ENABLE) == 0 ||
+      (unsigned char)(ticks >> 8) != chip->image[CS4231_TIMER_HIGH] ||
+      (unsigned char)ticks != chip->image[CS4231_TIMER_LOW]) {
+    snd_cs4231_out(
+        chip, CS4231_TIMER_HIGH,
+        chip->image[CS4231_TIMER_HIGH] = (unsigned char)(ticks >> 8));
+    snd_cs4231_out(chip, CS4231_TIMER_LOW,
+                   chip->image[CS4231_TIMER_LOW] = (unsigned char)ticks);
+    snd_cs4231_out(chip, CS4231_ALT_FEATURE_1,
+                   chip->image[CS4231_ALT_FEATURE_1] | CS4231_TIMER_ENABLE);
 	}
 	spin_unlock_irqrestore(&chip->lock, flags);
 
@@ -691,23 +688,22 @@ static int snd_cs4231_timer_start(struct snd_timer *timer)
 
 static int snd_cs4231_timer_stop(struct snd_timer *timer)
 {
-	unsigned long flags;
-	struct snd_cs4231 *chip = snd_timer_chip(timer);
+  unsigned long flags = 0;
+  struct snd_cs4231 *chip = snd_timer_chip(timer);
 
-	spin_lock_irqsave(&chip->lock, flags);
-	chip->image[CS4231_ALT_FEATURE_1] &= ~CS4231_TIMER_ENABLE;
-	snd_cs4231_out(chip, CS4231_ALT_FEATURE_1,
-		       chip->image[CS4231_ALT_FEATURE_1]);
-	spin_unlock_irqrestore(&chip->lock, flags);
+  spin_lock_irqsave(&chip->lock, flags);
+  chip->image[CS4231_ALT_FEATURE_1] &= ~CS4231_TIMER_ENABLE;
+  snd_cs4231_out(chip, CS4231_ALT_FEATURE_1, chip->image[CS4231_ALT_FEATURE_1]);
+  spin_unlock_irqrestore(&chip->lock, flags);
 
-	return 0;
+  return 0;
 }
 
 static void snd_cs4231_init(struct snd_cs4231 *chip)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	snd_cs4231_mce_down(chip);
+  snd_cs4231_mce_down(chip);
 
 #ifdef SNDRV_DEBUG_MCE
 	snd_printdd("init: (1)\n");
@@ -769,12 +765,12 @@ static void snd_cs4231_init(struct snd_cs4231 *chip)
 
 static int snd_cs4231_open(struct snd_cs4231 *chip, unsigned int mode)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mutex_lock(&chip->open_mutex);
-	if ((chip->mode & mode)) {
-		mutex_unlock(&chip->open_mutex);
-		return -EAGAIN;
+  mutex_lock(&chip->open_mutex);
+  if ((chip->mode & mode)) {
+    mutex_unlock(&chip->open_mutex);
+    return -EAGAIN;
 	}
 	if (chip->mode & CS4231_MODE_OPEN) {
 		chip->mode |= mode;
@@ -804,13 +800,13 @@ static int snd_cs4231_open(struct snd_cs4231 *chip, unsigned int mode)
 
 static void snd_cs4231_close(struct snd_cs4231 *chip, unsigned int mode)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mutex_lock(&chip->open_mutex);
-	chip->mode &= ~mode;
-	if (chip->mode & CS4231_MODE_OPEN) {
-		mutex_unlock(&chip->open_mutex);
-		return;
+  mutex_lock(&chip->open_mutex);
+  chip->mode &= ~mode;
+  if (chip->mode & CS4231_MODE_OPEN) {
+    mutex_unlock(&chip->open_mutex);
+    return;
 	}
 	snd_cs4231_calibrate_mute(chip, 1);
 
@@ -887,10 +883,10 @@ static int snd_cs4231_playback_hw_params(struct snd_pcm_substream *substream,
 					 struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
-	unsigned char new_pdfr;
-	int err;
+        unsigned char new_pdfr = 0;
+        int err = 0;
 
-	err = snd_pcm_lib_malloc_pages(substream,
+        err = snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
 	if (err < 0)
 		return err;
@@ -906,8 +902,8 @@ static int snd_cs4231_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	unsigned long flags;
-	int ret = 0;
+        unsigned long flags = 0;
+        int ret = 0;
 
 	spin_lock_irqsave(&chip->lock, flags);
 
@@ -931,10 +927,10 @@ static int snd_cs4231_capture_hw_params(struct snd_pcm_substream *substream,
 					struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
-	unsigned char new_cdfr;
-	int err;
+        unsigned char new_cdfr = 0;
+        int err = 0;
 
-	err = snd_pcm_lib_malloc_pages(substream,
+        err = snd_pcm_lib_malloc_pages(substream,
 					params_buffer_bytes(hw_params));
 	if (err < 0)
 		return err;
@@ -949,9 +945,9 @@ static int snd_cs4231_capture_hw_params(struct snd_pcm_substream *substream,
 static int snd_cs4231_capture_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	spin_lock_irqsave(&chip->lock, flags);
+        spin_lock_irqsave(&chip->lock, flags);
 	chip->image[CS4231_IFACE_CTRL] &= ~(CS4231_RECORD_ENABLE |
 					    CS4231_RECORD_PIO);
 
@@ -964,16 +960,15 @@ static int snd_cs4231_capture_prepare(struct snd_pcm_substream *substream)
 
 static void snd_cs4231_overrange(struct snd_cs4231 *chip)
 {
-	unsigned long flags;
-	unsigned char res;
+  unsigned long flags = 0;
+  unsigned char res = 0;
 
-	spin_lock_irqsave(&chip->lock, flags);
-	res = snd_cs4231_in(chip, CS4231_TEST_INIT);
-	spin_unlock_irqrestore(&chip->lock, flags);
+  spin_lock_irqsave(&chip->lock, flags);
+  res = snd_cs4231_in(chip, CS4231_TEST_INIT);
+  spin_unlock_irqrestore(&chip->lock, flags);
 
-	/* detect overrange only above 0dB; may be user selectable? */
-	if (res & (0x08 | 0x02))
-		chip->capture_substream->runtime->overrange++;
+  /* detect overrange only above 0dB; may be user selectable? */
+  if (res & (0x08 | 0x02)) chip->capture_substream->runtime->overrange++;
 }
 
 static void snd_cs4231_play_callback(struct snd_cs4231 *chip)
@@ -1028,25 +1023,24 @@ static snd_pcm_uframes_t snd_cs4231_capture_pointer(
 
 static int snd_cs4231_probe(struct snd_cs4231 *chip)
 {
-	unsigned long flags;
-	int i;
-	int id = 0;
-	int vers = 0;
-	unsigned char *ptr;
+  unsigned long flags = 0;
+  int i = 0;
+  int id = 0;
+  int vers = 0;
+  unsigned char *ptr = NULL;
 
-	for (i = 0; i < 50; i++) {
-		mb();
-		if (__cs4231_readb(chip, CS4231U(chip, REGSEL)) & CS4231_INIT)
-			msleep(2);
-		else {
-			spin_lock_irqsave(&chip->lock, flags);
-			snd_cs4231_out(chip, CS4231_MISC_INFO, CS4231_MODE2);
-			id = snd_cs4231_in(chip, CS4231_MISC_INFO) & 0x0f;
-			vers = snd_cs4231_in(chip, CS4231_VERSION);
-			spin_unlock_irqrestore(&chip->lock, flags);
-			if (id == 0x0a)
-				break;	/* this is valid value */
-		}
+  for (i = 0; i < 50; i++) {
+    mb();
+    if (__cs4231_readb(chip, CS4231U(chip, REGSEL)) & CS4231_INIT)
+      msleep(2);
+    else {
+      spin_lock_irqsave(&chip->lock, flags);
+      snd_cs4231_out(chip, CS4231_MISC_INFO, CS4231_MODE2);
+      id = snd_cs4231_in(chip, CS4231_MISC_INFO) & 0x0f;
+      vers = snd_cs4231_in(chip, CS4231_VERSION);
+      spin_unlock_irqrestore(&chip->lock, flags);
+      if (id == 0x0a) break; /* this is valid value */
+    }
 	}
 	snd_printdd("cs4231: port = %p, id = 0x%x\n", chip->port, id);
 	if (id != 0x0a)
@@ -1141,9 +1135,9 @@ static int snd_cs4231_playback_open(struct snd_pcm_substream *substream)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	int err;
+        int err = 0;
 
-	runtime->hw = snd_cs4231_playback;
+        runtime->hw = snd_cs4231_playback;
 
 	err = snd_cs4231_open(chip, CS4231_MODE_PLAY);
 	if (err < 0) {
@@ -1162,9 +1156,9 @@ static int snd_cs4231_capture_open(struct snd_pcm_substream *substream)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	int err;
+        int err = 0;
 
-	runtime->hw = snd_cs4231_capture;
+        runtime->hw = snd_cs4231_capture;
 
 	err = snd_cs4231_open(chip, CS4231_MODE_RECORD);
 	if (err < 0) {
@@ -1228,10 +1222,10 @@ static struct snd_pcm_ops snd_cs4231_capture_ops = {
 static int snd_cs4231_pcm(struct snd_card *card)
 {
 	struct snd_cs4231 *chip = card->private_data;
-	struct snd_pcm *pcm;
-	int err;
+        struct snd_pcm *pcm = NULL;
+        int err = 0;
 
-	err = snd_pcm_new(card, "CS4231", 0, 1, 1, &pcm);
+        err = snd_pcm_new(card, "CS4231", 0, 1, 1, &pcm);
 	if (err < 0)
 		return err;
 
@@ -1257,11 +1251,11 @@ static int snd_cs4231_pcm(struct snd_card *card)
 static int snd_cs4231_timer(struct snd_card *card)
 {
 	struct snd_cs4231 *chip = card->private_data;
-	struct snd_timer *timer;
-	struct snd_timer_id tid;
-	int err;
+        struct snd_timer *timer = NULL;
+        struct snd_timer_id tid;
+        int err = 0;
 
-	/* Timer initialization */
+        /* Timer initialization */
 	tid.dev_class = SNDRV_TIMER_CLASS_CARD;
 	tid.dev_sclass = SNDRV_TIMER_SCLASS_NONE;
 	tid.card = card->number;
@@ -1296,9 +1290,9 @@ static int snd_cs4231_get_mux(struct snd_kcontrol *kcontrol,
 			      struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_cs4231 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	spin_lock_irqsave(&chip->lock, flags);
+        spin_lock_irqsave(&chip->lock, flags);
 	ucontrol->value.enumerated.item[0] =
 		(chip->image[CS4231_LEFT_INPUT] & CS4231_MIXS_ALL) >> 6;
 	ucontrol->value.enumerated.item[1] =
@@ -1312,11 +1306,11 @@ static int snd_cs4231_put_mux(struct snd_kcontrol *kcontrol,
 			      struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_cs4231 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	unsigned short left, right;
-	int change;
+        unsigned long flags = 0;
+        unsigned short left = 0, right = 0;
+        int change = 0;
 
-	if (ucontrol->value.enumerated.item[0] > 3 ||
+        if (ucontrol->value.enumerated.item[0] > 3 ||
 	    ucontrol->value.enumerated.item[1] > 3)
 		return -EINVAL;
 	left = ucontrol->value.enumerated.item[0] << 6;
@@ -1354,8 +1348,8 @@ static int snd_cs4231_get_single(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_cs4231 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 8) & 0xff;
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 0xff;
@@ -1377,15 +1371,15 @@ static int snd_cs4231_put_single(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_cs4231 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 8) & 0xff;
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 0xff;
-	int change;
-	unsigned short val;
+        int change = 0;
+        unsigned short val = 0;
 
-	val = (ucontrol->value.integer.value[0] & mask);
+        val = (ucontrol->value.integer.value[0] & mask);
 	if (invert)
 		val = mask - val;
 	val <<= shift;
@@ -1419,8 +1413,8 @@ static int snd_cs4231_get_double(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_cs4231 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int shift_left = (kcontrol->private_value >> 16) & 0x07;
 	int shift_right = (kcontrol->private_value >> 19) & 0x07;
@@ -1450,17 +1444,17 @@ static int snd_cs4231_put_double(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_cs4231 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int shift_left = (kcontrol->private_value >> 16) & 0x07;
 	int shift_right = (kcontrol->private_value >> 19) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
 	int invert = (kcontrol->private_value >> 22) & 1;
-	int change;
-	unsigned short val1, val2;
+        int change = 0;
+        unsigned short val1 = 0, val2 = 0;
 
-	val1 = ucontrol->value.integer.value[0] & mask;
+        val1 = ucontrol->value.integer.value[0] & mask;
 	val2 = ucontrol->value.integer.value[1] & mask;
 	if (invert) {
 		val1 = mask - val1;
@@ -1539,9 +1533,9 @@ CS4231_SINGLE("Headphone Out Switch", 0, CS4231_PIN_CTRL, 7, 1, 1)
 static int snd_cs4231_mixer(struct snd_card *card)
 {
 	struct snd_cs4231 *chip = card->private_data;
-	int err, idx;
+        int err = 0, idx = 0;
 
-	if (snd_BUG_ON(!chip || !chip->pcm))
+        if (snd_BUG_ON(!chip || !chip->pcm))
 		return -EINVAL;
 
 	strcpy(card->mixername, chip->pcm->name);
@@ -1560,18 +1554,17 @@ static int dev;
 static int cs4231_attach_begin(struct platform_device *op,
 			       struct snd_card **rcard)
 {
-	struct snd_card *card;
-	struct snd_cs4231 *chip;
-	int err;
+  struct snd_card *card = NULL;
+  struct snd_cs4231 *chip = NULL;
+  int err = 0;
 
-	*rcard = NULL;
+  *rcard = NULL;
 
-	if (dev >= SNDRV_CARDS)
-		return -ENODEV;
+  if (dev >= SNDRV_CARDS) return -ENODEV;
 
-	if (!enable[dev]) {
-		dev++;
-		return -ENOENT;
+  if (!enable[dev]) {
+    dev++;
+    return -ENOENT;
 	}
 
 	err = snd_card_new(&op->dev, index[dev], id[dev], THIS_MODULE,
@@ -1592,9 +1585,9 @@ static int cs4231_attach_begin(struct platform_device *op,
 static int cs4231_attach_finish(struct snd_card *card)
 {
 	struct snd_cs4231 *chip = card->private_data;
-	int err;
+        int err = 0;
 
-	err = snd_cs4231_pcm(card);
+        err = snd_cs4231_pcm(card);
 	if (err < 0)
 		goto out_err;
 

@@ -75,9 +75,9 @@ static int pxa2xx_ac97_pcm_startup(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	pxa2xx_audio_ops_t *platform_ops;
-	int r;
+        int r = 0;
 
-	runtime->hw.channels_min = 2;
+        runtime->hw.channels_min = 2;
 	runtime->hw.channels_max = 2;
 
 	r = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) ?
@@ -104,9 +104,10 @@ static void pxa2xx_ac97_pcm_shutdown(struct snd_pcm_substream *substream)
 static int pxa2xx_ac97_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	int reg = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) ?
-		  AC97_PCM_FRONT_DAC_RATE : AC97_PCM_LR_ADC_RATE;
-	return snd_ac97_set_rate(pxa2xx_ac97_ac97, reg, runtime->rate);
+        int reg = 0 = (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+                          ? AC97_PCM_FRONT_DAC_RATE
+                          : AC97_PCM_LR_ADC_RATE;
+        return snd_ac97_set_rate(pxa2xx_ac97_ac97, reg, runtime->rate);
 }
 
 static struct pxa2xx_pcm_client pxa2xx_ac97_pcm_client = {
@@ -176,16 +177,16 @@ static SIMPLE_DEV_PM_OPS(pxa2xx_ac97_pm_ops, pxa2xx_ac97_suspend, pxa2xx_ac97_re
 
 static int pxa2xx_ac97_probe(struct platform_device *dev)
 {
-	struct snd_card *card;
-	struct snd_ac97_bus *ac97_bus;
-	struct snd_ac97_template ac97_template;
-	int ret;
-	pxa2xx_audio_ops_t *pdata = dev->dev.platform_data;
+  struct snd_card *card = NULL;
+  struct snd_ac97_bus *ac97_bus = NULL;
+  struct snd_ac97_template ac97_template;
+  int ret = 0;
+  pxa2xx_audio_ops_t *pdata = dev->dev.platform_data;
 
-	if (dev->id >= 0) {
-		dev_err(&dev->dev, "PXA2xx has only one AC97 port.\n");
-		ret = -ENXIO;
-		goto err_dev;
+  if (dev->id >= 0) {
+    dev_err(&dev->dev, "PXA2xx has only one AC97 port.\n");
+    ret = -ENXIO;
+    goto err_dev;
 	}
 
 	ret = snd_card_new(&dev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,

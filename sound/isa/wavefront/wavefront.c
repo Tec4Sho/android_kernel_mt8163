@@ -235,10 +235,10 @@ static struct snd_hwdep *snd_wavefront_new_synth(struct snd_card *card,
 						 int hw_dev,
 						 snd_wavefront_card_t *acard)
 {
-	struct snd_hwdep *wavefront_synth;
+  struct snd_hwdep *wavefront_synth = NULL;
 
-	if (snd_wavefront_detect (acard) < 0) {
-		return NULL;
+  if (snd_wavefront_detect(acard) < 0) {
+    return NULL;
 	}
 
 	if (snd_wavefront_start (&acard->wavefront) < 0) {
@@ -262,11 +262,11 @@ static struct snd_hwdep *snd_wavefront_new_fx(struct snd_card *card,
 					      unsigned long port)
 
 {
-	struct snd_hwdep *fx_processor;
+  struct snd_hwdep *fx_processor = NULL;
 
-	if (snd_wavefront_fx_start (&acard->wavefront)) {
-		snd_printk (KERN_ERR "cannot initialize YSS225 FX processor");
-		return NULL;
+  if (snd_wavefront_fx_start(&acard->wavefront)) {
+    snd_printk(KERN_ERR "cannot initialize YSS225 FX processor");
+    return NULL;
 	}
 
 	if (snd_hwdep_new (card, "YSS225", hw_dev, &fx_processor) < 0)
@@ -289,16 +289,16 @@ static struct snd_rawmidi *snd_wavefront_new_midi(struct snd_card *card,
 						  snd_wavefront_mpu_id mpu)
 
 {
-	struct snd_rawmidi *rmidi;
-	static int first = 1;
+  struct snd_rawmidi *rmidi = NULL;
+  static int first = 1;
 
-	if (first) {
-		first = 0;
-		acard->wavefront.midi.base = port;
-		if (snd_wavefront_midi_start (acard)) {
-			snd_printk (KERN_ERR "cannot initialize MIDI interface\n");
-			return NULL;
-		}
+  if (first) {
+    first = 0;
+    acard->wavefront.midi.base = port;
+    if (snd_wavefront_midi_start(acard)) {
+      snd_printk(KERN_ERR "cannot initialize MIDI interface\n");
+      return NULL;
+    }
 	}
 
 	if (snd_rawmidi_new (card, "WaveFront MIDI", midi_dev, 1, 1, &rmidi) < 0)
@@ -337,40 +337,39 @@ snd_wavefront_free(struct snd_card *card)
 static int snd_wavefront_card_new(struct device *pdev, int dev,
 				  struct snd_card **cardp)
 {
-	struct snd_card *card;
-	snd_wavefront_card_t *acard;
-	int err;
+  struct snd_card *card = NULL;
+  snd_wavefront_card_t *acard;
+  int err = 0;
 
-	err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,
-			   sizeof(snd_wavefront_card_t), &card);
-	if (err < 0)
-		return err;
+  err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,
+                     sizeof(snd_wavefront_card_t), &card);
+  if (err < 0) return err;
 
-	acard = card->private_data;
-	acard->wavefront.irq = -1;
-	spin_lock_init(&acard->wavefront.irq_lock);
-	init_waitqueue_head(&acard->wavefront.interrupt_sleeper);
-	spin_lock_init(&acard->wavefront.midi.open);
-	spin_lock_init(&acard->wavefront.midi.virtual);
-	acard->wavefront.card = card;
-	card->private_free = snd_wavefront_free;
+  acard = card->private_data;
+  acard->wavefront.irq = -1;
+  spin_lock_init(&acard->wavefront.irq_lock);
+  init_waitqueue_head(&acard->wavefront.interrupt_sleeper);
+  spin_lock_init(&acard->wavefront.midi.open);
+  spin_lock_init(&acard->wavefront.midi.virtual);
+  acard->wavefront.card = card;
+  card->private_free = snd_wavefront_free;
 
-	*cardp = card;
-	return 0;
+  *cardp = card;
+  return 0;
 }
 
 static int
 snd_wavefront_probe (struct snd_card *card, int dev)
 {
 	snd_wavefront_card_t *acard = card->private_data;
-	struct snd_wss *chip;
-	struct snd_hwdep *wavefront_synth;
-	struct snd_rawmidi *ics2115_internal_rmidi = NULL;
-	struct snd_rawmidi *ics2115_external_rmidi = NULL;
-	struct snd_hwdep *fx_processor;
-	int hw_dev = 0, midi_dev = 0, err;
+        struct snd_wss *chip = NULL;
+        struct snd_hwdep *wavefront_synth = NULL;
+        struct snd_rawmidi *ics2115_internal_rmidi = NULL = NULL;
+        struct snd_rawmidi *ics2115_external_rmidi = NULL = NULL;
+        struct snd_hwdep *fx_processor = NULL;
+        int hw_dev = 0, midi_dev = 0, err = 0;
 
-	/* --------- PCM --------------- */
+        /* --------- PCM --------------- */
 
 	err = snd_wss_create(card, cs4232_pcm_port[dev], -1,
 			     cs4232_pcm_irq[dev], dma1[dev], dma2[dev],
@@ -391,13 +390,13 @@ snd_wavefront_probe (struct snd_card *card, int dev)
 	/* ---------- OPL3 synth --------- */
 
 	if (fm_port[dev] > 0 && fm_port[dev] != SNDRV_AUTO_PORT) {
-		struct snd_opl3 *opl3;
+          struct snd_opl3 *opl3 = NULL;
 
-		err = snd_opl3_create(card, fm_port[dev], fm_port[dev] + 2,
-				      OPL3_HW_OPL3_CS, 0, &opl3);
-		if (err < 0) {
-			snd_printk (KERN_ERR "can't allocate or detect OPL3 synth\n");
-			return err;
+          err = snd_opl3_create(card, fm_port[dev], fm_port[dev] + 2,
+                                OPL3_HW_OPL3_CS, 0, &opl3);
+          if (err < 0) {
+            snd_printk(KERN_ERR "can't allocate or detect OPL3 synth\n");
+            return err;
 		}
 
 		err = snd_opl3_hwdep_new(opl3, hw_dev, 1, NULL);
@@ -562,15 +561,14 @@ static int snd_wavefront_isa_match(struct device *pdev,
 static int snd_wavefront_isa_probe(struct device *pdev,
 				   unsigned int dev)
 {
-	struct snd_card *card;
-	int err;
+  struct snd_card *card = NULL;
+  int err = 0;
 
-	err = snd_wavefront_card_new(pdev, dev, &card);
-	if (err < 0)
-		return err;
-	if ((err = snd_wavefront_probe(card, dev)) < 0) {
-		snd_card_free(card);
-		return err;
+  err = snd_wavefront_card_new(pdev, dev, &card);
+  if (err < 0) return err;
+  if ((err = snd_wavefront_probe(card, dev)) < 0) {
+    snd_card_free(card);
+    return err;
 	}
 	
 	dev_set_drvdata(pdev, card);

@@ -30,7 +30,7 @@
 
 #define DRIVER_NAME	"aaci-pl041"
 
-#define FRAME_PERIOD_US	21
+enum { FRAME_PERIOD_US = 21 };
 
 /*
  * PM support is not complete.  Turn it off.
@@ -70,8 +70,8 @@ static void aaci_ac97_write(struct snd_ac97 *ac97, unsigned short reg,
 			    unsigned short val)
 {
 	struct aaci *aaci = ac97->private_data;
-	int timeout;
-	u32 v;
+        int timeout = 0;
+        u32 v;
 
 	if (ac97->num >= 4)
 		return;
@@ -110,8 +110,8 @@ static void aaci_ac97_write(struct snd_ac97 *ac97, unsigned short reg,
 static unsigned short aaci_ac97_read(struct snd_ac97 *ac97, unsigned short reg)
 {
 	struct aaci *aaci = ac97->private_data;
-	int timeout, retries = 10;
-	u32 v;
+        int timeout = 0, retries = 10;
+        u32 v;
 
 	if (ac97->num >= 4)
 		return ~0;
@@ -211,9 +211,9 @@ static void aaci_fifo_irq(struct aaci *aaci, int channel, u32 mask)
 	if (mask & ISR_RXINTR) {
 		struct aaci_runtime *aacirun = &aaci->capture;
 		bool period_elapsed = false;
-		void *ptr;
+                void *ptr = NULL;
 
-		if (!aacirun->substream || !aacirun->start) {
+                if (!aacirun->substream || !aacirun->start) {
 			dev_warn(&aaci->dev->dev, "RX interrupt???\n");
 			writel(0, aacirun->base + AACI_IE);
 			return;
@@ -271,9 +271,9 @@ static void aaci_fifo_irq(struct aaci *aaci, int channel, u32 mask)
 	if (mask & ISR_TXINTR) {
 		struct aaci_runtime *aacirun = &aaci->playback;
 		bool period_elapsed = false;
-		void *ptr;
+                void *ptr = NULL;
 
-		if (!aacirun->substream || !aacirun->start) {
+                if (!aacirun->substream || !aacirun->start) {
 			dev_warn(&aaci->dev->dev, "TX interrupt???\n");
 			writel(0, aacirun->base + AACI_IE);
 			return;
@@ -328,9 +328,9 @@ static irqreturn_t aaci_irq(int irq, void *devid)
 {
 	struct aaci *aaci = devid;
 	u32 mask;
-	int i;
+        int i = 0;
 
-	mask = readl(aaci->base + AACI_ALLINTS);
+        mask = readl(aaci->base + AACI_ALLINTS);
 	if (mask) {
 		u32 m = mask;
 		for (i = 0; i < 4; i++, m >>= 7) {
@@ -385,9 +385,9 @@ static int aaci_rule_channels(struct snd_pcm_hw_params *p,
 {
 	static unsigned int channel_list[] = { 2, 4, 6 };
 	struct aaci *aaci = rule->private;
-	unsigned int mask = 1 << 0, slots;
+        unsigned int mask = 1 << 0, slots = 0;
 
-	/* pcms[0] is the our 5.1 PCM instance. */
+        /* pcms[0] is the our 5.1 PCM instance. */
 	slots = aaci->ac97_bus->pcms[0].r[0].slots;
 	if (slots & (1 << AC97_SLOT_PCM_SLEFT)) {
 		mask |= 1 << 1;
@@ -403,8 +403,8 @@ static int aaci_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct aaci *aaci = substream->private_data;
-	struct aaci_runtime *aacirun;
-	int ret = 0;
+        struct aaci_runtime *aacirun = NULL;
+        int ret = 0;
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
 		aacirun = &aaci->playback;
@@ -508,9 +508,9 @@ static int aaci_pcm_hw_params(struct snd_pcm_substream *substream,
 	unsigned int channels = params_channels(params);
 	unsigned int rate = params_rate(params);
 	int dbl = rate > 48000;
-	int err;
+        int err = 0;
 
-	aaci_pcm_hw_free(substream);
+        aaci_pcm_hw_free(substream);
 	if (aacirun->pcm_open) {
 		snd_ac97_pcm_close(aacirun->pcm);
 		aacirun->pcm_open = 0;
@@ -598,8 +598,8 @@ static void aaci_pcm_playback_start(struct aaci_runtime *aacirun)
 static int aaci_pcm_playback_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct aaci_runtime *aacirun = substream->runtime->private_data;
-	unsigned long flags;
-	int ret = 0;
+        unsigned long flags = 0;
+        int ret = 0;
 
 	spin_lock_irqsave(&aacirun->lock, flags);
 
@@ -683,8 +683,8 @@ static void aaci_pcm_capture_start(struct aaci_runtime *aacirun)
 static int aaci_pcm_capture_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct aaci_runtime *aacirun = substream->runtime->private_data;
-	unsigned long flags;
-	int ret = 0;
+        unsigned long flags = 0;
+        int ret = 0;
 
 	spin_lock_irqsave(&aacirun->lock, flags);
 
@@ -835,11 +835,11 @@ static struct snd_ac97_bus_ops aaci_bus_ops = {
 static int aaci_probe_ac97(struct aaci *aaci)
 {
 	struct snd_ac97_template ac97_template;
-	struct snd_ac97_bus *ac97_bus;
-	struct snd_ac97 *ac97;
-	int ret;
+        struct snd_ac97_bus *ac97_bus = NULL;
+        struct snd_ac97 *ac97 = NULL;
+        int ret = 0;
 
-	/*
+        /*
 	 * Assert AACIRESET for 2us
 	 */
 	writel(0, aaci->base + AACI_RESET);
@@ -895,54 +895,53 @@ static void aaci_free_card(struct snd_card *card)
 
 static struct aaci *aaci_init_card(struct amba_device *dev)
 {
-	struct aaci *aaci;
-	struct snd_card *card;
-	int err;
+  struct aaci *aaci = NULL;
+  struct snd_card *card = NULL;
+  int err = 0;
 
-	err = snd_card_new(&dev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
-			   THIS_MODULE, sizeof(struct aaci), &card);
-	if (err < 0)
-		return NULL;
+  err = snd_card_new(&dev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+                     THIS_MODULE, sizeof(struct aaci), &card);
+  if (err < 0) return NULL;
 
-	card->private_free = aaci_free_card;
+  card->private_free = aaci_free_card;
 
-	strlcpy(card->driver, DRIVER_NAME, sizeof(card->driver));
-	strlcpy(card->shortname, "ARM AC'97 Interface", sizeof(card->shortname));
-	snprintf(card->longname, sizeof(card->longname),
-		 "%s PL%03x rev%u at 0x%08llx, irq %d",
-		 card->shortname, amba_part(dev), amba_rev(dev),
-		 (unsigned long long)dev->res.start, dev->irq[0]);
+  strlcpy(card->driver, DRIVER_NAME, sizeof(card->driver));
+  strlcpy(card->shortname, "ARM AC'97 Interface", sizeof(card->shortname));
+  snprintf(card->longname, sizeof(card->longname),
+           "%s PL%03x rev%u at 0x%08llx, irq %d", card->shortname,
+           amba_part(dev), amba_rev(dev), (unsigned long long)dev->res.start,
+           dev->irq[0]);
 
-	aaci = card->private_data;
-	mutex_init(&aaci->ac97_sem);
-	mutex_init(&aaci->irq_lock);
-	aaci->card = card;
-	aaci->dev = dev;
+  aaci = card->private_data;
+  mutex_init(&aaci->ac97_sem);
+  mutex_init(&aaci->irq_lock);
+  aaci->card = card;
+  aaci->dev = dev;
 
-	/* Set MAINCR to allow slot 1 and 2 data IO */
-	aaci->maincr = MAINCR_IE | MAINCR_SL1RXEN | MAINCR_SL1TXEN |
-		       MAINCR_SL2RXEN | MAINCR_SL2TXEN;
+  /* Set MAINCR to allow slot 1 and 2 data IO */
+  aaci->maincr = MAINCR_IE | MAINCR_SL1RXEN | MAINCR_SL1TXEN | MAINCR_SL2RXEN |
+                 MAINCR_SL2TXEN;
 
-	return aaci;
+  return aaci;
 }
 
 static int aaci_init_pcm(struct aaci *aaci)
 {
-	struct snd_pcm *pcm;
-	int ret;
+  struct snd_pcm *pcm = NULL;
+  int ret = 0;
 
-	ret = snd_pcm_new(aaci->card, "AACI AC'97", 0, 1, 1, &pcm);
-	if (ret == 0) {
-		aaci->pcm = pcm;
-		pcm->private_data = aaci;
-		pcm->info_flags = 0;
+  ret = snd_pcm_new(aaci->card, "AACI AC'97", 0, 1, 1, &pcm);
+  if (ret == 0) {
+    aaci->pcm = pcm;
+    pcm->private_data = aaci;
+    pcm->info_flags = 0;
 
-		strlcpy(pcm->name, DRIVER_NAME, sizeof(pcm->name));
+    strlcpy(pcm->name, DRIVER_NAME, sizeof(pcm->name));
 
-		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &aaci_playback_ops);
-		snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &aaci_capture_ops);
-		snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
-						      NULL, 0, 64 * 1024);
+    snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &aaci_playback_ops);
+    snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &aaci_capture_ops);
+    snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV, NULL, 0,
+                                          64 * 1024);
 	}
 
 	return ret;
@@ -951,9 +950,9 @@ static int aaci_init_pcm(struct aaci *aaci)
 static unsigned int aaci_size_fifo(struct aaci *aaci)
 {
 	struct aaci_runtime *aacirun = &aaci->playback;
-	int i;
+        int i = 0;
 
-	/*
+        /*
 	 * Enable the channel, but don't assign it to any slots, so
 	 * it won't empty onto the AC'97 link.
 	 */
@@ -987,17 +986,16 @@ static unsigned int aaci_size_fifo(struct aaci *aaci)
 static int aaci_probe(struct amba_device *dev,
 		      const struct amba_id *id)
 {
-	struct aaci *aaci;
-	int ret, i;
+  struct aaci *aaci = NULL;
+  int ret = 0, i = 0;
 
-	ret = amba_request_regions(dev, NULL);
-	if (ret)
-		return ret;
+  ret = amba_request_regions(dev, NULL);
+  if (ret) return ret;
 
-	aaci = aaci_init_card(dev);
-	if (!aaci) {
-		ret = -ENOMEM;
-		goto out;
+  aaci = aaci_init_card(dev);
+  if (!aaci) {
+    ret = -ENOMEM;
+    goto out;
 	}
 
 	aaci->base = ioremap(dev->res.start, resource_size(&dev->res));

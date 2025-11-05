@@ -98,14 +98,16 @@ struct amd7930_map {
  * interrupt source(s) require service.
  */
 
-#define AMR_IR_DTTHRSH			0x01 /* D-channel xmit threshold */
-#define AMR_IR_DRTHRSH			0x02 /* D-channel recv threshold */
-#define AMR_IR_DSRI			0x04 /* D-channel packet status */
-#define AMR_IR_DERI			0x08 /* D-channel error */
-#define AMR_IR_BBUF			0x10 /* B-channel data xfer */
-#define AMR_IR_LSRI			0x20 /* LIU status */
-#define AMR_IR_DSR2I			0x40 /* D-channel buffer status */
-#define AMR_IR_MLTFRMI			0x80 /* multiframe or PP */
+enum {
+  AMR_IR_DTTHRSH = 0x01, /* D-channel xmit threshold */
+  AMR_IR_DRTHRSH = 0x02, /* D-channel recv threshold */
+  AMR_IR_DSRI = 0x04,    /* D-channel packet status */
+  AMR_IR_DERI = 0x08,    /* D-channel error */
+  AMR_IR_BBUF = 0x10,    /* B-channel data xfer */
+  AMR_IR_LSRI = 0x20,    /* LIU status */
+  AMR_IR_DSR2I = 0x40,   /* D-channel buffer status */
+  AMR_IR_MLTFRMI = 0x80  /* multiframe or PP */
+};
 
 /* The amd7930 has "indirect registers" which are accessed by writing
  * the register number into the Command Register and then reading or
@@ -115,202 +117,220 @@ struct amd7930_map {
  */
 
 /* Initialization */
-#define	AMR_INIT			0x21
-#define		AM_INIT_ACTIVE			0x01
-#define		AM_INIT_DATAONLY		0x02
-#define		AM_INIT_POWERDOWN		0x03
-#define		AM_INIT_DISABLE_INTS		0x04
-#define AMR_INIT2			0x20
-#define		AM_INIT2_ENABLE_POWERDOWN	0x20
-#define		AM_INIT2_ENABLE_MULTIFRAME	0x10
+enum {
+  AMR_INIT = 0x21,
+  AM_INIT_ACTIVE = 0x01,
+  AM_INIT_DATAONLY = 0x02,
+  AM_INIT_POWERDOWN = 0x03,
+  AM_INIT_DISABLE_INTS = 0x04,
+  AMR_INIT2 = 0x20,
+  AM_INIT2_ENABLE_POWERDOWN = 0x20,
+  AM_INIT2_ENABLE_MULTIFRAME = 0x10
+};
 
 /* Line Interface Unit */
-#define	AMR_LIU_LSR			0xA1
-#define		AM_LIU_LSR_STATE		0x07
-#define		AM_LIU_LSR_F3			0x08
-#define		AM_LIU_LSR_F7			0x10
-#define		AM_LIU_LSR_F8			0x20
-#define		AM_LIU_LSR_HSW			0x40
-#define		AM_LIU_LSR_HSW_CHG		0x80
-#define	AMR_LIU_LPR			0xA2
-#define	AMR_LIU_LMR1			0xA3
-#define		AM_LIU_LMR1_B1_ENABL		0x01
-#define		AM_LIU_LMR1_B2_ENABL		0x02
-#define		AM_LIU_LMR1_F_DISABL		0x04
-#define		AM_LIU_LMR1_FA_DISABL		0x08
-#define		AM_LIU_LMR1_REQ_ACTIV		0x10
-#define		AM_LIU_LMR1_F8_F3		0x20
-#define		AM_LIU_LMR1_LIU_ENABL		0x40
-#define	AMR_LIU_LMR2			0xA4
-#define		AM_LIU_LMR2_DECHO		0x01
-#define		AM_LIU_LMR2_DLOOP		0x02
-#define		AM_LIU_LMR2_DBACKOFF		0x04
-#define		AM_LIU_LMR2_EN_F3_INT		0x08
-#define		AM_LIU_LMR2_EN_F8_INT		0x10
-#define		AM_LIU_LMR2_EN_HSW_INT		0x20
-#define		AM_LIU_LMR2_EN_F7_INT		0x40
-#define	AMR_LIU_2_4			0xA5
-#define	AMR_LIU_MF			0xA6
-#define	AMR_LIU_MFSB			0xA7
-#define	AMR_LIU_MFQB			0xA8
+enum {
+  AMR_LIU_LSR = 0xA1,
+  AM_LIU_LSR_STATE = 0x07,
+  AM_LIU_LSR_F3 = 0x08,
+  AM_LIU_LSR_F7 = 0x10,
+  AM_LIU_LSR_F8 = 0x20,
+  AM_LIU_LSR_HSW = 0x40,
+  AM_LIU_LSR_HSW_CHG = 0x80,
+  AMR_LIU_LPR = 0xA2,
+  AMR_LIU_LMR1 = 0xA3,
+  AM_LIU_LMR1_B1_ENABL = 0x01,
+  AM_LIU_LMR1_B2_ENABL = 0x02,
+  AM_LIU_LMR1_F_DISABL = 0x04,
+  AM_LIU_LMR1_FA_DISABL = 0x08,
+  AM_LIU_LMR1_REQ_ACTIV = 0x10,
+  AM_LIU_LMR1_F8_F3 = 0x20,
+  AM_LIU_LMR1_LIU_ENABL = 0x40,
+  AMR_LIU_LMR2 = 0xA4,
+  AM_LIU_LMR2_DECHO = 0x01,
+  AM_LIU_LMR2_DLOOP = 0x02,
+  AM_LIU_LMR2_DBACKOFF = 0x04,
+  AM_LIU_LMR2_EN_F3_INT = 0x08,
+  AM_LIU_LMR2_EN_F8_INT = 0x10,
+  AM_LIU_LMR2_EN_HSW_INT = 0x20,
+  AM_LIU_LMR2_EN_F7_INT = 0x40,
+  AMR_LIU_2_4 = 0xA5,
+  AMR_LIU_MF = 0xA6,
+  AMR_LIU_MFSB = 0xA7,
+  AMR_LIU_MFQB = 0xA8
+};
 
 /* Multiplexor */
-#define	AMR_MUX_MCR1			0x41
-#define	AMR_MUX_MCR2			0x42
-#define	AMR_MUX_MCR3			0x43
-#define		AM_MUX_CHANNEL_B1		0x01
-#define		AM_MUX_CHANNEL_B2		0x02
-#define		AM_MUX_CHANNEL_Ba		0x03
-#define		AM_MUX_CHANNEL_Bb		0x04
-#define		AM_MUX_CHANNEL_Bc		0x05
-#define		AM_MUX_CHANNEL_Bd		0x06
-#define		AM_MUX_CHANNEL_Be		0x07
-#define		AM_MUX_CHANNEL_Bf		0x08
-#define	AMR_MUX_MCR4			0x44
-#define		AM_MUX_MCR4_ENABLE_INTS		0x08
-#define		AM_MUX_MCR4_REVERSE_Bb		0x10
-#define		AM_MUX_MCR4_REVERSE_Bc		0x20
-#define	AMR_MUX_1_4			0x45
+enum {
+  AMR_MUX_MCR1 = 0x41,
+  AMR_MUX_MCR2 = 0x42,
+  AMR_MUX_MCR3 = 0x43,
+  AM_MUX_CHANNEL_B1 = 0x01,
+  AM_MUX_CHANNEL_B2 = 0x02,
+  AM_MUX_CHANNEL_Ba = 0x03,
+  AM_MUX_CHANNEL_Bb = 0x04,
+  AM_MUX_CHANNEL_Bc = 0x05,
+  AM_MUX_CHANNEL_Bd = 0x06,
+  AM_MUX_CHANNEL_Be = 0x07,
+  AM_MUX_CHANNEL_Bf = 0x08,
+  AMR_MUX_MCR4 = 0x44,
+  AM_MUX_MCR4_ENABLE_INTS = 0x08,
+  AM_MUX_MCR4_REVERSE_Bb = 0x10,
+  AM_MUX_MCR4_REVERSE_Bc = 0x20,
+  AMR_MUX_1_4 = 0x45
+};
 
 /* Main Audio Processor */
-#define	AMR_MAP_X			0x61
-#define	AMR_MAP_R			0x62
-#define	AMR_MAP_GX			0x63
-#define	AMR_MAP_GR			0x64
-#define	AMR_MAP_GER			0x65
-#define	AMR_MAP_STGR			0x66
-#define	AMR_MAP_FTGR_1_2		0x67
-#define	AMR_MAP_ATGR_1_2		0x68
-#define	AMR_MAP_MMR1			0x69
-#define		AM_MAP_MMR1_ALAW		0x01
-#define		AM_MAP_MMR1_GX			0x02
-#define		AM_MAP_MMR1_GR			0x04
-#define		AM_MAP_MMR1_GER			0x08
-#define		AM_MAP_MMR1_X			0x10
-#define		AM_MAP_MMR1_R			0x20
-#define		AM_MAP_MMR1_STG			0x40
-#define		AM_MAP_MMR1_LOOPBACK		0x80
-#define	AMR_MAP_MMR2			0x6A
-#define		AM_MAP_MMR2_AINB		0x01
-#define		AM_MAP_MMR2_LS			0x02
-#define		AM_MAP_MMR2_ENABLE_DTMF		0x04
-#define		AM_MAP_MMR2_ENABLE_TONEGEN	0x08
-#define		AM_MAP_MMR2_ENABLE_TONERING	0x10
-#define		AM_MAP_MMR2_DISABLE_HIGHPASS	0x20
-#define		AM_MAP_MMR2_DISABLE_AUTOZERO	0x40
-#define	AMR_MAP_1_10			0x6B
-#define	AMR_MAP_MMR3			0x6C
-#define	AMR_MAP_STRA			0x6D
-#define	AMR_MAP_STRF			0x6E
-#define	AMR_MAP_PEAKX			0x70
-#define	AMR_MAP_PEAKR			0x71
-#define	AMR_MAP_15_16			0x72
+enum {
+  AMR_MAP_X = 0x61,
+  AMR_MAP_R = 0x62,
+  AMR_MAP_GX = 0x63,
+  AMR_MAP_GR = 0x64,
+  AMR_MAP_GER = 0x65,
+  AMR_MAP_STGR = 0x66,
+  AMR_MAP_FTGR_1_2 = 0x67,
+  AMR_MAP_ATGR_1_2 = 0x68,
+  AMR_MAP_MMR1 = 0x69,
+  AM_MAP_MMR1_ALAW = 0x01,
+  AM_MAP_MMR1_GX = 0x02,
+  AM_MAP_MMR1_GR = 0x04,
+  AM_MAP_MMR1_GER = 0x08,
+  AM_MAP_MMR1_X = 0x10,
+  AM_MAP_MMR1_R = 0x20,
+  AM_MAP_MMR1_STG = 0x40,
+  AM_MAP_MMR1_LOOPBACK = 0x80,
+  AMR_MAP_MMR2 = 0x6A,
+  AM_MAP_MMR2_AINB = 0x01,
+  AM_MAP_MMR2_LS = 0x02,
+  AM_MAP_MMR2_ENABLE_DTMF = 0x04,
+  AM_MAP_MMR2_ENABLE_TONEGEN = 0x08,
+  AM_MAP_MMR2_ENABLE_TONERING = 0x10,
+  AM_MAP_MMR2_DISABLE_HIGHPASS = 0x20,
+  AM_MAP_MMR2_DISABLE_AUTOZERO = 0x40,
+  AMR_MAP_1_10 = 0x6B,
+  AMR_MAP_MMR3 = 0x6C,
+  AMR_MAP_STRA = 0x6D,
+  AMR_MAP_STRF = 0x6E,
+  AMR_MAP_PEAKX = 0x70,
+  AMR_MAP_PEAKR = 0x71,
+  AMR_MAP_15_16 = 0x72
+};
 
 /* Data Link Controller */
-#define	AMR_DLC_FRAR_1_2_3		0x81
-#define	AMR_DLC_SRAR_1_2_3		0x82
-#define	AMR_DLC_TAR			0x83
-#define	AMR_DLC_DRLR			0x84
-#define	AMR_DLC_DTCR			0x85
-#define	AMR_DLC_DMR1			0x86
-#define		AMR_DLC_DMR1_DTTHRSH_INT	0x01
-#define		AMR_DLC_DMR1_DRTHRSH_INT	0x02
-#define		AMR_DLC_DMR1_TAR_ENABL		0x04
-#define		AMR_DLC_DMR1_EORP_INT		0x08
-#define		AMR_DLC_DMR1_EN_ADDR1		0x10
-#define		AMR_DLC_DMR1_EN_ADDR2		0x20
-#define		AMR_DLC_DMR1_EN_ADDR3		0x40
-#define		AMR_DLC_DMR1_EN_ADDR4		0x80
-#define		AMR_DLC_DMR1_EN_ADDRS		0xf0
-#define	AMR_DLC_DMR2			0x87
-#define		AMR_DLC_DMR2_RABRT_INT		0x01
-#define		AMR_DLC_DMR2_RESID_INT		0x02
-#define		AMR_DLC_DMR2_COLL_INT		0x04
-#define		AMR_DLC_DMR2_FCS_INT		0x08
-#define		AMR_DLC_DMR2_OVFL_INT		0x10
-#define		AMR_DLC_DMR2_UNFL_INT		0x20
-#define		AMR_DLC_DMR2_OVRN_INT		0x40
-#define		AMR_DLC_DMR2_UNRN_INT		0x80
-#define	AMR_DLC_1_7			0x88
-#define	AMR_DLC_DRCR			0x89
-#define	AMR_DLC_RNGR1			0x8A
-#define	AMR_DLC_RNGR2			0x8B
-#define	AMR_DLC_FRAR4			0x8C
-#define	AMR_DLC_SRAR4			0x8D
-#define	AMR_DLC_DMR3			0x8E
-#define		AMR_DLC_DMR3_VA_INT		0x01
-#define		AMR_DLC_DMR3_EOTP_INT		0x02
-#define		AMR_DLC_DMR3_LBRP_INT		0x04
-#define		AMR_DLC_DMR3_RBA_INT		0x08
-#define		AMR_DLC_DMR3_LBT_INT		0x10
-#define		AMR_DLC_DMR3_TBE_INT		0x20
-#define		AMR_DLC_DMR3_RPLOST_INT		0x40
-#define		AMR_DLC_DMR3_KEEP_FCS		0x80
-#define	AMR_DLC_DMR4			0x8F
-#define		AMR_DLC_DMR4_RCV_1		0x00
-#define		AMR_DLC_DMR4_RCV_2		0x01
-#define		AMR_DLC_DMR4_RCV_4		0x02
-#define		AMR_DLC_DMR4_RCV_8		0x03
-#define		AMR_DLC_DMR4_RCV_16		0x01
-#define		AMR_DLC_DMR4_RCV_24		0x02
-#define		AMR_DLC_DMR4_RCV_30		0x03
-#define		AMR_DLC_DMR4_XMT_1		0x00
-#define		AMR_DLC_DMR4_XMT_2		0x04
-#define		AMR_DLC_DMR4_XMT_4		0x08
-#define		AMR_DLC_DMR4_XMT_8		0x0c
-#define		AMR_DLC_DMR4_XMT_10		0x08
-#define		AMR_DLC_DMR4_XMT_14		0x0c
-#define		AMR_DLC_DMR4_IDLE_MARK		0x00
-#define		AMR_DLC_DMR4_IDLE_FLAG		0x10
-#define		AMR_DLC_DMR4_ADDR_BOTH		0x00
-#define		AMR_DLC_DMR4_ADDR_1ST		0x20
-#define		AMR_DLC_DMR4_ADDR_2ND		0xa0
-#define		AMR_DLC_DMR4_CR_ENABLE		0x40
-#define	AMR_DLC_12_15			0x90
-#define	AMR_DLC_ASR			0x91
-#define	AMR_DLC_EFCR			0x92
-#define		AMR_DLC_EFCR_EXTEND_FIFO	0x01
-#define		AMR_DLC_EFCR_SEC_PKT_INT	0x02
+enum {
+  AMR_DLC_FRAR_1_2_3 = 0x81,
+  AMR_DLC_SRAR_1_2_3 = 0x82,
+  AMR_DLC_TAR = 0x83,
+  AMR_DLC_DRLR = 0x84,
+  AMR_DLC_DTCR = 0x85,
+  AMR_DLC_DMR1 = 0x86,
+  AMR_DLC_DMR1_DTTHRSH_INT = 0x01,
+  AMR_DLC_DMR1_DRTHRSH_INT = 0x02,
+  AMR_DLC_DMR1_TAR_ENABL = 0x04,
+  AMR_DLC_DMR1_EORP_INT = 0x08,
+  AMR_DLC_DMR1_EN_ADDR1 = 0x10,
+  AMR_DLC_DMR1_EN_ADDR2 = 0x20,
+  AMR_DLC_DMR1_EN_ADDR3 = 0x40,
+  AMR_DLC_DMR1_EN_ADDR4 = 0x80,
+  AMR_DLC_DMR1_EN_ADDRS = 0xf0,
+  AMR_DLC_DMR2 = 0x87,
+  AMR_DLC_DMR2_RABRT_INT = 0x01,
+  AMR_DLC_DMR2_RESID_INT = 0x02,
+  AMR_DLC_DMR2_COLL_INT = 0x04,
+  AMR_DLC_DMR2_FCS_INT = 0x08,
+  AMR_DLC_DMR2_OVFL_INT = 0x10,
+  AMR_DLC_DMR2_UNFL_INT = 0x20,
+  AMR_DLC_DMR2_OVRN_INT = 0x40,
+  AMR_DLC_DMR2_UNRN_INT = 0x80,
+  AMR_DLC_1_7 = 0x88,
+  AMR_DLC_DRCR = 0x89,
+  AMR_DLC_RNGR1 = 0x8A,
+  AMR_DLC_RNGR2 = 0x8B,
+  AMR_DLC_FRAR4 = 0x8C,
+  AMR_DLC_SRAR4 = 0x8D,
+  AMR_DLC_DMR3 = 0x8E,
+  AMR_DLC_DMR3_VA_INT = 0x01,
+  AMR_DLC_DMR3_EOTP_INT = 0x02,
+  AMR_DLC_DMR3_LBRP_INT = 0x04,
+  AMR_DLC_DMR3_RBA_INT = 0x08,
+  AMR_DLC_DMR3_LBT_INT = 0x10,
+  AMR_DLC_DMR3_TBE_INT = 0x20,
+  AMR_DLC_DMR3_RPLOST_INT = 0x40,
+  AMR_DLC_DMR3_KEEP_FCS = 0x80,
+  AMR_DLC_DMR4 = 0x8F,
+  AMR_DLC_DMR4_RCV_1 = 0x00,
+  AMR_DLC_DMR4_RCV_2 = 0x01,
+  AMR_DLC_DMR4_RCV_4 = 0x02,
+  AMR_DLC_DMR4_RCV_8 = 0x03,
+  AMR_DLC_DMR4_RCV_16 = 0x01,
+  AMR_DLC_DMR4_RCV_24 = 0x02,
+  AMR_DLC_DMR4_RCV_30 = 0x03,
+  AMR_DLC_DMR4_XMT_1 = 0x00,
+  AMR_DLC_DMR4_XMT_2 = 0x04,
+  AMR_DLC_DMR4_XMT_4 = 0x08,
+  AMR_DLC_DMR4_XMT_8 = 0x0c,
+  AMR_DLC_DMR4_XMT_10 = 0x08,
+  AMR_DLC_DMR4_XMT_14 = 0x0c,
+  AMR_DLC_DMR4_IDLE_MARK = 0x00,
+  AMR_DLC_DMR4_IDLE_FLAG = 0x10,
+  AMR_DLC_DMR4_ADDR_BOTH = 0x00,
+  AMR_DLC_DMR4_ADDR_1ST = 0x20,
+  AMR_DLC_DMR4_ADDR_2ND = 0xa0,
+  AMR_DLC_DMR4_CR_ENABLE = 0x40,
+  AMR_DLC_12_15 = 0x90,
+  AMR_DLC_ASR = 0x91,
+  AMR_DLC_EFCR = 0x92,
+  AMR_DLC_EFCR_EXTEND_FIFO = 0x01,
+  AMR_DLC_EFCR_SEC_PKT_INT = 0x02
+};
 
-#define AMR_DSR1_VADDR			0x01
-#define AMR_DSR1_EORP			0x02
-#define AMR_DSR1_PKT_IP			0x04
-#define AMR_DSR1_DECHO_ON		0x08
-#define AMR_DSR1_DLOOP_ON		0x10
-#define AMR_DSR1_DBACK_OFF		0x20
-#define AMR_DSR1_EOTP			0x40
-#define AMR_DSR1_CXMT_ABRT		0x80
+enum {
+  AMR_DSR1_VADDR = 0x01,
+  AMR_DSR1_EORP = 0x02,
+  AMR_DSR1_PKT_IP = 0x04,
+  AMR_DSR1_DECHO_ON = 0x08,
+  AMR_DSR1_DLOOP_ON = 0x10,
+  AMR_DSR1_DBACK_OFF = 0x20,
+  AMR_DSR1_EOTP = 0x40,
+  AMR_DSR1_CXMT_ABRT = 0x80
+};
 
-#define AMR_DSR2_LBRP			0x01
-#define AMR_DSR2_RBA			0x02
-#define AMR_DSR2_RPLOST			0x04
-#define AMR_DSR2_LAST_BYTE		0x08
-#define AMR_DSR2_TBE			0x10
-#define AMR_DSR2_MARK_IDLE		0x20
-#define AMR_DSR2_FLAG_IDLE		0x40
-#define AMR_DSR2_SECOND_PKT		0x80
+enum {
+  AMR_DSR2_LBRP = 0x01,
+  AMR_DSR2_RBA = 0x02,
+  AMR_DSR2_RPLOST = 0x04,
+  AMR_DSR2_LAST_BYTE = 0x08,
+  AMR_DSR2_TBE = 0x10,
+  AMR_DSR2_MARK_IDLE = 0x20,
+  AMR_DSR2_FLAG_IDLE = 0x40,
+  AMR_DSR2_SECOND_PKT = 0x80
+};
 
-#define AMR_DER_RABRT			0x01
-#define AMR_DER_RFRAME			0x02
-#define AMR_DER_COLLISION		0x04
-#define AMR_DER_FCS			0x08
-#define AMR_DER_OVFL			0x10
-#define AMR_DER_UNFL			0x20
-#define AMR_DER_OVRN			0x40
-#define AMR_DER_UNRN			0x80
+enum {
+  AMR_DER_RABRT = 0x01,
+  AMR_DER_RFRAME = 0x02,
+  AMR_DER_COLLISION = 0x04,
+  AMR_DER_FCS = 0x08,
+  AMR_DER_OVFL = 0x10,
+  AMR_DER_UNFL = 0x20,
+  AMR_DER_OVRN = 0x40,
+  AMR_DER_UNRN = 0x80
+};
 
 /* Peripheral Port */
-#define	AMR_PP_PPCR1			0xC0
-#define	AMR_PP_PPSR			0xC1
-#define	AMR_PP_PPIER			0xC2
-#define	AMR_PP_MTDR			0xC3
-#define	AMR_PP_MRDR			0xC3
-#define	AMR_PP_CITDR0			0xC4
-#define	AMR_PP_CIRDR0			0xC4
-#define	AMR_PP_CITDR1			0xC5
-#define	AMR_PP_CIRDR1			0xC5
-#define	AMR_PP_PPCR2			0xC8
-#define	AMR_PP_PPCR3			0xC9
+enum {
+  AMR_PP_PPCR1 = 0xC0,
+  AMR_PP_PPSR = 0xC1,
+  AMR_PP_PPIER = 0xC2,
+  AMR_PP_MTDR = 0xC3,
+  AMR_PP_MRDR = 0xC3,
+  AMR_PP_CITDR0 = 0xC4,
+  AMR_PP_CIRDR0 = 0xC4,
+  AMR_PP_CITDR1 = 0xC5,
+  AMR_PP_CIRDR1 = 0xC5,
+  AMR_PP_PPCR2 = 0xC8,
+  AMR_PP_PPCR3 = 0xC9
+};
 
 struct snd_amd7930 {
 	spinlock_t		lock;
@@ -346,34 +366,34 @@ static struct snd_amd7930 *amd7930_list;
 /* Idle the AMD7930 chip.  The amd->lock is not held.  */
 static __inline__ void amd7930_idle(struct snd_amd7930 *amd)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	spin_lock_irqsave(&amd->lock, flags);
-	sbus_writeb(AMR_INIT, amd->regs + AMD7930_CR);
-	sbus_writeb(0, amd->regs + AMD7930_DR);
-	spin_unlock_irqrestore(&amd->lock, flags);
+  spin_lock_irqsave(&amd->lock, flags);
+  sbus_writeb(AMR_INIT, amd->regs + AMD7930_CR);
+  sbus_writeb(0, amd->regs + AMD7930_DR);
+  spin_unlock_irqrestore(&amd->lock, flags);
 }
 
 /* Enable chip interrupts.  The amd->lock is not held.  */
 static __inline__ void amd7930_enable_ints(struct snd_amd7930 *amd)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	spin_lock_irqsave(&amd->lock, flags);
-	sbus_writeb(AMR_INIT, amd->regs + AMD7930_CR);
-	sbus_writeb(AM_INIT_ACTIVE, amd->regs + AMD7930_DR);
-	spin_unlock_irqrestore(&amd->lock, flags);
+  spin_lock_irqsave(&amd->lock, flags);
+  sbus_writeb(AMR_INIT, amd->regs + AMD7930_CR);
+  sbus_writeb(AM_INIT_ACTIVE, amd->regs + AMD7930_DR);
+  spin_unlock_irqrestore(&amd->lock, flags);
 }
 
 /* Disable chip interrupts.  The amd->lock is not held.  */
 static __inline__ void amd7930_disable_ints(struct snd_amd7930 *amd)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	spin_lock_irqsave(&amd->lock, flags);
-	sbus_writeb(AMR_INIT, amd->regs + AMD7930_CR);
-	sbus_writeb(AM_INIT_ACTIVE | AM_INIT_DISABLE_INTS, amd->regs + AMD7930_DR);
-	spin_unlock_irqrestore(&amd->lock, flags);
+  spin_lock_irqsave(&amd->lock, flags);
+  sbus_writeb(AMR_INIT, amd->regs + AMD7930_CR);
+  sbus_writeb(AM_INIT_ACTIVE | AM_INIT_DISABLE_INTS, amd->regs + AMD7930_DR);
+  spin_unlock_irqrestore(&amd->lock, flags);
 }
 
 /* Commit amd7930_map settings to the hardware.
@@ -476,9 +496,9 @@ static __const__ __u16 ger_coeff[] = {
 static void __amd7930_update_map(struct snd_amd7930 *amd)
 {
 	struct amd7930_map *map = &amd->map;
-	int level;
+        int level = 0;
 
-	map->gx = gx_coeff[amd->rgain];
+        map->gx = gx_coeff[amd->rgain];
 	map->stgr = gx_coeff[amd->mgain];
 	level = (amd->pgain * (256 + ARRAY_SIZE(ger_coeff))) >> 8;
 	if (level >= 256) {
@@ -494,8 +514,8 @@ static void __amd7930_update_map(struct snd_amd7930 *amd)
 static irqreturn_t snd_amd7930_interrupt(int irq, void *dev_id)
 {
 	struct snd_amd7930 *amd = dev_id;
-	unsigned int elapsed;
-	u8 ir;
+        unsigned int elapsed = 0;
+        u8 ir;
 
 	spin_lock(&amd->lock);
 
@@ -536,18 +556,18 @@ static irqreturn_t snd_amd7930_interrupt(int irq, void *dev_id)
 
 static int snd_amd7930_trigger(struct snd_amd7930 *amd, unsigned int flag, int cmd)
 {
-	unsigned long flags;
-	int result = 0;
+  unsigned long flags = 0;
+  int result = 0;
 
-	spin_lock_irqsave(&amd->lock, flags);
-	if (cmd == SNDRV_PCM_TRIGGER_START) {
-		if (!(amd->flags & flag)) {
-			amd->flags |= flag;
+  spin_lock_irqsave(&amd->lock, flags);
+  if (cmd == SNDRV_PCM_TRIGGER_START) {
+    if (!(amd->flags & flag)) {
+      amd->flags |= flag;
 
-			/* Enable B channel interrupts.  */
-			sbus_writeb(AMR_MUX_MCR4, amd->regs + AMD7930_CR);
-			sbus_writeb(AM_MUX_MCR4_ENABLE_INTS, amd->regs + AMD7930_DR);
-		}
+      /* Enable B channel interrupts.  */
+      sbus_writeb(AMR_MUX_MCR4, amd->regs + AMD7930_CR);
+      sbus_writeb(AM_MUX_MCR4_ENABLE_INTS, amd->regs + AMD7930_DR);
+    }
 	} else if (cmd == SNDRV_PCM_TRIGGER_STOP) {
 		if (amd->flags & flag) {
 			amd->flags &= ~flag;
@@ -583,8 +603,8 @@ static int snd_amd7930_playback_prepare(struct snd_pcm_substream *substream)
 	struct snd_amd7930 *amd = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	unsigned int size = snd_pcm_lib_buffer_bytes(substream);
-	unsigned long flags;
-	u8 new_mmr1;
+        unsigned long flags = 0;
+        u8 new_mmr1;
 
 	spin_lock_irqsave(&amd->lock, flags);
 
@@ -615,8 +635,8 @@ static int snd_amd7930_capture_prepare(struct snd_pcm_substream *substream)
 	struct snd_amd7930 *amd = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	unsigned int size = snd_pcm_lib_buffer_bytes(substream);
-	unsigned long flags;
-	u8 new_mmr1;
+        unsigned long flags = 0;
+        u8 new_mmr1;
 
 	spin_lock_irqsave(&amd->lock, flags);
 
@@ -757,34 +777,32 @@ static struct snd_pcm_ops snd_amd7930_capture_ops = {
 
 static int snd_amd7930_pcm(struct snd_amd7930 *amd)
 {
-	struct snd_pcm *pcm;
-	int err;
+  struct snd_pcm *pcm = NULL;
+  int err = 0;
 
-	if ((err = snd_pcm_new(amd->card,
-			       /* ID */             "sun_amd7930",
-			       /* device */         0,
-			       /* playback count */ 1,
-			       /* capture count */  1, &pcm)) < 0)
-		return err;
+  if ((err = snd_pcm_new(amd->card,
+                         /* ID */ "sun_amd7930",
+                         /* device */ 0,
+                         /* playback count */ 1,
+                         /* capture count */ 1, &pcm)) < 0)
+    return err;
 
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_amd7930_playback_ops);
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_amd7930_capture_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_amd7930_playback_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_amd7930_capture_ops);
 
-	pcm->private_data = amd;
-	pcm->info_flags = 0;
-	strcpy(pcm->name, amd->card->shortname);
-	amd->pcm = pcm;
+  pcm->private_data = amd;
+  pcm->info_flags = 0;
+  strcpy(pcm->name, amd->card->shortname);
+  amd->pcm = pcm;
 
-	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
-					      snd_dma_continuous_data(GFP_KERNEL),
-					      64*1024, 64*1024);
+  snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_CONTINUOUS,
+                                        snd_dma_continuous_data(GFP_KERNEL),
+                                        64 * 1024, 64 * 1024);
 
-	return 0;
+  return 0;
 }
 
-#define VOLUME_MONITOR	0
-#define VOLUME_CAPTURE	1
-#define VOLUME_PLAYBACK	2
+enum { VOLUME_MONITOR = 0, VOLUME_CAPTURE = 1, VOLUME_PLAYBACK = 2 };
 
 static int snd_amd7930_info_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem_info *uinfo)
 {
@@ -800,9 +818,9 @@ static int snd_amd7930_get_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem
 {
 	struct snd_amd7930 *amd = snd_kcontrol_chip(kctl);
 	int type = kctl->private_value;
-	int *swval;
+        int *swval = NULL;
 
-	switch (type) {
+        switch (type) {
 	case VOLUME_MONITOR:
 		swval = &amd->mgain;
 		break;
@@ -823,11 +841,11 @@ static int snd_amd7930_get_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem
 static int snd_amd7930_put_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_amd7930 *amd = snd_kcontrol_chip(kctl);
-	unsigned long flags;
-	int type = kctl->private_value;
-	int *swval, change;
+        unsigned long flags = 0;
+        int type = kctl->private_value;
+        int *swval = NULL, change = 0;
 
-	switch (type) {
+        switch (type) {
 	case VOLUME_MONITOR:
 		swval = &amd->mgain;
 		break;
@@ -886,19 +904,18 @@ static struct snd_kcontrol_new amd7930_controls[] = {
 
 static int snd_amd7930_mixer(struct snd_amd7930 *amd)
 {
-	struct snd_card *card;
-	int idx, err;
+  struct snd_card *card = NULL;
+  int idx = 0, err = 0;
 
-	if (snd_BUG_ON(!amd || !amd->card))
-		return -EINVAL;
+  if (snd_BUG_ON(!amd || !amd->card)) return -EINVAL;
 
-	card = amd->card;
-	strcpy(card->mixername, card->shortname);
+  card = amd->card;
+  strcpy(card->mixername, card->shortname);
 
-	for (idx = 0; idx < ARRAY_SIZE(amd7930_controls); idx++) {
-		if ((err = snd_ctl_add(card,
-				       snd_ctl_new1(&amd7930_controls[idx], amd))) < 0)
-			return err;
+  for (idx = 0; idx < ARRAY_SIZE(amd7930_controls); idx++) {
+    if ((err = snd_ctl_add(card, snd_ctl_new1(&amd7930_controls[idx], amd))) <
+        0)
+      return err;
 	}
 
 	return 0;
@@ -938,26 +955,24 @@ static int snd_amd7930_create(struct snd_card *card,
 			      int irq, int dev,
 			      struct snd_amd7930 **ramd)
 {
-	struct snd_amd7930 *amd;
-	unsigned long flags;
-	int err;
+  struct snd_amd7930 *amd = NULL;
+  unsigned long flags = 0;
+  int err = 0;
 
-	*ramd = NULL;
-	amd = kzalloc(sizeof(*amd), GFP_KERNEL);
-	if (amd == NULL)
-		return -ENOMEM;
+  *ramd = NULL;
+  amd = kzalloc(sizeof(*amd), GFP_KERNEL);
+  if (amd == NULL) return -ENOMEM;
 
-	spin_lock_init(&amd->lock);
-	amd->card = card;
-	amd->op = op;
+  spin_lock_init(&amd->lock);
+  amd->card = card;
+  amd->op = op;
 
-	amd->regs = of_ioremap(&op->resource[0], 0,
-			       resource_size(&op->resource[0]), "amd7930");
-	if (!amd->regs) {
-		snd_printk(KERN_ERR
-			   "amd7930-%d: Unable to map chip registers.\n", dev);
-		kfree(amd);
-		return -EIO;
+  amd->regs = of_ioremap(&op->resource[0], 0, resource_size(&op->resource[0]),
+                         "amd7930");
+  if (!amd->regs) {
+    snd_printk(KERN_ERR "amd7930-%d: Unable to map chip registers.\n", dev);
+    kfree(amd);
+    return -EIO;
 	}
 
 	amd7930_idle(amd);
@@ -1007,11 +1022,11 @@ static int amd7930_sbus_probe(struct platform_device *op)
 {
 	struct resource *rp = &op->resource[0];
 	static int dev_num;
-	struct snd_card *card;
-	struct snd_amd7930 *amd;
-	int err, irq;
+        struct snd_card *card = NULL;
+        struct snd_amd7930 *amd = NULL;
+        int err = 0, irq = 0;
 
-	irq = op->archdata.irqs[0];
+        irq = op->archdata.irqs[0];
 
 	if (dev_num >= SNDRV_CARDS)
 		return -ENODEV;

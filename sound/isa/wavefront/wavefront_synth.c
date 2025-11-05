@@ -232,12 +232,12 @@ static const char *
 wavefront_errorstr (int errnum)
 
 {
-	int i;
+  int i = 0;
 
-	for (i = 0; wavefront_errors[i].errstr; i++) {
-		if (wavefront_errors[i].errno == errnum) {
-			return wavefront_errors[i].errstr;
-		}
+  for (i = 0; wavefront_errors[i].errstr; i++) {
+    if (wavefront_errors[i].errno == errnum) {
+      return wavefront_errors[i].errstr;
+    }
 	}
 
 	return "Unknown WaveFront error";
@@ -247,12 +247,12 @@ static struct wavefront_command *
 wavefront_get_command (int cmd) 
 
 {
-	int i;
+  int i = 0;
 
-	for (i = 0; wavefront_commands[i].cmd != 0; i++) {
-		if (cmd == wavefront_commands[i].cmd) {
-			return &wavefront_commands[i];
-		}
+  for (i = 0; wavefront_commands[i].cmd != 0; i++) {
+    if (cmd == wavefront_commands[i].cmd) {
+      return &wavefront_commands[i];
+    }
 	}
 
 	return NULL;
@@ -278,17 +278,17 @@ static int
 wavefront_wait (snd_wavefront_t *dev, int mask)
 
 {
-	int             i;
+  int i = 0;
 
-	/* Spin for a short period of time, because >99% of all
-	   requests to the WaveFront can be serviced inline like this.
-	*/
+  /* Spin for a short period of time, because >99% of all
+     requests to the WaveFront can be serviced inline like this.
+  */
 
-	for (i = 0; i < wait_usecs; i += 5) {
-		if (wavefront_status (dev) & mask) {
-			return 1;
-		}
-		udelay(5);
+  for (i = 0; i < wait_usecs; i += 5) {
+    if (wavefront_status(dev) & mask) {
+      return 1;
+    }
+    udelay(5);
 	}
 
 	for (i = 0; i < sleep_tries; i++) {
@@ -336,15 +336,14 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
 		   int cmd, unsigned char *rbuf, unsigned char *wbuf)
 
 {
-	int ack;
-	unsigned int i;
-	int c;
-	struct wavefront_command *wfcmd;
+  int ack = 0;
+  unsigned int i = 0;
+  int c = 0;
+  struct wavefront_command *wfcmd = NULL;
 
-	if ((wfcmd = wavefront_get_command (cmd)) == NULL) {
-		snd_printk ("command 0x%x not supported.\n",
-			cmd);
-		return 1;
+  if ((wfcmd = wavefront_get_command(cmd)) == NULL) {
+    snd_printk("command 0x%x not supported.\n", cmd);
+    return 1;
 	}
 
 	/* Hack to handle the one variable-size write command. See
@@ -530,14 +529,14 @@ munge_int32 (unsigned int src,
 	     unsigned char *dst,
 	     unsigned int dst_size)
 {
-	unsigned int i;
+  unsigned int i = 0;
 
-	for (i = 0; i < dst_size; i++) {
-		*dst = src & 0x7F;  /* Mask high bit of LSB */
-		src = src >> 7;     /* Rotate Right 7 bits  */
-	                            /* Note: we leave the upper bits in place */ 
+  for (i = 0; i < dst_size; i++) {
+    *dst = src & 0x7F; /* Mask high bit of LSB */
+    src = src >> 7;    /* Rotate Right 7 bits  */
+                       /* Note: we leave the upper bits in place */
 
-		dst++;
+    dst++;
 	}
 	return dst;
 };
@@ -546,11 +545,11 @@ static int
 demunge_int32 (unsigned char* src, int src_size)
 
 {
-	int i;
- 	int outval = 0;
-	
- 	for (i = src_size - 1; i >= 0; i--) {
-		outval=(outval<<7)+src[i];
+  int i = 0;
+  int outval = 0;
+
+  for (i = src_size - 1; i >= 0; i--) {
+    outval = (outval << 7) + src[i];
 	}
 
 	return outval;
@@ -561,12 +560,12 @@ unsigned char *
 munge_buf (unsigned char *src, unsigned char *dst, unsigned int dst_size)
 
 {
-	unsigned int i;
-	unsigned int last = dst_size / 2;
+  unsigned int i = 0;
+  unsigned int last = dst_size / 2;
 
-	for (i = 0; i < last; i++) {
-		*dst++ = src[i] & 0x7f;
-		*dst++ = src[i] >> 7;
+  for (i = 0; i < last; i++) {
+    *dst++ = src[i] & 0x7f;
+    *dst++ = src[i] >> 7;
 	}
 	return dst;
 }
@@ -576,16 +575,16 @@ unsigned char *
 demunge_buf (unsigned char *src, unsigned char *dst, unsigned int src_bytes)
 
 {
-	int i;
-	unsigned char *end = src + src_bytes;
-    
-	end = src + src_bytes;
+  int i = 0;
+  unsigned char *end = src + src_bytes;
 
-	/* NOTE: src and dst *CAN* point to the same address */
+  end = src + src_bytes;
 
-	for (i = 0; src != end; i++) {
-		dst[i] = *src++;
-		dst[i] |= (*src++)<<7;
+  /* NOTE: src and dst *CAN* point to the same address */
+
+  for (i = 0; src != end; i++) {
+    dst[i] = *src++;
+    dst[i] |= (*src++) << 7;
 	}
 
 	return dst;
@@ -600,9 +599,9 @@ wavefront_delete_sample (snd_wavefront_t *dev, int sample_num)
 
 {
 	unsigned char wbuf[2];
-	int x;
+        int x = 0;
 
-	wbuf[0] = sample_num & 0x7f;
+        wbuf[0] = sample_num & 0x7f;
 	wbuf[1] = sample_num >> 7;
 
 	if ((x = snd_wavefront_cmd (dev, WFC_DELETE_SAMPLE, NULL, wbuf)) == 0) {
@@ -616,15 +615,15 @@ static int
 wavefront_get_sample_status (snd_wavefront_t *dev, int assume_rom)
 
 {
-	int i;
-	unsigned char rbuf[32], wbuf[32];
-	unsigned int    sc_real, sc_alias, sc_multi;
+  int i = 0;
+  unsigned char rbuf[32], wbuf[32];
+  unsigned int sc_real = 0, sc_alias = 0, sc_multi = 0;
 
-	/* check sample status */
-    
-	if (snd_wavefront_cmd (dev, WFC_GET_NSAMPLES, rbuf, wbuf)) {
-		snd_printk ("cannot request sample count.\n");
-		return -1;
+  /* check sample status */
+
+  if (snd_wavefront_cmd(dev, WFC_GET_NSAMPLES, rbuf, wbuf)) {
+    snd_printk("cannot request sample count.\n");
+    return -1;
 	} 
     
 	sc_real = sc_alias = sc_multi = dev->samples_used = 0;
@@ -687,9 +686,9 @@ wavefront_get_patch_status (snd_wavefront_t *dev)
 	unsigned char patchbuf[WF_PATCH_BYTES];
 	unsigned char patchnum[2];
 	wavefront_patch *p;
-	int i, x, cnt, cnt2;
+        int i = 0, x = 0, cnt = 0, cnt2 = 0;
 
-	for (i = 0; i < WF_MAX_PATCH; i++) {
+        for (i = 0; i < WF_MAX_PATCH; i++) {
 		patchnum[0] = i & 0x7f;
 		patchnum[1] = i >> 7;
 
@@ -734,10 +733,10 @@ wavefront_get_program_status (snd_wavefront_t *dev)
 {
 	unsigned char progbuf[WF_PROGRAM_BYTES];
 	wavefront_program prog;
-	unsigned char prognum;
-	int i, x, l, cnt;
+        unsigned char prognum = 0;
+        int i = 0, x = 0, l = 0, cnt = 0;
 
-	for (i = 0; i < WF_MAX_PROGRAM; i++) {
+        for (i = 0; i < WF_MAX_PROGRAM; i++) {
 		prognum = i;
 
 		if ((x = snd_wavefront_cmd (dev, WFC_UPLOAD_PROGRAM, progbuf,
@@ -780,9 +779,9 @@ wavefront_send_patch (snd_wavefront_t *dev, wavefront_patch_info *header)
 
 {
 	unsigned char buf[WF_PATCH_BYTES+2];
-	unsigned char *bptr;
+        unsigned char *bptr = NULL;
 
-	DPRINT (WF_DEBUG_LOAD_PATCH, "downloading patch %d\n",
+        DPRINT (WF_DEBUG_LOAD_PATCH, "downloading patch %d\n",
 				      header->number);
 
 	if (header->number >= ARRAY_SIZE(dev->patch_status))
@@ -807,9 +806,9 @@ wavefront_send_program (snd_wavefront_t *dev, wavefront_patch_info *header)
 
 {
 	unsigned char buf[WF_PROGRAM_BYTES+1];
-	int i;
+        int i = 0;
 
-	DPRINT (WF_DEBUG_LOAD_PATCH, "downloading program %d\n",
+        DPRINT (WF_DEBUG_LOAD_PATCH, "downloading program %d\n",
 		header->number);
 
 	if (header->number >= ARRAY_SIZE(dev->prog_status))
@@ -876,15 +875,15 @@ wavefront_send_sample (snd_wavefront_t *dev,
 	u16 sample_short = 0;
 	u32 length;
 	u16 __user *data_end = NULL;
-	unsigned int i;
-	const unsigned int max_blksize = 4096/2;
-	unsigned int written;
-	unsigned int blocksize;
-	int dma_ack;
-	int blocknum;
-	unsigned char sample_hdr[WF_SAMPLE_HDR_BYTES];
-	unsigned char *shptr;
-	int skip = 0;
+        unsigned int i = 0;
+        const unsigned int max_blksize = 4096/2;
+        unsigned int written = 0;
+        unsigned int blocksize = 0;
+        int dma_ack = 0;
+        int blocknum = 0;
+        unsigned char sample_hdr[WF_SAMPLE_HDR_BYTES];
+        unsigned char *shptr = NULL;
+        int skip = 0;
 	int initial_skip = 0;
 
 	DPRINT (WF_DEBUG_LOAD_PATCH, "sample %sdownload for slot %d, "
@@ -895,10 +894,10 @@ wavefront_send_sample (snd_wavefront_t *dev,
 				      (unsigned long) header->dataptr);
 
 	if (header->number == WAVEFRONT_FIND_FREE_SAMPLE_SLOT) {
-		int x;
+          int x = 0;
 
-		if ((x = wavefront_find_free_sample (dev)) < 0) {
-			return -ENOMEM;
+          if ((x = wavefront_find_free_sample(dev)) < 0) {
+            return -ENOMEM;
 		}
 		snd_printk ("unspecified sample => %d\n", x);
 		header->number = x;
@@ -1201,34 +1200,30 @@ wavefront_send_alias (snd_wavefront_t *dev, wavefront_patch_info *header)
 static int
 wavefront_send_multisample (snd_wavefront_t *dev, wavefront_patch_info *header)
 {
-	int i;
-	int num_samples;
-	unsigned char *msample_hdr;
+  int i = 0;
+  int num_samples = 0;
+  unsigned char *msample_hdr = NULL;
 
-	msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
-	if (! msample_hdr)
-		return -ENOMEM;
+  msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
+  if (!msample_hdr) return -ENOMEM;
 
-	munge_int32 (header->number, &msample_hdr[0], 2);
+  munge_int32(header->number, &msample_hdr[0], 2);
 
-	/* You'll recall at this point that the "number of samples" value
-	   in a wavefront_multisample struct is actually the log2 of the
-	   real number of samples.
-	*/
+  /* You'll recall at this point that the "number of samples" value
+     in a wavefront_multisample struct is actually the log2 of the
+     real number of samples.
+  */
 
-	num_samples = (1<<(header->hdr.ms.NumberOfSamples&7));
-	msample_hdr[2] = (unsigned char) header->hdr.ms.NumberOfSamples;
+  num_samples = (1 << (header->hdr.ms.NumberOfSamples & 7));
+  msample_hdr[2] = (unsigned char)header->hdr.ms.NumberOfSamples;
 
-	DPRINT (WF_DEBUG_LOAD_PATCH, "multi %d with %d=%d samples\n",
-				      header->number,
-				      header->hdr.ms.NumberOfSamples,
-				      num_samples);
+  DPRINT(WF_DEBUG_LOAD_PATCH, "multi %d with %d=%d samples\n", header->number,
+         header->hdr.ms.NumberOfSamples, num_samples);
 
-	for (i = 0; i < num_samples; i++) {
-		DPRINT(WF_DEBUG_LOAD_PATCH|WF_DEBUG_DATA, "sample[%d] = %d\n",
-		       i, header->hdr.ms.SampleNumber[i]);
-		munge_int32 (header->hdr.ms.SampleNumber[i],
-		     &msample_hdr[3+(i*2)], 2);
+  for (i = 0; i < num_samples; i++) {
+    DPRINT(WF_DEBUG_LOAD_PATCH | WF_DEBUG_DATA, "sample[%d] = %d\n", i,
+           header->hdr.ms.SampleNumber[i]);
+    munge_int32(header->hdr.ms.SampleNumber[i], &msample_hdr[3 + (i * 2)], 2);
 	}
     
 	/* Need a hack here to pass in the number of bytes
@@ -1254,16 +1249,16 @@ static int
 wavefront_fetch_multisample (snd_wavefront_t *dev, 
 			     wavefront_patch_info *header)
 {
-	int i;
-	unsigned char log_ns[1];
-	unsigned char number[2];
-	int num_samples;
+  int i = 0;
+  unsigned char log_ns[1];
+  unsigned char number[2];
+  int num_samples = 0;
 
-	munge_int32 (header->number, number, 2);
-    
-	if (snd_wavefront_cmd (dev, WFC_UPLOAD_MULTISAMPLE, log_ns, number)) {
-		snd_printk ("upload multisample failed.\n");
-		return -EIO;
+  munge_int32(header->number, number, 2);
+
+  if (snd_wavefront_cmd(dev, WFC_UPLOAD_MULTISAMPLE, log_ns, number)) {
+    snd_printk("upload multisample failed.\n");
+    return -EIO;
 	}
     
 	DPRINT (WF_DEBUG_DATA, "msample %d has %d samples\n",
@@ -1277,9 +1272,9 @@ wavefront_fetch_multisample (snd_wavefront_t *dev,
     
 	for (i = 0; i < num_samples; i++) {
 		char d[2];
-		int val;
-	
-		if ((val = wavefront_read (dev)) == -1) {
+                int val = 0;
+
+                if ((val = wavefront_read (dev)) == -1) {
 			snd_printk ("upload multisample failed "
 				    "during sample loop.\n");
 			return -EIO;
@@ -1310,9 +1305,9 @@ wavefront_send_drum (snd_wavefront_t *dev, wavefront_patch_info *header)
 {
 	unsigned char drumbuf[WF_DRUM_BYTES];
 	wavefront_drum *drum = &header->hdr.d;
-	int i;
+        int i = 0;
 
-	DPRINT (WF_DEBUG_LOAD_PATCH, "downloading edrum for MIDI "
+        DPRINT (WF_DEBUG_LOAD_PATCH, "downloading edrum for MIDI "
 		"note %d, patch = %d\n", 
 		header->number, drum->PatchNumber);
 
@@ -1334,12 +1329,12 @@ static int
 wavefront_find_free_sample (snd_wavefront_t *dev)
 
 {
-	int i;
+  int i = 0;
 
-	for (i = 0; i < WF_MAX_SAMPLE; i++) {
-		if (!(dev->sample_status[i] & WF_SLOT_FILLED)) {
-			return i;
-		}
+  for (i = 0; i < WF_MAX_SAMPLE; i++) {
+    if (!(dev->sample_status[i] & WF_SLOT_FILLED)) {
+      return i;
+    }
 	}
 	snd_printk ("no free sample slots!\n");
 	return -1;
@@ -1366,9 +1361,9 @@ static int
 wavefront_load_patch (snd_wavefront_t *dev, const char __user *addr)
 {
 	wavefront_patch_info *header;
-	int err;
-	
-	header = kmalloc(sizeof(*header), GFP_KERNEL);
+        int err = 0;
+
+        header = kmalloc(sizeof(*header), GFP_KERNEL);
 	if (! header)
 		return -ENOMEM;
 
@@ -1506,9 +1501,9 @@ wavefront_synth_control (snd_wavefront_card_t *acard,
 {
 	snd_wavefront_t *dev = &acard->wavefront;
 	unsigned char patchnumbuf[2];
-	int i;
+        int i = 0;
 
-	DPRINT (WF_DEBUG_CMD, "synth control with "
+        DPRINT (WF_DEBUG_CMD, "synth control with "
 		"cmd 0x%x\n", wc->cmd);
 
 	/* Pre-handling of or for various commands */
@@ -1650,46 +1645,43 @@ snd_wavefront_synth_ioctl (struct snd_hwdep *hw, struct file *file,
 			   unsigned int cmd, unsigned long arg)
 
 {
-	struct snd_card *card;
-	snd_wavefront_t *dev;
-	snd_wavefront_card_t *acard;
-	wavefront_control *wc;
-	void __user *argp = (void __user *)arg;
-	int err;
+  struct snd_card *card = NULL;
+  snd_wavefront_t *dev;
+  snd_wavefront_card_t *acard;
+  wavefront_control *wc;
+  void __user *argp = (void __user *)arg;
+  int err = 0;
 
-	card = (struct snd_card *) hw->card;
+  card = (struct snd_card *)hw->card;
 
-	if (snd_BUG_ON(!card))
-		return -ENODEV;
-	if (snd_BUG_ON(!card->private_data))
-		return -ENODEV;
+  if (snd_BUG_ON(!card)) return -ENODEV;
+  if (snd_BUG_ON(!card->private_data)) return -ENODEV;
 
-	acard = card->private_data;
-	dev = &acard->wavefront;
-	
-	switch (cmd) {
-	case WFCTL_LOAD_SPP:
-		if (wavefront_load_patch (dev, argp) != 0) {
-			return -EIO;
-		}
-		break;
+  acard = card->private_data;
+  dev = &acard->wavefront;
 
-	case WFCTL_WFCMD:
-		wc = memdup_user(argp, sizeof(*wc));
-		if (IS_ERR(wc))
-			return PTR_ERR(wc);
+  switch (cmd) {
+    case WFCTL_LOAD_SPP:
+      if (wavefront_load_patch(dev, argp) != 0) {
+        return -EIO;
+      }
+      break;
 
-		if (wavefront_synth_control (acard, wc) < 0)
-			err = -EIO;
-		else if (copy_to_user (argp, wc, sizeof (*wc)))
-			err = -EFAULT;
-		else
-			err = 0;
-		kfree(wc);
-		return err;
+    case WFCTL_WFCMD:
+      wc = memdup_user(argp, sizeof(*wc));
+      if (IS_ERR(wc)) return PTR_ERR(wc);
 
-	default:
-		return -EINVAL;
+      if (wavefront_synth_control(acard, wc) < 0)
+        err = -EIO;
+      else if (copy_to_user(argp, wc, sizeof(*wc)))
+        err = -EFAULT;
+      else
+        err = 0;
+      kfree(wc);
+      return err;
+
+    default:
+      return -EINVAL;
 	}
 
 	return 0;
@@ -1752,25 +1744,25 @@ static int
 snd_wavefront_interrupt_bits (int irq)
 
 {
-	int bits;
+  int bits = 0;
 
-	switch (irq) {
-	case 9:
-		bits = 0x00;
-		break;
-	case 5:
-		bits = 0x08;
-		break;
-	case 12:
-		bits = 0x10;
-		break;
-	case 15:
-		bits = 0x18;
-		break;
-	
-	default:
-		snd_printk ("invalid IRQ %d\n", irq);
-		bits = -1;
+  switch (irq) {
+    case 9:
+      bits = 0x00;
+      break;
+    case 5:
+      bits = 0x08;
+      break;
+    case 12:
+      bits = 0x10;
+      break;
+    case 15:
+      bits = 0x18;
+      break;
+
+    default:
+      snd_printk("invalid IRQ %d\n", irq);
+      bits = -1;
 	}
 
 	return bits;
@@ -1799,83 +1791,82 @@ static int
 wavefront_reset_to_cleanliness (snd_wavefront_t *dev)
 
 {
-	int bits;
-	int hwv[2];
+  int bits = 0;
+  int hwv[2];
 
-	/* IRQ already checked */
+  /* IRQ already checked */
 
-	bits = snd_wavefront_interrupt_bits (dev->irq);
+  bits = snd_wavefront_interrupt_bits(dev->irq);
 
-	/* try reset of port */
+  /* try reset of port */
 
-	outb (0x0, dev->control_port); 
-  
-	/* At this point, the board is in reset, and the H/W initialization
-	   register is accessed at the same address as the data port.
-     
-	   Bit 7 - Enable IRQ Driver	
-	   0 - Tri-state the Wave-Board drivers for the PC Bus IRQs
-	   1 - Enable IRQ selected by bits 5:3 to be driven onto the PC Bus.
-     
-	   Bit 6 - MIDI Interface Select
+  outb(0x0, dev->control_port);
 
-	   0 - Use the MIDI Input from the 26-pin WaveBlaster
-	   compatible header as the serial MIDI source
-	   1 - Use the MIDI Input from the 9-pin D connector as the
-	   serial MIDI source.
-     
-	   Bits 5:3 - IRQ Selection
-	   0 0 0 - IRQ 2/9
-	   0 0 1 - IRQ 5
-	   0 1 0 - IRQ 12
-	   0 1 1 - IRQ 15
-	   1 0 0 - Reserved
-	   1 0 1 - Reserved
-	   1 1 0 - Reserved
-	   1 1 1 - Reserved
-     
-	   Bits 2:1 - Reserved
-	   Bit 0 - Disable Boot ROM
-	   0 - memory accesses to 03FC30-03FFFFH utilize the internal Boot ROM
-	   1 - memory accesses to 03FC30-03FFFFH are directed to external 
-	   storage.
-     
-	*/
+  /* At this point, the board is in reset, and the H/W initialization
+     register is accessed at the same address as the data port.
 
-	/* configure hardware: IRQ, enable interrupts, 
-	   plus external 9-pin MIDI interface selected
-	*/
+     Bit 7 - Enable IRQ Driver
+     0 - Tri-state the Wave-Board drivers for the PC Bus IRQs
+     1 - Enable IRQ selected by bits 5:3 to be driven onto the PC Bus.
 
-	outb (0x80 | 0x40 | bits, dev->data_port);	
-  
-	/* CONTROL REGISTER
+     Bit 6 - MIDI Interface Select
 
-	   0 Host Rx Interrupt Enable (1=Enabled)      0x1
-	   1 Unused                                    0x2
-	   2 Unused                                    0x4
-	   3 Unused                                    0x8
-	   4 Host Tx Interrupt Enable                 0x10
-	   5 Mute (0=Mute; 1=Play)                    0x20
-	   6 Master Interrupt Enable (1=Enabled)      0x40
-	   7 Master Reset (0=Reset; 1=Run)            0x80
+     0 - Use the MIDI Input from the 26-pin WaveBlaster
+     compatible header as the serial MIDI source
+     1 - Use the MIDI Input from the 9-pin D connector as the
+     serial MIDI source.
 
-	   Take us out of reset, mute output, master + TX + RX interrupts on.
-	   
-	   We'll get an interrupt presumably to tell us that the TX
-	   register is clear.
-	*/
+     Bits 5:3 - IRQ Selection
+     0 0 0 - IRQ 2/9
+     0 0 1 - IRQ 5
+     0 1 0 - IRQ 12
+     0 1 1 - IRQ 15
+     1 0 0 - Reserved
+     1 0 1 - Reserved
+     1 1 0 - Reserved
+     1 1 1 - Reserved
 
-	wavefront_should_cause_interrupt(dev, 0x80|0x40|0x10|0x1,
-					 dev->control_port,
-					 (reset_time*HZ)/100);
+     Bits 2:1 - Reserved
+     Bit 0 - Disable Boot ROM
+     0 - memory accesses to 03FC30-03FFFFH utilize the internal Boot ROM
+     1 - memory accesses to 03FC30-03FFFFH are directed to external
+     storage.
 
-	/* Note: data port is now the data port, not the h/w initialization
-	   port.
-	 */
+  */
 
-	if (!dev->irq_ok) {
-		snd_printk ("intr not received after h/w un-reset.\n");
-		goto gone_bad;
+  /* configure hardware: IRQ, enable interrupts,
+     plus external 9-pin MIDI interface selected
+  */
+
+  outb(0x80 | 0x40 | bits, dev->data_port);
+
+  /* CONTROL REGISTER
+
+     0 Host Rx Interrupt Enable (1=Enabled)      0x1
+     1 Unused                                    0x2
+     2 Unused                                    0x4
+     3 Unused                                    0x8
+     4 Host Tx Interrupt Enable                 0x10
+     5 Mute (0=Mute; 1=Play)                    0x20
+     6 Master Interrupt Enable (1=Enabled)      0x40
+     7 Master Reset (0=Reset; 1=Run)            0x80
+
+     Take us out of reset, mute output, master + TX + RX interrupts on.
+
+     We'll get an interrupt presumably to tell us that the TX
+     register is clear.
+  */
+
+  wavefront_should_cause_interrupt(dev, 0x80 | 0x40 | 0x10 | 0x1,
+                                   dev->control_port, (reset_time * HZ) / 100);
+
+  /* Note: data port is now the data port, not the h/w initialization
+     port.
+   */
+
+  if (!dev->irq_ok) {
+    snd_printk("intr not received after h/w un-reset.\n");
+    goto gone_bad;
 	} 
 
 	/* Note: data port is now the data port, not the h/w initialization
@@ -1950,15 +1941,15 @@ static int
 wavefront_download_firmware (snd_wavefront_t *dev, char *path)
 
 {
-	const unsigned char *buf;
-	int len, err;
-	int section_cnt_downloaded = 0;
-	const struct firmware *firmware;
+  const unsigned char *buf = NULL;
+  int len = 0, err = 0;
+  int section_cnt_downloaded = 0;
+  const struct firmware *firmware = NULL;
 
-	err = request_firmware(&firmware, path, dev->card->dev);
-	if (err < 0) {
-		snd_printk(KERN_ERR "firmware (%s) download failed!!!\n", path);
-		return 1;
+  err = request_firmware(&firmware, path, dev->card->dev);
+  if (err < 0) {
+    snd_printk(KERN_ERR "firmware (%s) download failed!!!\n", path);
+    return 1;
 	}
 
 	len = 0;
@@ -2112,14 +2103,14 @@ int
 snd_wavefront_start (snd_wavefront_t *dev)
 
 {
-	int samples_are_from_rom;
+  int samples_are_from_rom = 0;
 
-	/* IMPORTANT: assumes that snd_wavefront_detect() and/or
-	   wavefront_reset_to_cleanliness() has already been called 
-	*/
+  /* IMPORTANT: assumes that snd_wavefront_detect() and/or
+     wavefront_reset_to_cleanliness() has already been called
+  */
 
-	if (dev->israw) {
-		samples_are_from_rom = 1;
+  if (dev->israw) {
+    samples_are_from_rom = 1;
 	} else {
 		/* XXX is this always true ? */
 		samples_are_from_rom = 0;

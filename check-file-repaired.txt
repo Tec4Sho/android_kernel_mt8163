@@ -1,1 +1,11 @@
-/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/drivers/misc/mediatek/usb11/mt8163/musbfsh_core.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/sparc/cs4231.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/sparc/dbri.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/sparc/amd7930.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/arm/pxa2xx-pcm.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/arm/pxa2xx-ac97-lib.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/arm/pxa2xx-ac97.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/arm/pxa2xx-pcm-lib.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/arm/aaci.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/isa/opl3sa2.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/isa/wavefront/wavefront.c
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/isa/wavefront/wavefront_synth.c

@@ -190,8 +190,8 @@ static inline void pxa_ac97_cold_pxa3xx(void)
 
 bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97)
 {
-	unsigned long gsr;
-	unsigned int timeout = 100;
+  unsigned long gsr = 0;
+  unsigned int timeout = 100;
 
 #ifdef CONFIG_PXA25x
 	if (cpu_is_pxa25x())
@@ -227,8 +227,8 @@ EXPORT_SYMBOL_GPL(pxa2xx_ac97_try_warm_reset);
 
 bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97)
 {
-	unsigned long gsr;
-	unsigned int timeout = 1000;
+  unsigned long gsr = 0;
+  unsigned int timeout = 1000;
 
 #ifdef CONFIG_PXA25x
 	if (cpu_is_pxa25x())
@@ -272,24 +272,24 @@ EXPORT_SYMBOL_GPL(pxa2xx_ac97_finish_reset);
 
 static irqreturn_t pxa2xx_ac97_irq(int irq, void *dev_id)
 {
-	long status;
+  long status = 0;
 
-	status = GSR;
-	if (status) {
-		GSR = status;
-		gsr_bits |= status;
-		wake_up(&gsr_wq);
+  status = GSR;
+  if (status) {
+    GSR = status;
+    gsr_bits |= status;
+    wake_up(&gsr_wq);
 
-		/* Although we don't use those we still need to clear them
-		   since they tend to spuriously trigger when MMC is used
-		   (hardware bug? go figure)... */
-		if (cpu_is_pxa27x()) {
-			MISR = MISR_EOC;
-			PISR = PISR_EOC;
-			MCSR = MCSR_EOC;
-		}
+    /* Although we don't use those we still need to clear them
+       since they tend to spuriously trigger when MMC is used
+       (hardware bug? go figure)... */
+    if (cpu_is_pxa27x()) {
+      MISR = MISR_EOC;
+      PISR = PISR_EOC;
+      MCSR = MCSR_EOC;
+    }
 
-		return IRQ_HANDLED;
+    return IRQ_HANDLED;
 	}
 
 	return IRQ_NONE;
@@ -314,24 +314,23 @@ EXPORT_SYMBOL_GPL(pxa2xx_ac97_hw_resume);
 
 int pxa2xx_ac97_hw_probe(struct platform_device *dev)
 {
-	int ret;
-	pxa2xx_audio_ops_t *pdata = dev->dev.platform_data;
+  int ret = 0;
+  pxa2xx_audio_ops_t *pdata = dev->dev.platform_data;
 
-	if (pdata) {
-		switch (pdata->reset_gpio) {
-		case 95:
-		case 113:
-			reset_gpio = pdata->reset_gpio;
-			break;
-		case 0:
-			reset_gpio = 113;
-			break;
-		case -1:
-			break;
-		default:
-			dev_err(&dev->dev, "Invalid reset GPIO %d\n",
-				pdata->reset_gpio);
-		}
+  if (pdata) {
+    switch (pdata->reset_gpio) {
+      case 95:
+      case 113:
+        reset_gpio = pdata->reset_gpio;
+        break;
+      case 0:
+        reset_gpio = 113;
+        break;
+      case -1:
+        break;
+      default:
+        dev_err(&dev->dev, "Invalid reset GPIO %d\n", pdata->reset_gpio);
+    }
 	} else {
 		if (cpu_is_pxa27x())
 			reset_gpio = 113;
