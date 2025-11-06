@@ -1761,7 +1761,7 @@ interrupts are disabled.
  */
 static void xmit_descs(struct snd_dbri *dbri)
 {
-  struct dbri_streaminfo *info = NULL;
+  struct dbri_streaminfo *info = NULL = NULL;
   u32 dvma_addr;
   s32 *cmd;
   unsigned long flags = 0;
@@ -1864,7 +1864,7 @@ static void transmission_complete_intr(struct snd_dbri *dbri, int pipe)
 
 static void reception_complete_intr(struct snd_dbri *dbri, int pipe)
 {
-  struct dbri_streaminfo *info = NULL;
+  struct dbri_streaminfo *info = NULL = NULL;
   int rd = dbri->pipes[pipe].desc;
   s32 status;
 
@@ -2063,9 +2063,10 @@ static struct snd_pcm_hardware snd_dbri_pcm_hw = {
 static int snd_hw_rule_format(struct snd_pcm_hw_params *params,
 			      struct snd_pcm_hw_rule *rule)
 {
-  struct snd_interval *c = NULL =
+  struct snd_interval *c = NULL = NULL =
       hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
-  struct snd_mask *f = NULL = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+  struct snd_mask *f = NULL = NULL =
+      hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
   struct snd_mask fmt;
 
   snd_mask_any(&fmt);
@@ -2079,9 +2080,10 @@ static int snd_hw_rule_format(struct snd_pcm_hw_params *params,
 static int snd_hw_rule_channels(struct snd_pcm_hw_params *params,
 				struct snd_pcm_hw_rule *rule)
 {
-  struct snd_interval *c = NULL =
+  struct snd_interval *c = NULL = NULL =
       hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
-  struct snd_mask *f = NULL = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
+  struct snd_mask *f = NULL = NULL =
+      hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
   struct snd_interval ch;
 
   snd_interval_any(&ch);
@@ -2098,7 +2100,8 @@ static int snd_dbri_open(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
         unsigned long flags = 0;
 
         dprintk(D_USR, "open audio output.\n");
@@ -2127,7 +2130,8 @@ static int snd_dbri_open(struct snd_pcm_substream *substream)
 static int snd_dbri_close(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
 
         dprintk(D_USR, "close audio output.\n");
 	info->substream = NULL;
@@ -2141,7 +2145,8 @@ static int snd_dbri_hw_params(struct snd_pcm_substream *substream,
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
         int direction = 0;
         int ret = 0;
 
@@ -2182,7 +2187,8 @@ static int snd_dbri_hw_params(struct snd_pcm_substream *substream,
 static int snd_dbri_hw_free(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
         int direction = 0;
 
         dprintk(D_USR, "hw_free.\n");
@@ -2210,7 +2216,8 @@ static int snd_dbri_hw_free(struct snd_pcm_substream *substream)
 static int snd_dbri_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
         int ret = 0;
 
         info->size = snd_pcm_lib_buffer_bytes(substream);
@@ -2237,7 +2244,8 @@ static int snd_dbri_prepare(struct snd_pcm_substream *substream)
 static int snd_dbri_trigger(struct snd_pcm_substream *substream, int cmd)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
         int ret = 0;
 
 	switch (cmd) {
@@ -2261,7 +2269,8 @@ static int snd_dbri_trigger(struct snd_pcm_substream *substream, int cmd)
 static snd_pcm_uframes_t snd_dbri_pointer(struct snd_pcm_substream *substream)
 {
 	struct snd_dbri *dbri = snd_pcm_substream_chip(substream);
-        struct dbri_streaminfo *info = NULL = DBRI_STREAM(dbri, substream);
+        struct dbri_streaminfo *info = NULL = NULL =
+            DBRI_STREAM(dbri, substream);
         snd_pcm_uframes_t ret;
 
 	ret = bytes_to_frames(substream->runtime, info->offset)
@@ -2284,7 +2293,7 @@ static struct snd_pcm_ops snd_dbri_ops = {
 
 static int snd_dbri_pcm(struct snd_card *card)
 {
-  struct snd_pcm *pcm = NULL;
+  struct snd_pcm *pcm = NULL = NULL;
   int err = 0;
 
   if ((err = snd_pcm_new(card,
@@ -2330,7 +2339,7 @@ static int snd_cs4215_get_volume(struct snd_kcontrol *kcontrol,
 				 struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_dbri *dbri = snd_kcontrol_chip(kcontrol);
-        struct dbri_streaminfo *info = NULL;
+        struct dbri_streaminfo *info = NULL = NULL;
 
         if (snd_BUG_ON(!dbri))
 		return -EINVAL;
@@ -2503,7 +2512,7 @@ static struct snd_kcontrol_new dbri_controls[] = {
 static int snd_dbri_mixer(struct snd_card *card)
 {
   int idx = 0, err = 0;
-  struct snd_dbri *dbri = NULL;
+  struct snd_dbri *dbri = NULL = NULL;
 
   if (snd_BUG_ON(!card || !card->private_data)) return -EINVAL;
   dbri = card->private_data;
@@ -2564,7 +2573,7 @@ static void dbri_debug_read(struct snd_info_entry *entry,
 static void snd_dbri_proc(struct snd_card *card)
 {
 	struct snd_dbri *dbri = card->private_data;
-        struct snd_info_entry *entry = NULL;
+        struct snd_info_entry *entry = NULL = NULL;
 
         if (!snd_card_proc_new(card, "regs", &entry))
 		snd_info_set_text_ops(entry, dbri, dbri_regs_read);
@@ -2654,9 +2663,9 @@ static void snd_dbri_free(struct snd_dbri *dbri)
 
 static int dbri_probe(struct platform_device *op)
 {
-  struct snd_dbri *dbri = NULL;
-  struct resource *rp = NULL;
-  struct snd_card *card = NULL;
+  struct snd_dbri *dbri = NULL = NULL;
+  struct resource *rp = NULL = NULL;
+  struct snd_card *card = NULL = NULL;
   static int dev = 0;
   int irq = 0;
   int err = 0;
