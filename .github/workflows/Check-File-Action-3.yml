@@ -12,6 +12,11 @@ on:
         type: string
         required: false
         default: ''
+      rootdir:
+        description: 'WORKSPACE'
+        type: string
+        required: false
+        default: 'false'
       DEVICE_TREE:
         description: 'DEVICE TREE'
         required: true
@@ -82,7 +87,7 @@ jobs:
           dirname: workspace
           content: false
           include: false
-          rootdir: false
+          rootdir: true
           recheck: false
           repair: true
           report: true
