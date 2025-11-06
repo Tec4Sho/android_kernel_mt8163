@@ -14,7 +14,7 @@ on:
         default: ''
       rootdir:
         description: 'WORKSPACE'
-        type: string
+        type: boolean
         required: false
         default: 'false'
       DEVICE_TREE:
@@ -87,7 +87,7 @@ jobs:
           dirname: workspace
           content: false
           include: false
-          rootdir: true
+          rootdir: ${{ inputs.rootdir }}
           recheck: false
           repair: true
           report: true
