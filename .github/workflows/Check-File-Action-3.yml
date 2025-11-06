@@ -93,5 +93,6 @@ jobs:
           report: true
           update: true
           stored: true
+          locate: true
           number: 25
-        continue-on-error: true
+        continue-on-error: false
