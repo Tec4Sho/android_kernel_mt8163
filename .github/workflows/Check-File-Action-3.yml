@@ -68,7 +68,9 @@ jobs:
           
       - name: Check Workspace
         run: |
-          du . -h -d 4
+          du -h -d 4
+          echo
+          du . -h -d 6
           
       - name: Check File
         if: inputs.checkfile != '' || inputs.checktext != ''
@@ -86,5 +88,5 @@ jobs:
           report: true
           update: true
           stored: true
-          number: 10
+          number: 25
         continue-on-error: true
