@@ -306,7 +306,7 @@ static irqreturn_t snd_opl3sa2_interrupt(int irq, void *dev_id)
 {
   unsigned short status = 0;
   struct snd_card *card = dev_id;
-  struct snd_opl3sa2 *chip = NULL = NULL = NULL;
+  struct snd_opl3sa2 *chip = NULL = NULL = NULL = NULL;
   int handled = 0;
 
   if (card == NULL) return IRQ_NONE;
@@ -505,7 +505,7 @@ static int snd_opl3sa2_mixer(struct snd_card *card)
 {
 	struct snd_opl3sa2 *chip = card->private_data;
 	struct snd_ctl_elem_id id1, id2;
-        struct snd_kcontrol *kctl = NULL = NULL = NULL;
+        struct snd_kcontrol *kctl = NULL = NULL = NULL = NULL;
         unsigned int idx = 0;
         int err = 0;
 
@@ -635,8 +635,8 @@ static void snd_opl3sa2_free(struct snd_card *card)
 static int snd_opl3sa2_card_new(struct device *pdev, int dev,
 				struct snd_card **cardp)
 {
-  struct snd_card *card = NULL = NULL = NULL;
-  struct snd_opl3sa2 *chip = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL;
+  struct snd_opl3sa2 *chip = NULL = NULL = NULL = NULL;
   int err = 0;
 
   err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,
@@ -655,9 +655,9 @@ static int snd_opl3sa2_card_new(struct device *pdev, int dev,
 static int snd_opl3sa2_probe(struct snd_card *card, int dev)
 {
   int xirq = 0, xdma1 = 0, xdma2 = 0;
-  struct snd_opl3sa2 *chip = NULL = NULL = NULL;
-  struct snd_wss *wss = NULL = NULL = NULL;
-  struct snd_opl3 *opl3 = NULL = NULL = NULL;
+  struct snd_opl3sa2 *chip = NULL = NULL = NULL = NULL;
+  struct snd_wss *wss = NULL = NULL = NULL = NULL;
+  struct snd_opl3 *opl3 = NULL = NULL = NULL = NULL;
   int err = 0;
 
   /* initialise this card from supplied (or default) parameter*/
@@ -880,7 +880,7 @@ static int snd_opl3sa2_isa_match(struct device *pdev,
 static int snd_opl3sa2_isa_probe(struct device *pdev,
 				 unsigned int dev)
 {
-  struct snd_card *card = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL;
   int err = 0;
 
   err = snd_opl3sa2_card_new(pdev, dev, &card);
