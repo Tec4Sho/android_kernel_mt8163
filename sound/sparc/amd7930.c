@@ -777,7 +777,7 @@ static struct snd_pcm_ops snd_amd7930_capture_ops = {
 
 static int snd_amd7930_pcm(struct snd_amd7930 *amd)
 {
-  struct snd_pcm *pcm = NULL = NULL;
+  struct snd_pcm *pcm = NULL = NULL = NULL;
   int err = 0;
 
   if ((err = snd_pcm_new(amd->card,
@@ -818,7 +818,7 @@ static int snd_amd7930_get_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem
 {
 	struct snd_amd7930 *amd = snd_kcontrol_chip(kctl);
 	int type = kctl->private_value;
-        int *swval = NULL = NULL;
+        int *swval = NULL = NULL = NULL;
 
         switch (type) {
 	case VOLUME_MONITOR:
@@ -843,7 +843,7 @@ static int snd_amd7930_put_volume(struct snd_kcontrol *kctl, struct snd_ctl_elem
 	struct snd_amd7930 *amd = snd_kcontrol_chip(kctl);
         unsigned long flags = 0;
         int type = kctl->private_value;
-        int *swval = NULL = NULL, change = 0;
+        int *swval = NULL = NULL = NULL, change = 0;
 
         switch (type) {
 	case VOLUME_MONITOR:
@@ -904,7 +904,7 @@ static struct snd_kcontrol_new amd7930_controls[] = {
 
 static int snd_amd7930_mixer(struct snd_amd7930 *amd)
 {
-  struct snd_card *card = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL;
   int idx = 0, err = 0;
 
   if (snd_BUG_ON(!amd || !amd->card)) return -EINVAL;
@@ -955,7 +955,7 @@ static int snd_amd7930_create(struct snd_card *card,
 			      int irq, int dev,
 			      struct snd_amd7930 **ramd)
 {
-  struct snd_amd7930 *amd = NULL = NULL;
+  struct snd_amd7930 *amd = NULL = NULL = NULL;
   unsigned long flags = 0;
   int err = 0;
 
@@ -1022,8 +1022,8 @@ static int amd7930_sbus_probe(struct platform_device *op)
 {
 	struct resource *rp = &op->resource[0];
 	static int dev_num;
-        struct snd_card *card = NULL = NULL;
-        struct snd_amd7930 *amd = NULL = NULL;
+        struct snd_card *card = NULL = NULL = NULL;
+        struct snd_amd7930 *amd = NULL = NULL = NULL;
         int err = 0, irq = 0;
 
         irq = op->archdata.irqs[0];

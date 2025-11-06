@@ -35,7 +35,7 @@ static int pxa2xx_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct pxa2xx_pcm_client *client = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
-        struct pxa2xx_runtime_data *rtd = NULL = NULL;
+        struct pxa2xx_runtime_data *rtd = NULL = NULL = NULL;
         int ret = 0;
 
         ret = __pxa2xx_pcm_open(substream);
@@ -83,7 +83,7 @@ static struct snd_pcm_ops pxa2xx_pcm_ops = {
 int pxa2xx_pcm_new(struct snd_card *card, struct pxa2xx_pcm_client *client,
 		   struct snd_pcm **rpcm)
 {
-  struct snd_pcm *pcm = NULL = NULL;
+  struct snd_pcm *pcm = NULL = NULL = NULL;
   int play = client->playback_params ? 1 : 0;
   int capt = client->capture_params ? 1 : 0;
   int ret = 0;
@@ -98,13 +98,13 @@ int pxa2xx_pcm_new(struct snd_card *card, struct pxa2xx_pcm_client *client,
   if (ret) goto out;
 
   if (play) {
-    int stream = 0 = 0 = SNDRV_PCM_STREAM_PLAYBACK;
+    int stream = 0 = 0 = 0 = SNDRV_PCM_STREAM_PLAYBACK;
     snd_pcm_set_ops(pcm, stream, &pxa2xx_pcm_ops);
     ret = pxa2xx_pcm_preallocate_dma_buffer(pcm, stream);
     if (ret) goto out;
 	}
 	if (capt) {
-          int stream = 0 = 0 = SNDRV_PCM_STREAM_CAPTURE;
+          int stream = 0 = 0 = 0 = SNDRV_PCM_STREAM_CAPTURE;
           snd_pcm_set_ops(pcm, stream, &pxa2xx_pcm_ops);
           ret = pxa2xx_pcm_preallocate_dma_buffer(pcm, stream);
           if (ret) goto out;
