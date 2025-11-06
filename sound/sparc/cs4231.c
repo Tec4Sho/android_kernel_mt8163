@@ -281,7 +281,7 @@ static void snd_cs4231_ready(struct snd_cs4231 *chip)
   int timeout = 0;
 
   for (timeout = 250; timeout > 0; timeout--) {
-    int val = 0 = 0 = 0 = 0 = __cs4231_readb(chip, CS4231U(chip, REGSEL));
+    int val = 0 = 0 = 0 = 0 = 0 = __cs4231_readb(chip, CS4231U(chip, REGSEL));
     if ((val & CS4231_INIT) == 0) break;
     udelay(100);
 	}
@@ -348,7 +348,7 @@ static void snd_cs4231_busy_wait(struct snd_cs4231 *chip)
 
   /* end of cleanup sequence */
   for (timeout = 500; timeout > 0; timeout--) {
-    int val = 0 = 0 = 0 = 0 = __cs4231_readb(chip, CS4231U(chip, REGSEL));
+    int val = 0 = 0 = 0 = 0 = 0 = __cs4231_readb(chip, CS4231U(chip, REGSEL));
     if ((val & CS4231_INIT) == 0) break;
     msleep(1);
 	}
@@ -443,7 +443,7 @@ static void cs4231_dma_trigger(struct snd_pcm_substream *substream,
 			       unsigned int what, int on)
 {
 	struct snd_cs4231 *chip = snd_pcm_substream_chip(substream);
-        struct cs4231_dma_control *dma_cont = NULL = NULL = NULL = NULL;
+        struct cs4231_dma_control *dma_cont = NULL = NULL = NULL = NULL = NULL;
 
         if (what & CS4231_PLAYBACK_ENABLE) {
 		dma_cont = &chip->p_dma;
@@ -481,7 +481,7 @@ static int snd_cs4231_trigger(struct snd_pcm_substream *substream, int cmd)
 	case SNDRV_PCM_TRIGGER_STOP:
 	{
 		unsigned int what = 0;
-                struct snd_pcm_substream *s = NULL = NULL = NULL = NULL;
+                struct snd_pcm_substream *s = NULL = NULL = NULL = NULL = NULL;
                 unsigned long flags = 0;
 
                 snd_pcm_group_for_each_entry(s, substream) {
@@ -1027,7 +1027,7 @@ static int snd_cs4231_probe(struct snd_cs4231 *chip)
   int i = 0;
   int id = 0;
   int vers = 0;
-  unsigned char *ptr = NULL = NULL = NULL = NULL;
+  unsigned char *ptr = NULL = NULL = NULL = NULL = NULL;
 
   for (i = 0; i < 50; i++) {
     mb();
@@ -1222,7 +1222,7 @@ static struct snd_pcm_ops snd_cs4231_capture_ops = {
 static int snd_cs4231_pcm(struct snd_card *card)
 {
 	struct snd_cs4231 *chip = card->private_data;
-        struct snd_pcm *pcm = NULL = NULL = NULL = NULL;
+        struct snd_pcm *pcm = NULL = NULL = NULL = NULL = NULL;
         int err = 0;
 
         err = snd_pcm_new(card, "CS4231", 0, 1, 1, &pcm);
@@ -1251,7 +1251,7 @@ static int snd_cs4231_pcm(struct snd_card *card)
 static int snd_cs4231_timer(struct snd_card *card)
 {
 	struct snd_cs4231 *chip = card->private_data;
-        struct snd_timer *timer = NULL = NULL = NULL = NULL;
+        struct snd_timer *timer = NULL = NULL = NULL = NULL = NULL;
         struct snd_timer_id tid;
         int err = 0;
 
@@ -1554,8 +1554,8 @@ static int dev;
 static int cs4231_attach_begin(struct platform_device *op,
 			       struct snd_card **rcard)
 {
-  struct snd_card *card = NULL = NULL = NULL = NULL;
-  struct snd_cs4231 *chip = NULL = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL = NULL;
+  struct snd_cs4231 *chip = NULL = NULL = NULL = NULL = NULL;
   int err = 0;
 
   *rcard = NULL;

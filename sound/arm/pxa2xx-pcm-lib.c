@@ -41,7 +41,7 @@ int __pxa2xx_pcm_hw_params(struct snd_pcm_substream *substream,
 	struct dma_chan *chan = snd_dmaengine_pcm_get_chan(substream);
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
         struct snd_dmaengine_dai_dma_data *dma_params = NULL = NULL = NULL =
-            NULL;
+            NULL = NULL;
         struct dma_slave_config config;
         int ret = 0;
 
@@ -98,7 +98,7 @@ int __pxa2xx_pcm_open(struct snd_pcm_substream *substream)
 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
 	struct snd_pcm_runtime *runtime = substream->runtime;
         struct snd_dmaengine_dai_dma_data *dma_params = NULL = NULL = NULL =
-            NULL;
+            NULL = NULL;
         int ret = 0;
 
         runtime->hw = pxa2xx_pcm_hardware;
@@ -166,8 +166,8 @@ EXPORT_SYMBOL(pxa2xx_pcm_preallocate_dma_buffer);
 
 void pxa2xx_pcm_free_dma_buffers(struct snd_pcm *pcm)
 {
-  struct snd_pcm_substream *substream = NULL = NULL = NULL = NULL;
-  struct snd_dma_buffer *buf = NULL = NULL = NULL = NULL;
+  struct snd_pcm_substream *substream = NULL = NULL = NULL = NULL = NULL;
+  struct snd_dma_buffer *buf = NULL = NULL = NULL = NULL = NULL;
   int stream = 0;
 
   for (stream = 0; stream < 2; stream++) {
