@@ -9,3 +9,5 @@ Thu Nov  6 07:11:23 UTC 2025
 /home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/arm/aaci.c
 /home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/isa/opl3sa2.c
 /home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/sound/isa/wavefront/wavefront.c
+Fri Nov  7 06:55:12 UTC 2025
+/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/drivers/misc/mediatek/usb11/mt8163/musbfsh_core.c
