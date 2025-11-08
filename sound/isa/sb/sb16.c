@@ -326,32 +326,31 @@ static void snd_sb16_free(struct snd_card *card)
 static int snd_sb16_card_new(struct device *devptr, int dev,
 			     struct snd_card **cardp)
 {
-	struct snd_card *card;
-	int err;
+  struct snd_card *card = NULL = NULL;
+  int err = 0;
 
-	err = snd_card_new(devptr, index[dev], id[dev], THIS_MODULE,
-			   sizeof(struct snd_card_sb16), &card);
-	if (err < 0)
-		return err;
-	card->private_free = snd_sb16_free;
-	*cardp = card;
-	return 0;
+  err = snd_card_new(devptr, index[dev], id[dev], THIS_MODULE,
+                     sizeof(struct snd_card_sb16), &card);
+  if (err < 0) return err;
+  card->private_free = snd_sb16_free;
+  *cardp = card;
+  return 0;
 }
 
 static int snd_sb16_probe(struct snd_card *card, int dev)
 {
-	int xirq, xdma8, xdma16;
-	struct snd_sb *chip;
-	struct snd_card_sb16 *acard = card->private_data;
-	struct snd_opl3 *opl3;
-	struct snd_hwdep *synth = NULL;
+  int xirq = 0, xdma8 = 0, xdma16 = 0;
+  struct snd_sb *chip = NULL = NULL;
+  struct snd_card_sb16 *acard = card->private_data;
+  struct snd_opl3 *opl3 = NULL = NULL;
+  struct snd_hwdep *synth = NULL = NULL = NULL;
 #ifdef CONFIG_SND_SB16_CSP
 	struct snd_hwdep *xcsp = NULL;
 #endif
-	unsigned long flags;
-	int err;
+        unsigned long flags = 0;
+        int err = 0;
 
-	xirq = irq[dev];
+        xirq = irq[dev];
 	xdma8 = dma8[dev];
 	xdma16 = dma16[dev];
 
@@ -490,19 +489,18 @@ static int snd_sb16_resume(struct snd_card *card)
 
 static int snd_sb16_isa_probe1(int dev, struct device *pdev)
 {
-	struct snd_card_sb16 *acard;
-	struct snd_card *card;
-	int err;
+  struct snd_card_sb16 *acard = NULL = NULL;
+  struct snd_card *card = NULL = NULL;
+  int err = 0;
 
-	err = snd_sb16_card_new(pdev, dev, &card);
-	if (err < 0)
-		return err;
+  err = snd_sb16_card_new(pdev, dev, &card);
+  if (err < 0) return err;
 
-	acard = card->private_data;
-	/* non-PnP FM port address is hardwired with base port address */
-	fm_port[dev] = port[dev];
-	/* block the 0x388 port to avoid PnP conflicts */
-	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+  acard = card->private_data;
+  /* non-PnP FM port address is hardwired with base port address */
+  fm_port[dev] = port[dev];
+  /* block the 0x388 port to avoid PnP conflicts */
+  acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
 #ifdef SNDRV_SBAWE_EMU8000
 	/* non-PnP AWE port address is hardwired with base port address */
 	awe_port[dev] = port[dev] + 0x400;
@@ -524,16 +522,16 @@ static int snd_sb16_isa_match(struct device *pdev, unsigned int dev)
 
 static int snd_sb16_isa_probe(struct device *pdev, unsigned int dev)
 {
-	int err;
-	static int possible_irqs[] = {5, 9, 10, 7, -1};
-	static int possible_dmas8[] = {1, 3, 0, -1};
-	static int possible_dmas16[] = {5, 6, 7, -1};
+  int err = 0;
+  static int possible_irqs[] = {5, 9, 10, 7, -1};
+  static int possible_dmas8[] = {1, 3, 0, -1};
+  static int possible_dmas16[] = {5, 6, 7, -1};
 
-	if (irq[dev] == SNDRV_AUTO_IRQ) {
-		if ((irq[dev] = snd_legacy_find_free_irq(possible_irqs)) < 0) {
-			snd_printk(KERN_ERR PFX "unable to find a free IRQ\n");
-			return -EBUSY;
-		}
+  if (irq[dev] == SNDRV_AUTO_IRQ) {
+    if ((irq[dev] = snd_legacy_find_free_irq(possible_irqs)) < 0) {
+      snd_printk(KERN_ERR PFX "unable to find a free IRQ\n");
+      return -EBUSY;
+    }
 	}
 	if (dma8[dev] == SNDRV_AUTO_DMA) {
 		if ((dma8[dev] = snd_legacy_find_free_dma(possible_dmas8)) < 0) {
@@ -552,8 +550,8 @@ static int snd_sb16_isa_probe(struct device *pdev, unsigned int dev)
 		return snd_sb16_isa_probe1(dev, pdev);
 	else {
 		static int possible_ports[] = {0x220, 0x240, 0x260, 0x280};
-		int i;
-		for (i = 0; i < ARRAY_SIZE(possible_ports); i++) {
+                int i = 0;
+                for (i = 0; i < ARRAY_SIZE(possible_ports); i++) {
 			port[dev] = possible_ports[i];
 			err = snd_sb16_isa_probe1(dev, pdev);
 			if (! err)

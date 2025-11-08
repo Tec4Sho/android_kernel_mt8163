@@ -96,37 +96,32 @@ static int snd_sb8_match(struct device *pdev, unsigned int dev)
 
 static int snd_sb8_probe(struct device *pdev, unsigned int dev)
 {
-	struct snd_sb *chip;
-	struct snd_card *card;
-	struct snd_sb8 *acard;
-	struct snd_opl3 *opl3;
-	int err;
+  struct snd_sb *chip = NULL;
+  struct snd_card *card = NULL;
+  struct snd_sb8 *acard = NULL;
+  struct snd_opl3 *opl3 = NULL;
+  int err = 0;
 
-	err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,
-			   sizeof(struct snd_sb8), &card);
-	if (err < 0)
-		return err;
-	acard = card->private_data;
-	card->private_free = snd_sb8_free;
+  err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,
+                     sizeof(struct snd_sb8), &card);
+  if (err < 0) return err;
+  acard = card->private_data;
+  card->private_free = snd_sb8_free;
 
-	/* block the 0x388 port to avoid PnP conflicts */
-	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+  /* block the 0x388 port to avoid PnP conflicts */
+  acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
 
-	if (port[dev] != SNDRV_AUTO_PORT) {
-		if ((err = snd_sbdsp_create(card, port[dev], irq[dev],
-					    snd_sb8_interrupt,
-					    dma8[dev],
-					    -1,
-					    SB_HW_AUTO,
-					    &chip)) < 0)
-			goto _err;
+  if (port[dev] != SNDRV_AUTO_PORT) {
+    if ((err = snd_sbdsp_create(card, port[dev], irq[dev], snd_sb8_interrupt,
+                                dma8[dev], -1, SB_HW_AUTO, &chip)) < 0)
+      goto _err;
 	} else {
 		/* auto-probe legacy ports */
 		static unsigned long possible_ports[] = {
 			0x220, 0x240, 0x260,
 		};
-		int i;
-		for (i = 0; i < ARRAY_SIZE(possible_ports); i++) {
+                int i = 0;
+                for (i = 0; i < ARRAY_SIZE(possible_ports); i++) {
 			err = snd_sbdsp_create(card, possible_ports[i],
 					       irq[dev],
 					       snd_sb8_interrupt,

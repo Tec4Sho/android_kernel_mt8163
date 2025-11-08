@@ -41,12 +41,12 @@ void snd_sbmixer_write(struct snd_sb *chip, unsigned char reg, unsigned char dat
 
 unsigned char snd_sbmixer_read(struct snd_sb *chip, unsigned char reg)
 {
-	unsigned char result;
+  unsigned char result = 0;
 
-	outb(reg, SBP(chip, MIXER_ADDR));
-	udelay(10);
-	result = inb(SBP(chip, MIXER_DATA));
-	udelay(10);
+  outb(reg, SBP(chip, MIXER_ADDR));
+  udelay(10);
+  result = inb(SBP(chip, MIXER_DATA));
+  udelay(10);
 #ifdef IO_DEBUG
 	snd_printk(KERN_DEBUG "mixer_read 0x%x 0x%x\n", reg, result);
 #endif
@@ -71,13 +71,13 @@ static int snd_sbmixer_info_single(struct snd_kcontrol *kcontrol, struct snd_ctl
 static int snd_sbmixer_get_single(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 16) & 0xff;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
-	unsigned char val;
+        unsigned char val = 0;
 
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	val = (snd_sbmixer_read(sb, reg) >> shift) & mask;
 	spin_unlock_irqrestore(&sb->mixer_lock, flags);
 	ucontrol->value.integer.value[0] = val;
@@ -87,14 +87,14 @@ static int snd_sbmixer_get_single(struct snd_kcontrol *kcontrol, struct snd_ctl_
 static int snd_sbmixer_put_single(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 16) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
-	int change;
-	unsigned char val, oval;
+        int change = 0;
+        unsigned char val = 0, oval = 0;
 
-	val = (ucontrol->value.integer.value[0] & mask) << shift;
+        val = (ucontrol->value.integer.value[0] & mask) << shift;
 	spin_lock_irqsave(&sb->mixer_lock, flags);
 	oval = snd_sbmixer_read(sb, reg);
 	val = (oval & ~(mask << shift)) | val;
@@ -123,15 +123,15 @@ static int snd_sbmixer_info_double(struct snd_kcontrol *kcontrol, struct snd_ctl
 static int snd_sbmixer_get_double(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int left_shift = (kcontrol->private_value >> 16) & 0x07;
 	int right_shift = (kcontrol->private_value >> 19) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
-	unsigned char left, right;
+        unsigned char left = 0, right = 0;
 
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	left = (snd_sbmixer_read(sb, left_reg) >> left_shift) & mask;
 	right = (snd_sbmixer_read(sb, right_reg) >> right_shift) & mask;
 	spin_unlock_irqrestore(&sb->mixer_lock, flags);
@@ -143,16 +143,16 @@ static int snd_sbmixer_get_double(struct snd_kcontrol *kcontrol, struct snd_ctl_
 static int snd_sbmixer_put_double(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int left_shift = (kcontrol->private_value >> 16) & 0x07;
 	int right_shift = (kcontrol->private_value >> 19) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
-	int change;
-	unsigned char left, right, oleft, oright;
+        int change = 0;
+        unsigned char left = 0, right = 0, oleft = 0, oright = 0;
 
-	left = (ucontrol->value.integer.value[0] & mask) << left_shift;
+        left = (ucontrol->value.integer.value[0] & mask) << left_shift;
 	right = (ucontrol->value.integer.value[1] & mask) << right_shift;
 	spin_lock_irqsave(&sb->mixer_lock, flags);
 	if (left_reg == right_reg) {
@@ -192,10 +192,10 @@ static int snd_dt019x_input_sw_info(struct snd_kcontrol *kcontrol, struct snd_ct
 static int snd_dt019x_input_sw_get(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	unsigned char oval;
-	
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        unsigned long flags = 0;
+        unsigned char oval = 0;
+
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	oval = snd_sbmixer_read(sb, SB_DT019X_CAPTURE_SW);
 	spin_unlock_irqrestore(&sb->mixer_lock, flags);
 	switch (oval & 0x07) {
@@ -228,11 +228,11 @@ static int snd_dt019x_input_sw_get(struct snd_kcontrol *kcontrol, struct snd_ctl
 static int snd_dt019x_input_sw_put(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int change;
-	unsigned char nval, oval;
-	
-	if (ucontrol->value.enumerated.item[0] > 4)
+        unsigned long flags = 0;
+        int change = 0;
+        unsigned char nval = 0, oval = 0;
+
+        if (ucontrol->value.enumerated.item[0] > 4)
 		return -EINVAL;
 	switch (ucontrol->value.enumerated.item[0]) {
 	case 0:
@@ -280,10 +280,10 @@ static int snd_als4k_mono_capture_route_get(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	unsigned char oval;
+        unsigned long flags = 0;
+        unsigned char oval = 0;
 
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	oval = snd_sbmixer_read(sb, SB_ALS4000_MONO_IO_CTRL);
 	spin_unlock_irqrestore(&sb->mixer_lock, flags);
 	oval >>= 6;
@@ -298,11 +298,11 @@ static int snd_als4k_mono_capture_route_put(struct snd_kcontrol *kcontrol,
 				struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int change;
-	unsigned char nval, oval;
+        unsigned long flags = 0;
+        int change = 0;
+        unsigned char nval = 0, oval = 0;
 
-	if (ucontrol->value.enumerated.item[0] > 2)
+        if (ucontrol->value.enumerated.item[0] > 2)
 		return -EINVAL;
 	spin_lock_irqsave(&sb->mixer_lock, flags);
 	oval = snd_sbmixer_read(sb, SB_ALS4000_MONO_IO_CTRL);
@@ -333,10 +333,10 @@ static int snd_sb8mixer_info_mux(struct snd_kcontrol *kcontrol, struct snd_ctl_e
 static int snd_sb8mixer_get_mux(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	unsigned char oval;
-	
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        unsigned long flags = 0;
+        unsigned char oval = 0;
+
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	oval = snd_sbmixer_read(sb, SB_DSP_CAPTURE_SOURCE);
 	spin_unlock_irqrestore(&sb->mixer_lock, flags);
 	switch ((oval >> 0x01) & 0x03) {
@@ -356,11 +356,11 @@ static int snd_sb8mixer_get_mux(struct snd_kcontrol *kcontrol, struct snd_ctl_el
 static int snd_sb8mixer_put_mux(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int change;
-	unsigned char nval, oval;
-	
-	if (ucontrol->value.enumerated.item[0] > 2)
+        unsigned long flags = 0;
+        int change = 0;
+        unsigned char nval = 0, oval = 0;
+
+        if (ucontrol->value.enumerated.item[0] > 2)
 		return -EINVAL;
 	switch (ucontrol->value.enumerated.item[0]) {
 	case 1:
@@ -399,14 +399,14 @@ static int snd_sb16mixer_info_input_sw(struct snd_kcontrol *kcontrol, struct snd
 static int snd_sb16mixer_get_input_sw(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg1 = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg1 = kcontrol->private_value & 0xff;
 	int reg2 = (kcontrol->private_value >> 8) & 0xff;
 	int left_shift = (kcontrol->private_value >> 16) & 0x0f;
 	int right_shift = (kcontrol->private_value >> 24) & 0x0f;
-	unsigned char val1, val2;
+        unsigned char val1 = 0, val2 = 0;
 
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	val1 = snd_sbmixer_read(sb, reg1);
 	val2 = snd_sbmixer_read(sb, reg2);
 	spin_unlock_irqrestore(&sb->mixer_lock, flags);
@@ -420,15 +420,15 @@ static int snd_sb16mixer_get_input_sw(struct snd_kcontrol *kcontrol, struct snd_
 static int snd_sb16mixer_put_input_sw(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_sb *sb = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg1 = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg1 = kcontrol->private_value & 0xff;
 	int reg2 = (kcontrol->private_value >> 8) & 0xff;
 	int left_shift = (kcontrol->private_value >> 16) & 0x0f;
 	int right_shift = (kcontrol->private_value >> 24) & 0x0f;
-	int change;
-	unsigned char val1, val2, oval1, oval2;
+        int change = 0;
+        unsigned char val1 = 0, val2 = 0, oval1 = 0, oval2 = 0;
 
-	spin_lock_irqsave(&sb->mixer_lock, flags);
+        spin_lock_irqsave(&sb->mixer_lock, flags);
 	oval1 = snd_sbmixer_read(sb, reg1);
 	oval2 = snd_sbmixer_read(sb, reg2);
 	val1 = oval1 & ~((1 << left_shift) | (1 << right_shift));
@@ -491,10 +491,10 @@ int snd_sbmixer_add_ctl(struct snd_sb *chip, const char *name, int index, int ty
 			.put = snd_als4k_mono_capture_route_put,
 		},
 	};
-	struct snd_kcontrol *ctl;
-	int err;
+        struct snd_kcontrol *ctl = NULL;
+        int err = 0;
 
-	ctl = snd_ctl_new1(&newctls[type], chip);
+        ctl = snd_ctl_new1(&newctls[type], chip);
 	if (! ctl)
 		return -ENOMEM;
 	strlcpy(ctl->id.name, name, sizeof(ctl->id.name));
@@ -710,20 +710,20 @@ static int snd_sbmixer_init(struct snd_sb *chip,
 			    int map_count,
 			    char *name)
 {
-	unsigned long flags;
-	struct snd_card *card = chip->card;
-	int idx, err;
+  unsigned long flags = 0;
+  struct snd_card *card = chip->card;
+  int idx = 0, err = 0;
 
-	/* mixer reset */
-	spin_lock_irqsave(&chip->mixer_lock, flags);
-	snd_sbmixer_write(chip, 0x00, 0x00);
-	spin_unlock_irqrestore(&chip->mixer_lock, flags);
+  /* mixer reset */
+  spin_lock_irqsave(&chip->mixer_lock, flags);
+  snd_sbmixer_write(chip, 0x00, 0x00);
+  spin_unlock_irqrestore(&chip->mixer_lock, flags);
 
-	/* mute and zero volume channels */
-	for (idx = 0; idx < map_count; idx++) {
-		spin_lock_irqsave(&chip->mixer_lock, flags);
-		snd_sbmixer_write(chip, map[idx][0], map[idx][1]);
-		spin_unlock_irqrestore(&chip->mixer_lock, flags);
+  /* mute and zero volume channels */
+  for (idx = 0; idx < map_count; idx++) {
+    spin_lock_irqsave(&chip->mixer_lock, flags);
+    snd_sbmixer_write(chip, map[idx][0], map[idx][1]);
+    spin_unlock_irqrestore(&chip->mixer_lock, flags);
 	}
 
 	for (idx = 0; idx < controls_count; idx++) {
@@ -738,78 +738,60 @@ static int snd_sbmixer_init(struct snd_sb *chip,
 
 int snd_sbmixer_new(struct snd_sb *chip)
 {
-	struct snd_card *card;
-	int err;
+  struct snd_card *card = NULL;
+  int err = 0;
 
-	if (snd_BUG_ON(!chip || !chip->card))
-		return -EINVAL;
+  if (snd_BUG_ON(!chip || !chip->card)) return -EINVAL;
 
-	card = chip->card;
+  card = chip->card;
 
-	switch (chip->hardware) {
-	case SB_HW_10:
-		return 0; /* no mixer chip on SB1.x */
-	case SB_HW_20:
-	case SB_HW_201:
-		if ((err = snd_sbmixer_init(chip,
-					    snd_sb20_controls,
-					    ARRAY_SIZE(snd_sb20_controls),
-					    snd_sb20_init_values,
-					    ARRAY_SIZE(snd_sb20_init_values),
-					    "CTL1335")) < 0)
-			return err;
-		break;
-	case SB_HW_PRO:
-	case SB_HW_JAZZ16:
-		if ((err = snd_sbmixer_init(chip,
-					    snd_sbpro_controls,
-					    ARRAY_SIZE(snd_sbpro_controls),
-					    snd_sbpro_init_values,
-					    ARRAY_SIZE(snd_sbpro_init_values),
-					    "CTL1345")) < 0)
-			return err;
-		break;
-	case SB_HW_16:
-	case SB_HW_ALS100:
-	case SB_HW_CS5530:
-		if ((err = snd_sbmixer_init(chip,
-					    snd_sb16_controls,
-					    ARRAY_SIZE(snd_sb16_controls),
-					    snd_sb16_init_values,
-					    ARRAY_SIZE(snd_sb16_init_values),
-					    "CTL1745")) < 0)
-			return err;
-		break;
-	case SB_HW_ALS4000:
-		/* use only the first 16 controls from SB16 */
-		err = snd_sbmixer_init(chip,
-					snd_sb16_controls,
-					16,
-					snd_sb16_init_values,
-					ARRAY_SIZE(snd_sb16_init_values),
-					"ALS4000");
-		if (err < 0)
-			return err;
-		if ((err = snd_sbmixer_init(chip,
-					    snd_als4000_controls,
-					    ARRAY_SIZE(snd_als4000_controls),
-					    snd_als4000_init_values,
-					    ARRAY_SIZE(snd_als4000_init_values),
-					    "ALS4000")) < 0)
-			return err;
-		break;
-	case SB_HW_DT019X:
-		err = snd_sbmixer_init(chip,
-				       snd_dt019x_controls,
-				       ARRAY_SIZE(snd_dt019x_controls),
-				       snd_dt019x_init_values,
-				       ARRAY_SIZE(snd_dt019x_init_values),
-				       "DT019X");
-		if (err < 0)
-			return err;
-		break;
-	default:
-		strcpy(card->mixername, "???");
+  switch (chip->hardware) {
+    case SB_HW_10:
+      return 0; /* no mixer chip on SB1.x */
+    case SB_HW_20:
+    case SB_HW_201:
+      if ((err = snd_sbmixer_init(
+               chip, snd_sb20_controls, ARRAY_SIZE(snd_sb20_controls),
+               snd_sb20_init_values, ARRAY_SIZE(snd_sb20_init_values),
+               "CTL1335")) < 0)
+        return err;
+      break;
+    case SB_HW_PRO:
+    case SB_HW_JAZZ16:
+      if ((err = snd_sbmixer_init(
+               chip, snd_sbpro_controls, ARRAY_SIZE(snd_sbpro_controls),
+               snd_sbpro_init_values, ARRAY_SIZE(snd_sbpro_init_values),
+               "CTL1345")) < 0)
+        return err;
+      break;
+    case SB_HW_16:
+    case SB_HW_ALS100:
+    case SB_HW_CS5530:
+      if ((err = snd_sbmixer_init(
+               chip, snd_sb16_controls, ARRAY_SIZE(snd_sb16_controls),
+               snd_sb16_init_values, ARRAY_SIZE(snd_sb16_init_values),
+               "CTL1745")) < 0)
+        return err;
+      break;
+    case SB_HW_ALS4000:
+      /* use only the first 16 controls from SB16 */
+      err = snd_sbmixer_init(chip, snd_sb16_controls, 16, snd_sb16_init_values,
+                             ARRAY_SIZE(snd_sb16_init_values), "ALS4000");
+      if (err < 0) return err;
+      if ((err = snd_sbmixer_init(
+               chip, snd_als4000_controls, ARRAY_SIZE(snd_als4000_controls),
+               snd_als4000_init_values, ARRAY_SIZE(snd_als4000_init_values),
+               "ALS4000")) < 0)
+        return err;
+      break;
+    case SB_HW_DT019X:
+      err = snd_sbmixer_init(
+          chip, snd_dt019x_controls, ARRAY_SIZE(snd_dt019x_controls),
+          snd_dt019x_init_values, ARRAY_SIZE(snd_dt019x_init_values), "DT019X");
+      if (err < 0) return err;
+      break;
+    default:
+      strcpy(card->mixername, "???");
 	}
 	return 0;
 }

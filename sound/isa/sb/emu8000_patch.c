@@ -34,12 +34,12 @@ MODULE_PARM_DESC(emu8000_reset_addr, "reset write address at each time (makes sl
 static int
 snd_emu8000_open_dma(struct snd_emu8000 *emu, int write)
 {
-	int i;
+  int i = 0;
 
-	/* reserve all 30 voices for loading */
-	for (i = 0; i < EMU8000_DRAM_VOICES; i++) {
-		snd_emux_lock_voice(emu->emu, i);
-		snd_emu8000_dma_chan(emu, i, write);
+  /* reserve all 30 voices for loading */
+  for (i = 0; i < EMU8000_DRAM_VOICES; i++) {
+    snd_emux_lock_voice(emu->emu, i);
+    snd_emu8000_dma_chan(emu, i, write);
 	}
 
 	/* assign voice 31 and 32 to ROM */
@@ -61,21 +61,23 @@ snd_emu8000_open_dma(struct snd_emu8000 *emu, int write)
 static void
 snd_emu8000_close_dma(struct snd_emu8000 *emu)
 {
-	int i;
+  int i = 0;
 
-	for (i = 0; i < EMU8000_DRAM_VOICES; i++) {
-		snd_emu8000_dma_chan(emu, i, EMU8000_RAM_CLOSE);
-		snd_emux_unlock_voice(emu->emu, i);
+  for (i = 0; i < EMU8000_DRAM_VOICES; i++) {
+    snd_emu8000_dma_chan(emu, i, EMU8000_RAM_CLOSE);
+    snd_emux_unlock_voice(emu->emu, i);
 	}
 }
 
 /*
  */
 
-#define BLANK_LOOP_START	4
-#define BLANK_LOOP_END		8
-#define BLANK_LOOP_SIZE		12
-#define BLANK_HEAD_SIZE		48
+enum {
+  BLANK_LOOP_START = 4,
+  BLANK_LOOP_END = 8,
+  BLANK_LOOP_SIZE = 12,
+  BLANK_HEAD_SIZE = 48
+};
 
 /*
  * Read a word from userland, taking care of conversions from
@@ -84,18 +86,18 @@ snd_emu8000_close_dma(struct snd_emu8000 *emu)
 static unsigned short
 read_word(const void __user *buf, int offset, int mode)
 {
-	unsigned short c;
-	if (mode & SNDRV_SFNT_SAMPLE_8BITS) {
-		unsigned char cc;
-		get_user(cc, (unsigned char __user *)buf + offset);
-		c = cc << 8; /* convert 8bit -> 16bit */
+  unsigned short c = 0;
+  if (mode & SNDRV_SFNT_SAMPLE_8BITS) {
+    unsigned char cc = 0;
+    get_user(cc, (unsigned char __user *)buf + offset);
+    c = cc << 8; /* convert 8bit -> 16bit */
 	} else {
 #ifdef SNDRV_LITTLE_ENDIAN
 		get_user(c, (unsigned short __user *)buf + offset);
 #else
-		unsigned short cc;
-		get_user(cc, (unsigned short __user *)buf + offset);
-		c = swab16(cc);
+          unsigned short cc = 0;
+          get_user(cc, (unsigned short __user *)buf + offset);
+          c = swab16(cc);
 #endif
 	}
 	if (mode & SNDRV_SFNT_SAMPLE_UNSIGNED)
@@ -148,25 +150,23 @@ snd_emu8000_sample_new(struct snd_emux *rec, struct snd_sf_sample *sp,
 		       struct snd_util_memhdr *hdr,
 		       const void __user *data, long count)
 {
-	int  i;
-	int  rc;
-	int  offset;
-	int  truesize;
-	int  dram_offset, dram_start;
-	struct snd_emu8000 *emu;
+  int i = 0;
+  int rc = 0;
+  int offset = 0;
+  int truesize = 0;
+  int dram_offset = 0, dram_start = 0;
+  struct snd_emu8000 *emu = NULL;
 
-	emu = rec->hw;
-	if (snd_BUG_ON(!sp))
-		return -EINVAL;
+  emu = rec->hw;
+  if (snd_BUG_ON(!sp)) return -EINVAL;
 
-	if (sp->v.size == 0)
-		return 0;
+  if (sp->v.size == 0) return 0;
 
-	/* be sure loop points start < end */
-	if (sp->v.loopstart > sp->v.loopend) {
-		int tmp = sp->v.loopstart;
-		sp->v.loopstart = sp->v.loopend;
-		sp->v.loopend = tmp;
+  /* be sure loop points start < end */
+  if (sp->v.loopstart > sp->v.loopend) {
+    int tmp = sp->v.loopstart;
+    sp->v.loopstart = sp->v.loopend;
+    sp->v.loopend = tmp;
 	}
 
 	/* compute true data size to be loaded */
@@ -225,35 +225,35 @@ snd_emu8000_sample_new(struct snd_emux *rec, struct snd_sf_sample *sp,
 
 	offset = 0;
 	for (i = 0; i < sp->v.size; i++) {
-		unsigned short s;
+          unsigned short s = 0;
 
-		s = read_word(data, offset, sp->v.mode_flags);
-		offset++;
-		write_word(emu, &dram_offset, s);
+          s = read_word(data, offset, sp->v.mode_flags);
+          offset++;
+          write_word(emu, &dram_offset, s);
 
-		/* we may take too long time in this loop.
-		 * so give controls back to kernel if needed.
-		 */
-		cond_resched();
+          /* we may take too long time in this loop.
+           * so give controls back to kernel if needed.
+           */
+          cond_resched();
 
-		if (i == sp->v.loopend &&
-		    (sp->v.mode_flags & (SNDRV_SFNT_SAMPLE_BIDIR_LOOP|SNDRV_SFNT_SAMPLE_REVERSE_LOOP)))
-		{
-			int looplen = sp->v.loopend - sp->v.loopstart;
-			int k;
+          if (i == sp->v.loopend &&
+              (sp->v.mode_flags & (SNDRV_SFNT_SAMPLE_BIDIR_LOOP |
+                                   SNDRV_SFNT_SAMPLE_REVERSE_LOOP))) {
+            int looplen = sp->v.loopend - sp->v.loopstart;
+            int k = 0;
 
-			/* copy reverse loop */
-			for (k = 1; k <= looplen; k++) {
-				s = read_word(data, offset - k, sp->v.mode_flags);
-				write_word(emu, &dram_offset, s);
-			}
-			if (sp->v.mode_flags & SNDRV_SFNT_SAMPLE_BIDIR_LOOP) {
-				sp->v.loopend += looplen;
-			} else {
-				sp->v.loopstart += looplen;
-				sp->v.loopend += looplen;
-			}
-			sp->v.end += looplen;
+            /* copy reverse loop */
+            for (k = 1; k <= looplen; k++) {
+              s = read_word(data, offset - k, sp->v.mode_flags);
+              write_word(emu, &dram_offset, s);
+            }
+            if (sp->v.mode_flags & SNDRV_SFNT_SAMPLE_BIDIR_LOOP) {
+              sp->v.loopend += looplen;
+            } else {
+              sp->v.loopstart += looplen;
+              sp->v.loopend += looplen;
+            }
+            sp->v.end += looplen;
 		}
 	}
 

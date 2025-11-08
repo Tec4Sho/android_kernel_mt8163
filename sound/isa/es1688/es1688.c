@@ -103,9 +103,9 @@ static int snd_es1688_legacy_create(struct snd_card *card,
 	static int possible_irqs[] = {5, 9, 10, 7, -1};
 	static int possible_dmas[] = {1, 3, 0, -1};
 
-	int i, error;
+        int i = 0, error = 0;
 
-	if (irq[n] == SNDRV_AUTO_IRQ) {
+        if (irq[n] == SNDRV_AUTO_IRQ) {
 		irq[n] = snd_legacy_find_free_irq(possible_irqs);
 		if (irq[n] < 0) {
 			dev_err(dev, "unable to find a free IRQ\n");
@@ -137,10 +137,10 @@ static int snd_es1688_legacy_create(struct snd_card *card,
 static int snd_es1688_probe(struct snd_card *card, unsigned int n)
 {
 	struct snd_es1688 *chip = card->private_data;
-	struct snd_opl3 *opl3;
-	int error;
+        struct snd_opl3 *opl3 = NULL;
+        int error = 0;
 
-	error = snd_es1688_pcm(card, chip, 0);
+        error = snd_es1688_pcm(card, chip, 0);
 	if (error < 0)
 		return error;
 
@@ -183,25 +183,22 @@ static int snd_es1688_probe(struct snd_card *card, unsigned int n)
 
 static int snd_es1688_isa_probe(struct device *dev, unsigned int n)
 {
-	struct snd_card *card;
-	int error;
+  struct snd_card *card = NULL;
+  int error = 0;
 
-	error = snd_card_new(dev, index[n], id[n], THIS_MODULE,
-			     sizeof(struct snd_es1688), &card);
-	if (error < 0)
-		return error;
+  error = snd_card_new(dev, index[n], id[n], THIS_MODULE,
+                       sizeof(struct snd_es1688), &card);
+  if (error < 0) return error;
 
-	error = snd_es1688_legacy_create(card, dev, n);
-	if (error < 0)
-		goto out;
+  error = snd_es1688_legacy_create(card, dev, n);
+  if (error < 0) goto out;
 
-	error = snd_es1688_probe(card, n);
-	if (error < 0)
-		goto out;
+  error = snd_es1688_probe(card, n);
+  if (error < 0) goto out;
 
-	dev_set_drvdata(dev, card);
+  dev_set_drvdata(dev, card);
 
-	return 0;
+  return 0;
 out:
 	snd_card_free(card);
 	return error;

@@ -34,17 +34,16 @@
 
 irqreturn_t snd_sb8dsp_midi_interrupt(struct snd_sb *chip)
 {
-	struct snd_rawmidi *rmidi;
-	int max = 64;
-	char byte;
+  struct snd_rawmidi *rmidi = NULL;
+  int max = 64;
+  char byte = 0;
 
-	if (!chip)
-		return IRQ_NONE;
-	
-	rmidi = chip->rmidi;
-	if (!rmidi) {
-		inb(SBP(chip, DATA_AVAIL));	/* ack interrupt */
-		return IRQ_NONE;
+  if (!chip) return IRQ_NONE;
+
+  rmidi = chip->rmidi;
+  if (!rmidi) {
+    inb(SBP(chip, DATA_AVAIL)); /* ack interrupt */
+    return IRQ_NONE;
 	}
 
 	spin_lock(&chip->midi_input_lock);
@@ -62,17 +61,18 @@ irqreturn_t snd_sb8dsp_midi_interrupt(struct snd_sb *chip)
 
 static int snd_sb8dsp_midi_input_open(struct snd_rawmidi_substream *substream)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
-	unsigned int valid_open_flags;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
+  unsigned int valid_open_flags = 0;
 
-	chip = substream->rmidi->private_data;
-	valid_open_flags = chip->hardware >= SB_HW_20
-		? SB_OPEN_MIDI_OUTPUT | SB_OPEN_MIDI_OUTPUT_TRIGGER : 0;
-	spin_lock_irqsave(&chip->open_lock, flags);
-	if (chip->open & ~valid_open_flags) {
-		spin_unlock_irqrestore(&chip->open_lock, flags);
-		return -EAGAIN;
+  chip = substream->rmidi->private_data;
+  valid_open_flags = chip->hardware >= SB_HW_20
+                         ? SB_OPEN_MIDI_OUTPUT | SB_OPEN_MIDI_OUTPUT_TRIGGER
+                         : 0;
+  spin_lock_irqsave(&chip->open_lock, flags);
+  if (chip->open & ~valid_open_flags) {
+    spin_unlock_irqrestore(&chip->open_lock, flags);
+    return -EAGAIN;
 	}
 	chip->open |= SB_OPEN_MIDI_INPUT;
 	chip->midi_substream_input = substream;
@@ -89,17 +89,18 @@ static int snd_sb8dsp_midi_input_open(struct snd_rawmidi_substream *substream)
 
 static int snd_sb8dsp_midi_output_open(struct snd_rawmidi_substream *substream)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
-	unsigned int valid_open_flags;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
+  unsigned int valid_open_flags = 0;
 
-	chip = substream->rmidi->private_data;
-	valid_open_flags = chip->hardware >= SB_HW_20
-		? SB_OPEN_MIDI_INPUT | SB_OPEN_MIDI_INPUT_TRIGGER : 0;
-	spin_lock_irqsave(&chip->open_lock, flags);
-	if (chip->open & ~valid_open_flags) {
-		spin_unlock_irqrestore(&chip->open_lock, flags);
-		return -EAGAIN;
+  chip = substream->rmidi->private_data;
+  valid_open_flags = chip->hardware >= SB_HW_20
+                         ? SB_OPEN_MIDI_INPUT | SB_OPEN_MIDI_INPUT_TRIGGER
+                         : 0;
+  spin_lock_irqsave(&chip->open_lock, flags);
+  if (chip->open & ~valid_open_flags) {
+    spin_unlock_irqrestore(&chip->open_lock, flags);
+    return -EAGAIN;
 	}
 	chip->open |= SB_OPEN_MIDI_OUTPUT;
 	chip->midi_substream_output = substream;
@@ -116,16 +117,16 @@ static int snd_sb8dsp_midi_output_open(struct snd_rawmidi_substream *substream)
 
 static int snd_sb8dsp_midi_input_close(struct snd_rawmidi_substream *substream)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
 
-	chip = substream->rmidi->private_data;
-	spin_lock_irqsave(&chip->open_lock, flags);
-	chip->open &= ~(SB_OPEN_MIDI_INPUT | SB_OPEN_MIDI_INPUT_TRIGGER);
-	chip->midi_substream_input = NULL;
-	if (!(chip->open & SB_OPEN_MIDI_OUTPUT)) {
-		spin_unlock_irqrestore(&chip->open_lock, flags);
-		snd_sbdsp_reset(chip);		/* reset DSP */
+  chip = substream->rmidi->private_data;
+  spin_lock_irqsave(&chip->open_lock, flags);
+  chip->open &= ~(SB_OPEN_MIDI_INPUT | SB_OPEN_MIDI_INPUT_TRIGGER);
+  chip->midi_substream_input = NULL;
+  if (!(chip->open & SB_OPEN_MIDI_OUTPUT)) {
+    spin_unlock_irqrestore(&chip->open_lock, flags);
+    snd_sbdsp_reset(chip); /* reset DSP */
 	} else {
 		spin_unlock_irqrestore(&chip->open_lock, flags);
 	}
@@ -134,16 +135,16 @@ static int snd_sb8dsp_midi_input_close(struct snd_rawmidi_substream *substream)
 
 static int snd_sb8dsp_midi_output_close(struct snd_rawmidi_substream *substream)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
 
-	chip = substream->rmidi->private_data;
-	spin_lock_irqsave(&chip->open_lock, flags);
-	chip->open &= ~(SB_OPEN_MIDI_OUTPUT | SB_OPEN_MIDI_OUTPUT_TRIGGER);
-	chip->midi_substream_output = NULL;
-	if (!(chip->open & SB_OPEN_MIDI_INPUT)) {
-		spin_unlock_irqrestore(&chip->open_lock, flags);
-		snd_sbdsp_reset(chip);		/* reset DSP */
+  chip = substream->rmidi->private_data;
+  spin_lock_irqsave(&chip->open_lock, flags);
+  chip->open &= ~(SB_OPEN_MIDI_OUTPUT | SB_OPEN_MIDI_OUTPUT_TRIGGER);
+  chip->midi_substream_output = NULL;
+  if (!(chip->open & SB_OPEN_MIDI_INPUT)) {
+    spin_unlock_irqrestore(&chip->open_lock, flags);
+    snd_sbdsp_reset(chip); /* reset DSP */
 	} else {
 		spin_unlock_irqrestore(&chip->open_lock, flags);
 	}
@@ -152,17 +153,17 @@ static int snd_sb8dsp_midi_output_close(struct snd_rawmidi_substream *substream)
 
 static void snd_sb8dsp_midi_input_trigger(struct snd_rawmidi_substream *substream, int up)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
 
-	chip = substream->rmidi->private_data;
-	spin_lock_irqsave(&chip->open_lock, flags);
-	if (up) {
-		if (!(chip->open & SB_OPEN_MIDI_INPUT_TRIGGER)) {
-			if (chip->hardware < SB_HW_20)
-				snd_sbdsp_command(chip, SB_DSP_MIDI_INPUT_IRQ);
-			chip->open |= SB_OPEN_MIDI_INPUT_TRIGGER;
-		}
+  chip = substream->rmidi->private_data;
+  spin_lock_irqsave(&chip->open_lock, flags);
+  if (up) {
+    if (!(chip->open & SB_OPEN_MIDI_INPUT_TRIGGER)) {
+      if (chip->hardware < SB_HW_20)
+        snd_sbdsp_command(chip, SB_DSP_MIDI_INPUT_IRQ);
+      chip->open |= SB_OPEN_MIDI_INPUT_TRIGGER;
+    }
 	} else {
 		if (chip->open & SB_OPEN_MIDI_INPUT_TRIGGER) {
 			if (chip->hardware < SB_HW_20)
@@ -175,37 +176,36 @@ static void snd_sb8dsp_midi_input_trigger(struct snd_rawmidi_substream *substrea
 
 static void snd_sb8dsp_midi_output_write(struct snd_rawmidi_substream *substream)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
-	char byte;
-	int max = 32;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
+  char byte = 0;
+  int max = 32;
 
-	/* how big is Tx FIFO? */
-	chip = substream->rmidi->private_data;
-	while (max-- > 0) {
-		spin_lock_irqsave(&chip->open_lock, flags);
-		if (snd_rawmidi_transmit_peek(substream, &byte, 1) != 1) {
-			chip->open &= ~SB_OPEN_MIDI_OUTPUT_TRIGGER;
-			del_timer(&chip->midi_timer);
-			spin_unlock_irqrestore(&chip->open_lock, flags);
-			break;
-		}
-		if (chip->hardware >= SB_HW_20) {
-			int timeout = 8;
-			while ((inb(SBP(chip, STATUS)) & 0x80) != 0 && --timeout > 0)
-				;
-			if (timeout == 0) {
-				/* Tx FIFO full - try again later */
-				spin_unlock_irqrestore(&chip->open_lock, flags);
-				break;
-			}
-			outb(byte, SBP(chip, WRITE));
-		} else {
-			snd_sbdsp_command(chip, SB_DSP_MIDI_OUTPUT);
-			snd_sbdsp_command(chip, byte);
-		}
-		snd_rawmidi_transmit_ack(substream, 1);
-		spin_unlock_irqrestore(&chip->open_lock, flags);
+  /* how big is Tx FIFO? */
+  chip = substream->rmidi->private_data;
+  while (max-- > 0) {
+    spin_lock_irqsave(&chip->open_lock, flags);
+    if (snd_rawmidi_transmit_peek(substream, &byte, 1) != 1) {
+      chip->open &= ~SB_OPEN_MIDI_OUTPUT_TRIGGER;
+      del_timer(&chip->midi_timer);
+      spin_unlock_irqrestore(&chip->open_lock, flags);
+      break;
+    }
+    if (chip->hardware >= SB_HW_20) {
+      int timeout = 8;
+      while ((inb(SBP(chip, STATUS)) & 0x80) != 0 && --timeout > 0);
+      if (timeout == 0) {
+        /* Tx FIFO full - try again later */
+        spin_unlock_irqrestore(&chip->open_lock, flags);
+        break;
+      }
+      outb(byte, SBP(chip, WRITE));
+    } else {
+      snd_sbdsp_command(chip, SB_DSP_MIDI_OUTPUT);
+      snd_sbdsp_command(chip, byte);
+    }
+    snd_rawmidi_transmit_ack(substream, 1);
+    spin_unlock_irqrestore(&chip->open_lock, flags);
 	}
 }
 
@@ -213,9 +213,9 @@ static void snd_sb8dsp_midi_output_timer(unsigned long data)
 {
 	struct snd_rawmidi_substream *substream = (struct snd_rawmidi_substream *) data;
 	struct snd_sb * chip = substream->rmidi->private_data;
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	spin_lock_irqsave(&chip->open_lock, flags);
+        spin_lock_irqsave(&chip->open_lock, flags);
 	mod_timer(&chip->midi_timer, 1 + jiffies);
 	spin_unlock_irqrestore(&chip->open_lock, flags);	
 	snd_sb8dsp_midi_output_write(substream);
@@ -223,19 +223,18 @@ static void snd_sb8dsp_midi_output_timer(unsigned long data)
 
 static void snd_sb8dsp_midi_output_trigger(struct snd_rawmidi_substream *substream, int up)
 {
-	unsigned long flags;
-	struct snd_sb *chip;
+  unsigned long flags = 0;
+  struct snd_sb *chip = NULL;
 
-	chip = substream->rmidi->private_data;
-	spin_lock_irqsave(&chip->open_lock, flags);
-	if (up) {
-		if (!(chip->open & SB_OPEN_MIDI_OUTPUT_TRIGGER)) {
-			setup_timer(&chip->midi_timer,
-				    snd_sb8dsp_midi_output_timer,
-				    (unsigned long) substream);
-			mod_timer(&chip->midi_timer, 1 + jiffies);
-			chip->open |= SB_OPEN_MIDI_OUTPUT_TRIGGER;
-		}
+  chip = substream->rmidi->private_data;
+  spin_lock_irqsave(&chip->open_lock, flags);
+  if (up) {
+    if (!(chip->open & SB_OPEN_MIDI_OUTPUT_TRIGGER)) {
+      setup_timer(&chip->midi_timer, snd_sb8dsp_midi_output_timer,
+                  (unsigned long)substream);
+      mod_timer(&chip->midi_timer, 1 + jiffies);
+      chip->open |= SB_OPEN_MIDI_OUTPUT_TRIGGER;
+    }
 	} else {
 		if (chip->open & SB_OPEN_MIDI_OUTPUT_TRIGGER) {
 			chip->open &= ~SB_OPEN_MIDI_OUTPUT_TRIGGER;
@@ -263,18 +262,20 @@ static struct snd_rawmidi_ops snd_sb8dsp_midi_input =
 
 int snd_sb8dsp_midi(struct snd_sb *chip, int device)
 {
-	struct snd_rawmidi *rmidi;
-	int err;
+  struct snd_rawmidi *rmidi = NULL;
+  int err = 0;
 
-	if ((err = snd_rawmidi_new(chip->card, "SB8 MIDI", device, 1, 1, &rmidi)) < 0)
-		return err;
-	strcpy(rmidi->name, "SB8 MIDI");
-	snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_OUTPUT, &snd_sb8dsp_midi_output);
-	snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_INPUT, &snd_sb8dsp_midi_input);
-	rmidi->info_flags |= SNDRV_RAWMIDI_INFO_OUTPUT | SNDRV_RAWMIDI_INFO_INPUT;
-	if (chip->hardware >= SB_HW_20)
-		rmidi->info_flags |= SNDRV_RAWMIDI_INFO_DUPLEX;
-	rmidi->private_data = chip;
-	chip->rmidi = rmidi;
-	return 0;
+  if ((err = snd_rawmidi_new(chip->card, "SB8 MIDI", device, 1, 1, &rmidi)) < 0)
+    return err;
+  strcpy(rmidi->name, "SB8 MIDI");
+  snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_OUTPUT,
+                      &snd_sb8dsp_midi_output);
+  snd_rawmidi_set_ops(rmidi, SNDRV_RAWMIDI_STREAM_INPUT,
+                      &snd_sb8dsp_midi_input);
+  rmidi->info_flags |= SNDRV_RAWMIDI_INFO_OUTPUT | SNDRV_RAWMIDI_INFO_INPUT;
+  if (chip->hardware >= SB_HW_20)
+    rmidi->info_flags |= SNDRV_RAWMIDI_INFO_DUPLEX;
+  rmidi->private_data = chip;
+  chip->rmidi = rmidi;
+  return 0;
 }

@@ -38,13 +38,13 @@ MODULE_LICENSE("GPL");
 
 static int snd_es1688_dsp_command(struct snd_es1688 *chip, unsigned char val)
 {
-	int i;
+  int i = 0;
 
-	for (i = 10000; i; i--)
-		if ((inb(ES1688P(chip, STATUS)) & 0x80) == 0) {
-			outb(val, ES1688P(chip, COMMAND));
-			return 1;
-		}
+  for (i = 10000; i; i--)
+    if ((inb(ES1688P(chip, STATUS)) & 0x80) == 0) {
+      outb(val, ES1688P(chip, COMMAND));
+      return 1;
+    }
 #ifdef CONFIG_SND_DEBUG
 	printk(KERN_DEBUG "snd_es1688_dsp_command: timeout (0x%x)\n", val);
 #endif
@@ -53,13 +53,13 @@ static int snd_es1688_dsp_command(struct snd_es1688 *chip, unsigned char val)
 
 static int snd_es1688_dsp_get_byte(struct snd_es1688 *chip)
 {
-	int i;
+  int i = 0;
 
-	for (i = 1000; i; i--)
-		if (inb(ES1688P(chip, DATA_AVAIL)) & 0x80)
-			return inb(ES1688P(chip, READ));
-	snd_printd("es1688 get byte failed: 0x%lx = 0x%x!!!\n", ES1688P(chip, DATA_AVAIL), inb(ES1688P(chip, DATA_AVAIL)));
-	return -ENODEV;
+  for (i = 1000; i; i--)
+    if (inb(ES1688P(chip, DATA_AVAIL)) & 0x80) return inb(ES1688P(chip, READ));
+  snd_printd("es1688 get byte failed: 0x%lx = 0x%x!!!\n",
+             ES1688P(chip, DATA_AVAIL), inb(ES1688P(chip, DATA_AVAIL)));
+  return -ENODEV;
 }
 
 static int snd_es1688_write(struct snd_es1688 *chip,
@@ -91,27 +91,27 @@ void snd_es1688_mixer_write(struct snd_es1688 *chip,
 
 static unsigned char snd_es1688_mixer_read(struct snd_es1688 *chip, unsigned char reg)
 {
-	unsigned char result;
+  unsigned char result = 0;
 
-	outb(reg, ES1688P(chip, MIXER_ADDR));
-	udelay(10);
-	result = inb(ES1688P(chip, MIXER_DATA));
-	udelay(10);
-	return result;
+  outb(reg, ES1688P(chip, MIXER_ADDR));
+  udelay(10);
+  result = inb(ES1688P(chip, MIXER_DATA));
+  udelay(10);
+  return result;
 }
 
 int snd_es1688_reset(struct snd_es1688 *chip)
 {
-	int i;
+  int i = 0;
 
-	outb(3, ES1688P(chip, RESET));		/* valid only for ESS chips, SB -> 1 */
-	udelay(10);
-	outb(0, ES1688P(chip, RESET));
-	udelay(30);
-	for (i = 0; i < 1000 && !(inb(ES1688P(chip, DATA_AVAIL)) & 0x80); i++);
-	if (inb(ES1688P(chip, READ)) != 0xaa) {
-		snd_printd("ess_reset at 0x%lx: failed!!!\n", chip->port);
-		return -ENODEV;
+  outb(3, ES1688P(chip, RESET)); /* valid only for ESS chips, SB -> 1 */
+  udelay(10);
+  outb(0, ES1688P(chip, RESET));
+  udelay(30);
+  for (i = 0; i < 1000 && !(inb(ES1688P(chip, DATA_AVAIL)) & 0x80); i++);
+  if (inb(ES1688P(chip, READ)) != 0xaa) {
+    snd_printd("ess_reset at 0x%lx: failed!!!\n", chip->port);
+    return -ENODEV;
 	}
 	snd_es1688_dsp_command(chip, 0xc6);	/* enable extended mode */
 	return 0;
@@ -120,31 +120,32 @@ EXPORT_SYMBOL(snd_es1688_reset);
 
 static int snd_es1688_probe(struct snd_es1688 *chip)
 {
-	unsigned long flags;
-	unsigned short major, minor, hw;
-	int i;
+  unsigned long flags = 0;
+  unsigned short major = 0, minor = 0, hw = 0;
+  int i = 0;
 
-	/*
-	 *  initialization sequence
-	 */
+  /*
+   *  initialization sequence
+   */
 
-	spin_lock_irqsave(&chip->reg_lock, flags);	/* Some ESS1688 cards need this */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE2));	/* ENABLE2 */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE2));	/* ENABLE2 */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE2));	/* ENABLE2 */
-	inb(ES1688P(chip, ENABLE1));	/* ENABLE1 */
-	inb(ES1688P(chip, ENABLE0));	/* ENABLE0 */
+  spin_lock_irqsave(&chip->reg_lock, flags); /* Some ESS1688 cards need this */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE2));               /* ENABLE2 */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE2));               /* ENABLE2 */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE2));               /* ENABLE2 */
+  inb(ES1688P(chip, ENABLE1));               /* ENABLE1 */
+  inb(ES1688P(chip, ENABLE0));               /* ENABLE0 */
 
-	if (snd_es1688_reset(chip) < 0) {
-		snd_printdd("ESS: [0x%lx] reset failed... 0x%x\n", chip->port, inb(ES1688P(chip, READ)));
-		spin_unlock_irqrestore(&chip->reg_lock, flags);
-		return -ENODEV;
+  if (snd_es1688_reset(chip) < 0) {
+    snd_printdd("ESS: [0x%lx] reset failed... 0x%x\n", chip->port,
+                inb(ES1688P(chip, READ)));
+    spin_unlock_irqrestore(&chip->reg_lock, flags);
+    return -ENODEV;
 	}
 	snd_es1688_dsp_command(chip, 0xe7);	/* return identification */
 
@@ -198,10 +199,10 @@ static int snd_es1688_probe(struct snd_es1688 *chip)
 static int snd_es1688_init(struct snd_es1688 * chip, int enable)
 {
 	static int irqs[16] = {-1, -1, 0, -1, -1, 1, -1, 2, -1, 0, 3, -1, -1, -1, -1, -1};
-	unsigned long flags;
-	int cfg, irq_bits, dma, dma_bits, tmp, tmp1;
+        unsigned long flags = 0;
+        int cfg = 0, irq_bits = 0, dma = 0, dma_bits = 0, tmp = 0, tmp1 = 0;
 
-	/* ok.. setup MPU-401 port and joystick and OPL3 */
+        /* ok.. setup MPU-401 port and joystick and OPL3 */
 	cfg = 0x01;		/* enable joystick, but disable OPL3 */
 	if (enable && chip->mpu_port >= 0x300 && chip->mpu_irq > 0 && chip->hardware != ES1688_HW_688) {
 		tmp = (chip->mpu_port & 0x0f0) >> 4;
@@ -313,9 +314,9 @@ static struct snd_pcm_hw_constraint_ratnums hw_constraints_clocks  = {
 static void snd_es1688_set_rate(struct snd_es1688 *chip, struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	unsigned int bits, divider;
+        unsigned int bits = 0, divider = 0;
 
-	if (runtime->rate_num == clocks[0].num)
+        if (runtime->rate_num == clocks[0].num)
 		bits = 256 - runtime->rate_den;
 	else
 		bits = 128 - runtime->rate_den;
@@ -334,10 +335,10 @@ static int snd_es1688_ioctl(struct snd_pcm_substream *substream,
 
 static int snd_es1688_trigger(struct snd_es1688 *chip, int cmd, unsigned char value)
 {
-	int val;
+  int val = 0;
 
-	if (cmd == SNDRV_PCM_TRIGGER_STOP) {
-		value = 0x00;
+  if (cmd == SNDRV_PCM_TRIGGER_STOP) {
+    value = 0x00;
 	} else if (cmd != SNDRV_PCM_TRIGGER_START) {
 		return -EINVAL;
 	}
@@ -371,31 +372,33 @@ static int snd_es1688_hw_free(struct snd_pcm_substream *substream)
 
 static int snd_es1688_playback_prepare(struct snd_pcm_substream *substream)
 {
-	unsigned long flags;
-	struct snd_es1688 *chip = snd_pcm_substream_chip(substream);
-	struct snd_pcm_runtime *runtime = substream->runtime;
-	unsigned int size = snd_pcm_lib_buffer_bytes(substream);
-	unsigned int count = snd_pcm_lib_period_bytes(substream);
+  unsigned long flags = 0;
+  struct snd_es1688 *chip = snd_pcm_substream_chip(substream);
+  struct snd_pcm_runtime *runtime = substream->runtime;
+  unsigned int size = snd_pcm_lib_buffer_bytes(substream);
+  unsigned int count = snd_pcm_lib_period_bytes(substream);
 
-	chip->dma_size = size;
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	snd_es1688_reset(chip);
-	snd_es1688_set_rate(chip, substream);
-	snd_es1688_write(chip, 0xb8, 4);	/* auto init DMA mode */
-	snd_es1688_write(chip, 0xa8, (snd_es1688_read(chip, 0xa8) & ~0x03) | (3 - runtime->channels));
-	snd_es1688_write(chip, 0xb9, 2);	/* demand mode (4 bytes/request) */
-	if (runtime->channels == 1) {
-		if (snd_pcm_format_width(runtime->format) == 8) {
-			/* 8. bit mono */
-			snd_es1688_write(chip, 0xb6, 0x80);
-			snd_es1688_write(chip, 0xb7, 0x51);
-			snd_es1688_write(chip, 0xb7, 0xd0);
-		} else {
-			/* 16. bit mono */
-			snd_es1688_write(chip, 0xb6, 0x00);
-			snd_es1688_write(chip, 0xb7, 0x71);
-			snd_es1688_write(chip, 0xb7, 0xf4);
-		}
+  chip->dma_size = size;
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  snd_es1688_reset(chip);
+  snd_es1688_set_rate(chip, substream);
+  snd_es1688_write(chip, 0xb8, 4); /* auto init DMA mode */
+  snd_es1688_write(
+      chip, 0xa8,
+      (snd_es1688_read(chip, 0xa8) & ~0x03) | (3 - runtime->channels));
+  snd_es1688_write(chip, 0xb9, 2); /* demand mode (4 bytes/request) */
+  if (runtime->channels == 1) {
+    if (snd_pcm_format_width(runtime->format) == 8) {
+      /* 8. bit mono */
+      snd_es1688_write(chip, 0xb6, 0x80);
+      snd_es1688_write(chip, 0xb7, 0x51);
+      snd_es1688_write(chip, 0xb7, 0xd0);
+    } else {
+      /* 16. bit mono */
+      snd_es1688_write(chip, 0xb6, 0x00);
+      snd_es1688_write(chip, 0xb7, 0x71);
+      snd_es1688_write(chip, 0xb7, 0xf4);
+    }
 	} else {
 		if (snd_pcm_format_width(runtime->format) == 8) {
 			/* 8. bit stereo */
@@ -432,30 +435,32 @@ static int snd_es1688_playback_trigger(struct snd_pcm_substream *substream,
 
 static int snd_es1688_capture_prepare(struct snd_pcm_substream *substream)
 {
-	unsigned long flags;
-	struct snd_es1688 *chip = snd_pcm_substream_chip(substream);
-	struct snd_pcm_runtime *runtime = substream->runtime;
-	unsigned int size = snd_pcm_lib_buffer_bytes(substream);
-	unsigned int count = snd_pcm_lib_period_bytes(substream);
+  unsigned long flags = 0;
+  struct snd_es1688 *chip = snd_pcm_substream_chip(substream);
+  struct snd_pcm_runtime *runtime = substream->runtime;
+  unsigned int size = snd_pcm_lib_buffer_bytes(substream);
+  unsigned int count = snd_pcm_lib_period_bytes(substream);
 
-	chip->dma_size = size;
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	snd_es1688_reset(chip);
-	snd_es1688_set_rate(chip, substream);
-	snd_es1688_dsp_command(chip, ES1688_DSP_CMD_SPKOFF);
-	snd_es1688_write(chip, 0xb8, 0x0e);	/* auto init DMA mode */
-	snd_es1688_write(chip, 0xa8, (snd_es1688_read(chip, 0xa8) & ~0x03) | (3 - runtime->channels));
-	snd_es1688_write(chip, 0xb9, 2);	/* demand mode (4 bytes/request) */
-	if (runtime->channels == 1) {
-		if (snd_pcm_format_width(runtime->format) == 8) {
-			/* 8. bit mono */
-			snd_es1688_write(chip, 0xb7, 0x51);
-			snd_es1688_write(chip, 0xb7, 0xd0);
-		} else {
-			/* 16. bit mono */
-			snd_es1688_write(chip, 0xb7, 0x71);
-			snd_es1688_write(chip, 0xb7, 0xf4);
-		}
+  chip->dma_size = size;
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  snd_es1688_reset(chip);
+  snd_es1688_set_rate(chip, substream);
+  snd_es1688_dsp_command(chip, ES1688_DSP_CMD_SPKOFF);
+  snd_es1688_write(chip, 0xb8, 0x0e); /* auto init DMA mode */
+  snd_es1688_write(
+      chip, 0xa8,
+      (snd_es1688_read(chip, 0xa8) & ~0x03) | (3 - runtime->channels));
+  snd_es1688_write(chip, 0xb9, 2); /* demand mode (4 bytes/request) */
+  if (runtime->channels == 1) {
+    if (snd_pcm_format_width(runtime->format) == 8) {
+      /* 8. bit mono */
+      snd_es1688_write(chip, 0xb7, 0x51);
+      snd_es1688_write(chip, 0xb7, 0xd0);
+    } else {
+      /* 16. bit mono */
+      snd_es1688_write(chip, 0xb7, 0x71);
+      snd_es1688_write(chip, 0xb7, 0xf4);
+    }
 	} else {
 		if (snd_pcm_format_width(runtime->format) == 8) {
 			/* 8. bit stereo */
@@ -649,10 +654,10 @@ int snd_es1688_create(struct snd_card *card,
 	static struct snd_device_ops ops = {
 		.dev_free =	snd_es1688_dev_free,
 	};
-                                
-	int err;
 
-	if (chip == NULL)
+        int err = 0;
+
+        if (chip == NULL)
 		return -ENOMEM;
 	chip->irq = -1;
 	chip->dma8 = -1;
@@ -730,25 +735,23 @@ static struct snd_pcm_ops snd_es1688_capture_ops = {
 
 int snd_es1688_pcm(struct snd_card *card, struct snd_es1688 *chip, int device)
 {
-	struct snd_pcm *pcm;
-	int err;
+  struct snd_pcm *pcm = NULL;
+  int err = 0;
 
-	err = snd_pcm_new(card, "ESx688", device, 1, 1, &pcm);
-	if (err < 0)
-		return err;
+  err = snd_pcm_new(card, "ESx688", device, 1, 1, &pcm);
+  if (err < 0) return err;
 
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_es1688_playback_ops);
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_es1688_capture_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_es1688_playback_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_es1688_capture_ops);
 
-	pcm->private_data = chip;
-	pcm->info_flags = SNDRV_PCM_INFO_HALF_DUPLEX;
-	sprintf(pcm->name, snd_es1688_chip_id(chip));
-	chip->pcm = pcm;
+  pcm->private_data = chip;
+  pcm->info_flags = SNDRV_PCM_INFO_HALF_DUPLEX;
+  sprintf(pcm->name, snd_es1688_chip_id(chip));
+  chip->pcm = pcm;
 
-	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
-					      snd_dma_isa_data(),
-					      64*1024, 64*1024);
-	return 0;
+  snd_pcm_lib_preallocate_pages_for_all(
+      pcm, SNDRV_DMA_TYPE_DEV, snd_dma_isa_data(), 64 * 1024, 64 * 1024);
+  return 0;
 }
 
 /*
@@ -775,11 +778,11 @@ static int snd_es1688_get_mux(struct snd_kcontrol *kcontrol, struct snd_ctl_elem
 static int snd_es1688_put_mux(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_es1688 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	unsigned char oval, nval;
-	int change;
-	
-	if (ucontrol->value.enumerated.item[0] > 8)
+        unsigned long flags = 0;
+        unsigned char oval = 0, nval = 0;
+        int change = 0;
+
+        if (ucontrol->value.enumerated.item[0] > 8)
 		return -EINVAL;
 	spin_lock_irqsave(&chip->reg_lock, flags);
 	oval = snd_es1688_mixer_read(chip, ES1688_REC_DEV);
@@ -811,8 +814,8 @@ static int snd_es1688_info_single(struct snd_kcontrol *kcontrol, struct snd_ctl_
 static int snd_es1688_get_single(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_es1688 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 8) & 0xff;
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 0xff;
@@ -828,15 +831,15 @@ static int snd_es1688_get_single(struct snd_kcontrol *kcontrol, struct snd_ctl_e
 static int snd_es1688_put_single(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_es1688 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 8) & 0xff;
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 0xff;
-	int change;
-	unsigned char oval, nval;
-	
-	nval = (ucontrol->value.integer.value[0] & mask);
+        int change = 0;
+        unsigned char oval = 0, nval = 0;
+
+        nval = (ucontrol->value.integer.value[0] & mask);
 	if (invert)
 		nval = mask - nval;
 	nval <<= shift;
@@ -870,16 +873,16 @@ static int snd_es1688_info_double(struct snd_kcontrol *kcontrol, struct snd_ctl_
 static int snd_es1688_get_double(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_es1688 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int shift_left = (kcontrol->private_value >> 16) & 0x07;
 	int shift_right = (kcontrol->private_value >> 19) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
 	int invert = (kcontrol->private_value >> 22) & 1;
-	unsigned char left, right;
-	
-	spin_lock_irqsave(&chip->reg_lock, flags);
+        unsigned char left = 0, right = 0;
+
+        spin_lock_irqsave(&chip->reg_lock, flags);
 	if (left_reg < 0xa0)
 		left = snd_es1688_mixer_read(chip, left_reg);
 	else
@@ -904,17 +907,17 @@ static int snd_es1688_get_double(struct snd_kcontrol *kcontrol, struct snd_ctl_e
 static int snd_es1688_put_double(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_es1688 *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int shift_left = (kcontrol->private_value >> 16) & 0x07;
 	int shift_right = (kcontrol->private_value >> 19) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
 	int invert = (kcontrol->private_value >> 22) & 1;
-	int change;
-	unsigned char val1, val2, oval1, oval2;
-	
-	val1 = ucontrol->value.integer.value[0] & mask;
+        int change = 0;
+        unsigned char val1 = 0, val2 = 0, oval1 = 0, oval2 = 0;
+
+        val1 = ucontrol->value.integer.value[0] & mask;
 	val2 = ucontrol->value.integer.value[1] & mask;
 	if (invert) {
 		val1 = mask - val1;
@@ -1001,18 +1004,18 @@ static unsigned char snd_es1688_init_table[][2] = {
                                         
 int snd_es1688_mixer(struct snd_card *card, struct snd_es1688 *chip)
 {
-	unsigned int idx;
-	int err;
-	unsigned char reg, val;
+  unsigned int idx = 0;
+  int err = 0;
+  unsigned char reg = 0, val = 0;
 
-	if (snd_BUG_ON(!chip || !card))
-		return -EINVAL;
+  if (snd_BUG_ON(!chip || !card)) return -EINVAL;
 
-	strcpy(card->mixername, snd_es1688_chip_id(chip));
+  strcpy(card->mixername, snd_es1688_chip_id(chip));
 
-	for (idx = 0; idx < ARRAY_SIZE(snd_es1688_controls); idx++) {
-		if ((err = snd_ctl_add(card, snd_ctl_new1(&snd_es1688_controls[idx], chip))) < 0)
-			return err;
+  for (idx = 0; idx < ARRAY_SIZE(snd_es1688_controls); idx++) {
+    if ((err = snd_ctl_add(card,
+                           snd_ctl_new1(&snd_es1688_controls[idx], chip))) < 0)
+      return err;
 	}
 	for (idx = 0; idx < ES1688_INIT_TABLE_SIZE; idx++) {
 		reg = snd_es1688_init_table[idx][0];

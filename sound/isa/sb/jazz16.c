@@ -63,11 +63,13 @@ MODULE_PARM_DESC(dma8, "DMA8 # for jazz16 driver.");
 module_param_array(dma16, int, NULL, 0444);
 MODULE_PARM_DESC(dma16, "DMA16 # for jazz16 driver.");
 
-#define SB_JAZZ16_WAKEUP	0xaf
-#define SB_JAZZ16_SET_PORTS	0x50
-#define SB_DSP_GET_JAZZ_BRD_REV	0xfa
-#define SB_JAZZ16_SET_DMAINTR	0xfb
-#define SB_DSP_GET_JAZZ_MODEL	0xfe
+enum {
+  SB_JAZZ16_WAKEUP = 0xaf,
+  SB_JAZZ16_SET_PORTS = 0x50,
+  SB_DSP_GET_JAZZ_BRD_REV = 0xfa,
+  SB_JAZZ16_SET_DMAINTR = 0xfb,
+  SB_DSP_GET_JAZZ_MODEL = 0xfe
+};
 
 struct snd_card_jazz16 {
 	struct snd_sb *chip;
@@ -81,11 +83,11 @@ static irqreturn_t jazz16_interrupt(int irq, void *chip)
 static int jazz16_configure_ports(unsigned long port,
 				  unsigned long mpu_port, int idx)
 {
-	unsigned char val;
+  unsigned char val = 0;
 
-	if (!request_region(0x201, 1, "jazz16 config")) {
-		snd_printk(KERN_ERR "config port region is already in use.\n");
-		return -EBUSY;
+  if (!request_region(0x201, 1, "jazz16 config")) {
+    snd_printk(KERN_ERR "config port region is already in use.\n");
+    return -EBUSY;
 	}
 	outb(SB_JAZZ16_WAKEUP - idx, 0x201);
 	udelay(100);
@@ -102,13 +104,13 @@ static int jazz16_configure_ports(unsigned long port,
 static int jazz16_detect_board(unsigned long port,
 			       unsigned long mpu_port)
 {
-	int err;
-	int val;
-	struct snd_sb chip;
+  int err = 0;
+  int val = 0;
+  struct snd_sb chip;
 
-	if (!request_region(port, 0x10, "jazz16")) {
-		snd_printk(KERN_ERR "I/O port region is already in use.\n");
-		return -EBUSY;
+  if (!request_region(port, 0x10, "jazz16")) {
+    snd_printk(KERN_ERR "I/O port region is already in use.\n");
+    return -EBUSY;
 	}
 	/* just to call snd_sbdsp_command/reset/get_byte() */
 	chip.port = port;
@@ -220,30 +222,29 @@ static int snd_jazz16_match(struct device *devptr, unsigned int dev)
 
 static int snd_jazz16_probe(struct device *devptr, unsigned int dev)
 {
-	struct snd_card *card;
-	struct snd_card_jazz16 *jazz16;
-	struct snd_sb *chip;
-	struct snd_opl3 *opl3;
-	static int possible_irqs[] = {2, 3, 5, 7, 9, 10, 15, -1};
-	static int possible_dmas8[] = {1, 3, -1};
-	static int possible_dmas16[] = {5, 7, -1};
-	int err, xirq, xdma8, xdma16, xmpu_port, xmpu_irq;
+  struct snd_card *card = NULL;
+  struct snd_card_jazz16 *jazz16 = NULL;
+  struct snd_sb *chip = NULL;
+  struct snd_opl3 *opl3 = NULL;
+  static int possible_irqs[] = {2, 3, 5, 7, 9, 10, 15, -1};
+  static int possible_dmas8[] = {1, 3, -1};
+  static int possible_dmas16[] = {5, 7, -1};
+  int err = 0, xirq = 0, xdma8 = 0, xdma16 = 0, xmpu_port = 0, xmpu_irq = 0;
 
-	err = snd_card_new(devptr, index[dev], id[dev], THIS_MODULE,
-			   sizeof(struct snd_card_jazz16), &card);
-	if (err < 0)
-		return err;
+  err = snd_card_new(devptr, index[dev], id[dev], THIS_MODULE,
+                     sizeof(struct snd_card_jazz16), &card);
+  if (err < 0) return err;
 
-	jazz16 = card->private_data;
+  jazz16 = card->private_data;
 
-	xirq = irq[dev];
-	if (xirq == SNDRV_AUTO_IRQ) {
-		xirq = snd_legacy_find_free_irq(possible_irqs);
-		if (xirq < 0) {
-			snd_printk(KERN_ERR "unable to find a free IRQ\n");
-			err = -EBUSY;
-			goto err_free;
-		}
+  xirq = irq[dev];
+  if (xirq == SNDRV_AUTO_IRQ) {
+    xirq = snd_legacy_find_free_irq(possible_irqs);
+    if (xirq < 0) {
+      snd_printk(KERN_ERR "unable to find a free IRQ\n");
+      err = -EBUSY;
+      goto err_free;
+    }
 	}
 	xdma8 = dma8[dev];
 	if (xdma8 == SNDRV_AUTO_DMA) {

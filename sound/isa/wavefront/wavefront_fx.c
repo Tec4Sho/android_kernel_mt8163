@@ -30,24 +30,26 @@
 /* Control bits for the Load Control Register
  */
 
-#define FX_LSB_TRANSFER 0x01    /* transfer after DSP LSB byte written */
-#define FX_MSB_TRANSFER 0x02    /* transfer after DSP MSB byte written */
-#define FX_AUTO_INCR    0x04    /* auto-increment DSP address after transfer */
+enum {
+  FX_LSB_TRANSFER = 0x01, /* transfer after DSP LSB byte written */
+  FX_MSB_TRANSFER = 0x02, /* transfer after DSP MSB byte written */
+  FX_AUTO_INCR = 0x04     /* auto-increment DSP address after transfer */
+};
 
-#define WAIT_IDLE	0xff
+enum { WAIT_IDLE = 0xff };
 
 static int
 wavefront_fx_idle (snd_wavefront_t *dev)
 
 {
-	int i;
-	unsigned int x = 0x80;
+  int i = 0;
+  unsigned int x = 0x80;
 
-	for (i = 0; i < 1000; i++) {
-		x = inb (dev->fx_status);
-		if ((x & 0x80) == 0) {
-			break;
-		}
+  for (i = 0; i < 1000; i++) {
+    x = inb(dev->fx_status);
+    if ((x & 0x80) == 0) {
+      break;
+    }
 	}
 
 	if (x & 0x80) {
@@ -100,18 +102,18 @@ wavefront_fx_memset (snd_wavefront_t *dev,
 			page, addr, data[0]);
 
 	} else {
-		int i;
+          int i = 0;
 
-		outb (FX_AUTO_INCR|FX_LSB_TRANSFER, dev->fx_lcr);
-		outb (page, dev->fx_dsp_page);
-		outb (addr, dev->fx_dsp_addr);
+          outb(FX_AUTO_INCR | FX_LSB_TRANSFER, dev->fx_lcr);
+          outb(page, dev->fx_dsp_page);
+          outb(addr, dev->fx_dsp_addr);
 
-		for (i = 0; i < cnt; i++) {
-			outb ((data[i] >> 8), dev->fx_dsp_msb);
-			outb ((data[i] & 0xff), dev->fx_dsp_lsb);
-			if (!wavefront_fx_idle (dev)) {
-				break;
-			}
+          for (i = 0; i < cnt; i++) {
+            outb((data[i] >> 8), dev->fx_dsp_msb);
+            outb((data[i] & 0xff), dev->fx_dsp_lsb);
+            if (!wavefront_fx_idle(dev)) {
+              break;
+            }
 		}
 
 		if (i != cnt) {
@@ -166,64 +168,60 @@ snd_wavefront_fx_ioctl (struct snd_hwdep *sdev, struct file *file,
 			unsigned int cmd, unsigned long arg)
 
 {
-	struct snd_card *card;
-	snd_wavefront_card_t *acard;
-	snd_wavefront_t *dev;
-	wavefront_fx_info r;
-	unsigned short *page_data = NULL;
-	unsigned short *pd;
-	int err = 0;
+  struct snd_card *card = NULL;
+  snd_wavefront_card_t *acard;
+  snd_wavefront_t *dev;
+  wavefront_fx_info r;
+  unsigned short *page_data = NULL = NULL;
+  unsigned short *pd = NULL;
+  int err = 0;
 
-	card = sdev->card;
-	if (snd_BUG_ON(!card))
-		return -ENODEV;
-	if (snd_BUG_ON(!card->private_data))
-		return -ENODEV;
+  card = sdev->card;
+  if (snd_BUG_ON(!card)) return -ENODEV;
+  if (snd_BUG_ON(!card->private_data)) return -ENODEV;
 
-	acard = card->private_data;
-	dev = &acard->wavefront;
+  acard = card->private_data;
+  dev = &acard->wavefront;
 
-	if (copy_from_user (&r, (void __user *)arg, sizeof (wavefront_fx_info)))
-		return -EFAULT;
+  if (copy_from_user(&r, (void __user *)arg, sizeof(wavefront_fx_info)))
+    return -EFAULT;
 
-	switch (r.request) {
-	case WFFX_MUTE:
-		wavefront_fx_mute (dev, r.data[0]);
-		return -EIO;
+  switch (r.request) {
+    case WFFX_MUTE:
+      wavefront_fx_mute(dev, r.data[0]);
+      return -EIO;
 
-	case WFFX_MEMSET:
-		if (r.data[2] <= 0) {
-			snd_printk ("cannot write "
-				"<= 0 bytes to FX\n");
-			return -EIO;
-		} else if (r.data[2] == 1) {
-			pd = (unsigned short *) &r.data[3];
-		} else {
-			if (r.data[2] > 256) {
-				snd_printk ("cannot write "
-					    "> 512 bytes to FX\n");
-				return -EIO;
-			}
-			page_data = memdup_user((unsigned char __user *)
-						r.data[3],
-						r.data[2] * sizeof(short));
-			if (IS_ERR(page_data))
-				return PTR_ERR(page_data);
-			pd = page_data;
-		}
+    case WFFX_MEMSET:
+      if (r.data[2] <= 0) {
+        snd_printk(
+            "cannot write "
+            "<= 0 bytes to FX\n");
+        return -EIO;
+      } else if (r.data[2] == 1) {
+        pd = (unsigned short *)&r.data[3];
+      } else {
+        if (r.data[2] > 256) {
+          snd_printk(
+              "cannot write "
+              "> 512 bytes to FX\n");
+          return -EIO;
+        }
+        page_data = memdup_user((unsigned char __user *)r.data[3],
+                                r.data[2] * sizeof(short));
+        if (IS_ERR(page_data)) return PTR_ERR(page_data);
+        pd = page_data;
+      }
 
-		err = wavefront_fx_memset (dev,
-			     r.data[0], /* page */
-			     r.data[1], /* addr */
-			     r.data[2], /* cnt */
-			     pd);
-		kfree(page_data);
-		break;
+      err = wavefront_fx_memset(dev, r.data[0], /* page */
+                                r.data[1],      /* addr */
+                                r.data[2],      /* cnt */
+                                pd);
+      kfree(page_data);
+      break;
 
-	default:
-		snd_printk ("FX: ioctl %d not yet supported\n",
-			    r.request);
-		return -ENOTTY;
+    default:
+      snd_printk("FX: ioctl %d not yet supported\n", r.request);
+      return -ENOTTY;
 	}
 	return err;
 }
@@ -243,18 +241,17 @@ snd_wavefront_fx_ioctl (struct snd_hwdep *sdev, struct file *file,
 int
 snd_wavefront_fx_start (snd_wavefront_t *dev)
 {
-	unsigned int i;
-	int err;
-	const struct firmware *firmware = NULL;
+  unsigned int i = 0;
+  int err = 0;
+  const struct firmware *firmware = NULL = NULL;
 
-	if (dev->fx_initialized)
-		return 0;
+  if (dev->fx_initialized) return 0;
 
-	err = request_firmware(&firmware, "yamaha/yss225_registers.bin",
-			       dev->card->dev);
-	if (err < 0) {
-		err = -1;
-		goto out;
+  err = request_firmware(&firmware, "yamaha/yss225_registers.bin",
+                         dev->card->dev);
+  if (err < 0) {
+    err = -1;
+    goto out;
 	}
 
 	for (i = 0; i + 1 < firmware->size; i += 2) {

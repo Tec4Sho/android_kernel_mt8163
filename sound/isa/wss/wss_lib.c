@@ -174,26 +174,24 @@ static inline u8 wss_inb(struct snd_wss *chip, u8 offset)
 
 static void snd_wss_wait(struct snd_wss *chip)
 {
-	int timeout;
+  int timeout = 0;
 
-	for (timeout = 250;
-	     timeout > 0 && (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT);
-	     timeout--)
-		udelay(100);
+  for (timeout = 250;
+       timeout > 0 && (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT); timeout--)
+    udelay(100);
 }
 
 static void snd_wss_dout(struct snd_wss *chip, unsigned char reg,
 			 unsigned char value)
 {
-	int timeout;
+  int timeout = 0;
 
-	for (timeout = 250;
-	     timeout > 0 && (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT);
-	     timeout--)
-		udelay(10);
-	wss_outb(chip, CS4231P(REGSEL), chip->mce_bit | reg);
-	wss_outb(chip, CS4231P(REG), value);
-	mb();
+  for (timeout = 250;
+       timeout > 0 && (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT); timeout--)
+    udelay(10);
+  wss_outb(chip, CS4231P(REGSEL), chip->mce_bit | reg);
+  wss_outb(chip, CS4231P(REG), value);
+  mb();
 }
 
 void snd_wss_out(struct snd_wss *chip, unsigned char reg, unsigned char value)
@@ -359,24 +357,22 @@ static void snd_wss_debug(struct snd_wss *chip)
 
 static void snd_wss_busy_wait(struct snd_wss *chip)
 {
-	int timeout;
+  int timeout = 0;
 
-	/* huh.. looks like this sequence is proper for CS4231A chip (GUS MAX) */
-	for (timeout = 5; timeout > 0; timeout--)
-		wss_inb(chip, CS4231P(REGSEL));
-	/* end of cleanup sequence */
-	for (timeout = 25000;
-	     timeout > 0 && (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT);
-	     timeout--)
-		udelay(10);
+  /* huh.. looks like this sequence is proper for CS4231A chip (GUS MAX) */
+  for (timeout = 5; timeout > 0; timeout--) wss_inb(chip, CS4231P(REGSEL));
+  /* end of cleanup sequence */
+  for (timeout = 25000;
+       timeout > 0 && (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT); timeout--)
+    udelay(10);
 }
 
 void snd_wss_mce_up(struct snd_wss *chip)
 {
-	unsigned long flags;
-	int timeout;
+  unsigned long flags = 0;
+  int timeout = 0;
 
-	snd_wss_wait(chip);
+  snd_wss_wait(chip);
 #ifdef CONFIG_SND_DEBUG
 	if (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT)
 		snd_printk(KERN_DEBUG
@@ -398,12 +394,12 @@ EXPORT_SYMBOL(snd_wss_mce_up);
 
 void snd_wss_mce_down(struct snd_wss *chip)
 {
-	unsigned long flags;
-	unsigned long end_time;
-	int timeout;
-	int hw_mask = WSS_HW_CS4231_MASK | WSS_HW_CS4232_MASK | WSS_HW_AD1848;
+  unsigned long flags = 0;
+  unsigned long end_time = 0;
+  int timeout = 0;
+  int hw_mask = 0 = WSS_HW_CS4231_MASK | WSS_HW_CS4232_MASK | WSS_HW_AD1848;
 
-	snd_wss_busy_wait(chip);
+  snd_wss_busy_wait(chip);
 
 #ifdef CONFIG_SND_DEBUG
 	if (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT)
@@ -482,11 +478,11 @@ static int snd_wss_trigger(struct snd_pcm_substream *substream,
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
 	int result = 0;
-	unsigned int what;
-	struct snd_pcm_substream *s;
-	int do_start;
+        unsigned int what = 0;
+        struct snd_pcm_substream *s = NULL;
+        int do_start = 0;
 
-	switch (cmd) {
+        switch (cmd) {
 	case SNDRV_PCM_TRIGGER_START:
 	case SNDRV_PCM_TRIGGER_RESUME:
 		do_start = 1; break;
@@ -531,28 +527,37 @@ static int snd_wss_trigger(struct snd_pcm_substream *substream,
 
 static unsigned char snd_wss_get_rate(unsigned int rate)
 {
-	int i;
+  int i = 0;
 
-	for (i = 0; i < ARRAY_SIZE(rates); i++)
-		if (rate == rates[i])
-			return freq_bits[i];
-	// snd_BUG();
-	return freq_bits[ARRAY_SIZE(rates) - 1];
+  for (i = 0; i < ARRAY_SIZE(rates); i++)
+    if (rate == rates[i]) return freq_bits[i];
+  // snd_BUG();
+  return freq_bits[ARRAY_SIZE(rates) - 1];
 }
 
 static unsigned char snd_wss_get_format(struct snd_wss *chip,
 					int format,
 					int channels)
 {
-	unsigned char rformat;
+  unsigned char rformat = 0;
 
-	rformat = CS4231_LINEAR_8;
-	switch (format) {
-	case SNDRV_PCM_FORMAT_MU_LAW:	rformat = CS4231_ULAW_8; break;
-	case SNDRV_PCM_FORMAT_A_LAW:	rformat = CS4231_ALAW_8; break;
-	case SNDRV_PCM_FORMAT_S16_LE:	rformat = CS4231_LINEAR_16; break;
-	case SNDRV_PCM_FORMAT_S16_BE:	rformat = CS4231_LINEAR_16_BIG; break;
-	case SNDRV_PCM_FORMAT_IMA_ADPCM:	rformat = CS4231_ADPCM_16; break;
+  rformat = CS4231_LINEAR_8;
+  switch (format) {
+    case SNDRV_PCM_FORMAT_MU_LAW:
+      rformat = CS4231_ULAW_8;
+      break;
+    case SNDRV_PCM_FORMAT_A_LAW:
+      rformat = CS4231_ALAW_8;
+      break;
+    case SNDRV_PCM_FORMAT_S16_LE:
+      rformat = CS4231_LINEAR_16;
+      break;
+    case SNDRV_PCM_FORMAT_S16_BE:
+      rformat = CS4231_LINEAR_16_BIG;
+      break;
+    case SNDRV_PCM_FORMAT_IMA_ADPCM:
+      rformat = CS4231_ADPCM_16;
+      break;
 	}
 	if (channels > 1)
 		rformat |= CS4231_STEREO;
@@ -564,13 +569,13 @@ static unsigned char snd_wss_get_format(struct snd_wss *chip,
 
 static void snd_wss_calibrate_mute(struct snd_wss *chip, int mute)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mute = mute ? 0x80 : 0;
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	if (chip->calibrate_mute == mute) {
-		spin_unlock_irqrestore(&chip->reg_lock, flags);
-		return;
+  mute = mute ? 0x80 : 0;
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  if (chip->calibrate_mute == mute) {
+    spin_unlock_irqrestore(&chip->reg_lock, flags);
+    return;
 	}
 	if (!mute) {
 		snd_wss_dout(chip, CS4231_LEFT_INPUT,
@@ -626,25 +631,26 @@ static void snd_wss_playback_format(struct snd_wss *chip,
 				       struct snd_pcm_hw_params *params,
 				       unsigned char pdfr)
 {
-	unsigned long flags;
-	int full_calib = 1;
+  unsigned long flags = 0;
+  int full_calib = 1;
 
-	mutex_lock(&chip->mce_mutex);
-	if (chip->hardware == WSS_HW_CS4231A ||
-	    (chip->hardware & WSS_HW_CS4232_MASK)) {
-		spin_lock_irqsave(&chip->reg_lock, flags);
-		if ((chip->image[CS4231_PLAYBK_FORMAT] & 0x0f) == (pdfr & 0x0f)) {	/* rate is same? */
-			snd_wss_out(chip, CS4231_ALT_FEATURE_1,
-				    chip->image[CS4231_ALT_FEATURE_1] | 0x10);
-			chip->image[CS4231_PLAYBK_FORMAT] = pdfr;
-			snd_wss_out(chip, CS4231_PLAYBK_FORMAT,
-				    chip->image[CS4231_PLAYBK_FORMAT]);
-			snd_wss_out(chip, CS4231_ALT_FEATURE_1,
-				    chip->image[CS4231_ALT_FEATURE_1] &= ~0x10);
-			udelay(100); /* Fixes audible clicks at least on GUS MAX */
-			full_calib = 0;
-		}
-		spin_unlock_irqrestore(&chip->reg_lock, flags);
+  mutex_lock(&chip->mce_mutex);
+  if (chip->hardware == WSS_HW_CS4231A ||
+      (chip->hardware & WSS_HW_CS4232_MASK)) {
+    spin_lock_irqsave(&chip->reg_lock, flags);
+    if ((chip->image[CS4231_PLAYBK_FORMAT] & 0x0f) ==
+        (pdfr & 0x0f)) { /* rate is same? */
+      snd_wss_out(chip, CS4231_ALT_FEATURE_1,
+                  chip->image[CS4231_ALT_FEATURE_1] | 0x10);
+      chip->image[CS4231_PLAYBK_FORMAT] = pdfr;
+      snd_wss_out(chip, CS4231_PLAYBK_FORMAT,
+                  chip->image[CS4231_PLAYBK_FORMAT]);
+      snd_wss_out(chip, CS4231_ALT_FEATURE_1,
+                  chip->image[CS4231_ALT_FEATURE_1] &= ~0x10);
+      udelay(100); /* Fixes audible clicks at least on GUS MAX */
+      full_calib = 0;
+    }
+    spin_unlock_irqrestore(&chip->reg_lock, flags);
 	} else if (chip->hardware == WSS_HW_AD1845) {
 		unsigned rate = params_rate(params);
 
@@ -687,24 +693,25 @@ static void snd_wss_capture_format(struct snd_wss *chip,
 				   struct snd_pcm_hw_params *params,
 				   unsigned char cdfr)
 {
-	unsigned long flags;
-	int full_calib = 1;
+  unsigned long flags = 0;
+  int full_calib = 1;
 
-	mutex_lock(&chip->mce_mutex);
-	if (chip->hardware == WSS_HW_CS4231A ||
-	    (chip->hardware & WSS_HW_CS4232_MASK)) {
-		spin_lock_irqsave(&chip->reg_lock, flags);
-		if ((chip->image[CS4231_PLAYBK_FORMAT] & 0x0f) == (cdfr & 0x0f) ||	/* rate is same? */
-		    (chip->image[CS4231_IFACE_CTRL] & CS4231_PLAYBACK_ENABLE)) {
-			snd_wss_out(chip, CS4231_ALT_FEATURE_1,
-				chip->image[CS4231_ALT_FEATURE_1] | 0x20);
-			snd_wss_out(chip, CS4231_REC_FORMAT,
-				chip->image[CS4231_REC_FORMAT] = cdfr);
-			snd_wss_out(chip, CS4231_ALT_FEATURE_1,
-				chip->image[CS4231_ALT_FEATURE_1] &= ~0x20);
-			full_calib = 0;
-		}
-		spin_unlock_irqrestore(&chip->reg_lock, flags);
+  mutex_lock(&chip->mce_mutex);
+  if (chip->hardware == WSS_HW_CS4231A ||
+      (chip->hardware & WSS_HW_CS4232_MASK)) {
+    spin_lock_irqsave(&chip->reg_lock, flags);
+    if ((chip->image[CS4231_PLAYBK_FORMAT] & 0x0f) ==
+            (cdfr & 0x0f) || /* rate is same? */
+        (chip->image[CS4231_IFACE_CTRL] & CS4231_PLAYBACK_ENABLE)) {
+      snd_wss_out(chip, CS4231_ALT_FEATURE_1,
+                  chip->image[CS4231_ALT_FEATURE_1] | 0x20);
+      snd_wss_out(chip, CS4231_REC_FORMAT,
+                  chip->image[CS4231_REC_FORMAT] = cdfr);
+      snd_wss_out(chip, CS4231_ALT_FEATURE_1,
+                  chip->image[CS4231_ALT_FEATURE_1] &= ~0x20);
+      full_calib = 0;
+    }
+    spin_unlock_irqrestore(&chip->reg_lock, flags);
 	} else if (chip->hardware == WSS_HW_AD1845) {
 		unsigned rate = params_rate(params);
 
@@ -765,23 +772,20 @@ static unsigned long snd_wss_timer_resolution(struct snd_timer *timer)
 
 static int snd_wss_timer_start(struct snd_timer *timer)
 {
-	unsigned long flags;
-	unsigned int ticks;
-	struct snd_wss *chip = snd_timer_chip(timer);
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	ticks = timer->sticks;
-	if ((chip->image[CS4231_ALT_FEATURE_1] & CS4231_TIMER_ENABLE) == 0 ||
-	    (unsigned char)(ticks >> 8) != chip->image[CS4231_TIMER_HIGH] ||
-	    (unsigned char)ticks != chip->image[CS4231_TIMER_LOW]) {
-		chip->image[CS4231_TIMER_HIGH] = (unsigned char) (ticks >> 8);
-		snd_wss_out(chip, CS4231_TIMER_HIGH,
-			    chip->image[CS4231_TIMER_HIGH]);
-		chip->image[CS4231_TIMER_LOW] = (unsigned char) ticks;
-		snd_wss_out(chip, CS4231_TIMER_LOW,
-			    chip->image[CS4231_TIMER_LOW]);
-		snd_wss_out(chip, CS4231_ALT_FEATURE_1,
-			    chip->image[CS4231_ALT_FEATURE_1] |
-			    CS4231_TIMER_ENABLE);
+  unsigned long flags = 0;
+  unsigned int ticks = 0;
+  struct snd_wss *chip = snd_timer_chip(timer);
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  ticks = timer->sticks;
+  if ((chip->image[CS4231_ALT_FEATURE_1] & CS4231_TIMER_ENABLE) == 0 ||
+      (unsigned char)(ticks >> 8) != chip->image[CS4231_TIMER_HIGH] ||
+      (unsigned char)ticks != chip->image[CS4231_TIMER_LOW]) {
+    chip->image[CS4231_TIMER_HIGH] = (unsigned char)(ticks >> 8);
+    snd_wss_out(chip, CS4231_TIMER_HIGH, chip->image[CS4231_TIMER_HIGH]);
+    chip->image[CS4231_TIMER_LOW] = (unsigned char)ticks;
+    snd_wss_out(chip, CS4231_TIMER_LOW, chip->image[CS4231_TIMER_LOW]);
+    snd_wss_out(chip, CS4231_ALT_FEATURE_1,
+                chip->image[CS4231_ALT_FEATURE_1] | CS4231_TIMER_ENABLE);
 	}
 	spin_unlock_irqrestore(&chip->reg_lock, flags);
 	return 0;
@@ -789,22 +793,21 @@ static int snd_wss_timer_start(struct snd_timer *timer)
 
 static int snd_wss_timer_stop(struct snd_timer *timer)
 {
-	unsigned long flags;
-	struct snd_wss *chip = snd_timer_chip(timer);
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	chip->image[CS4231_ALT_FEATURE_1] &= ~CS4231_TIMER_ENABLE;
-	snd_wss_out(chip, CS4231_ALT_FEATURE_1,
-		    chip->image[CS4231_ALT_FEATURE_1]);
-	spin_unlock_irqrestore(&chip->reg_lock, flags);
-	return 0;
+  unsigned long flags = 0;
+  struct snd_wss *chip = snd_timer_chip(timer);
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  chip->image[CS4231_ALT_FEATURE_1] &= ~CS4231_TIMER_ENABLE;
+  snd_wss_out(chip, CS4231_ALT_FEATURE_1, chip->image[CS4231_ALT_FEATURE_1]);
+  spin_unlock_irqrestore(&chip->reg_lock, flags);
+  return 0;
 }
 
 static void snd_wss_init(struct snd_wss *chip)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	snd_wss_calibrate_mute(chip, 1);
-	snd_wss_mce_down(chip);
+  snd_wss_calibrate_mute(chip, 1);
+  snd_wss_mce_down(chip);
 
 #ifdef SNDRV_DEBUG_MCE
 	snd_printk(KERN_DEBUG "init: (1)\n");
@@ -871,13 +874,13 @@ static void snd_wss_init(struct snd_wss *chip)
 
 static int snd_wss_open(struct snd_wss *chip, unsigned int mode)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mutex_lock(&chip->open_mutex);
-	if ((chip->mode & mode) ||
-	    ((chip->mode & WSS_MODE_OPEN) && chip->single_dma)) {
-		mutex_unlock(&chip->open_mutex);
-		return -EAGAIN;
+  mutex_lock(&chip->open_mutex);
+  if ((chip->mode & mode) ||
+      ((chip->mode & WSS_MODE_OPEN) && chip->single_dma)) {
+    mutex_unlock(&chip->open_mutex);
+    return -EAGAIN;
 	}
 	if (chip->mode & WSS_MODE_OPEN) {
 		chip->mode |= mode;
@@ -913,13 +916,13 @@ static int snd_wss_open(struct snd_wss *chip, unsigned int mode)
 
 static void snd_wss_close(struct snd_wss *chip, unsigned int mode)
 {
-	unsigned long flags;
+  unsigned long flags = 0;
 
-	mutex_lock(&chip->open_mutex);
-	chip->mode &= ~mode;
-	if (chip->mode & WSS_MODE_OPEN) {
-		mutex_unlock(&chip->open_mutex);
-		return;
+  mutex_lock(&chip->open_mutex);
+  chip->mode &= ~mode;
+  if (chip->mode & WSS_MODE_OPEN) {
+    mutex_unlock(&chip->open_mutex);
+    return;
 	}
 	/* disable IRQ */
 	spin_lock_irqsave(&chip->reg_lock, flags);
@@ -995,10 +998,10 @@ static int snd_wss_playback_hw_params(struct snd_pcm_substream *substream,
 					 struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
-	unsigned char new_pdfr;
-	int err;
+        unsigned char new_pdfr = 0;
+        int err = 0;
 
-	if ((err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params))) < 0)
+        if ((err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params))) < 0)
 		return err;
 	new_pdfr = snd_wss_get_format(chip, params_format(hw_params),
 				params_channels(hw_params)) |
@@ -1016,8 +1019,8 @@ static int snd_wss_playback_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	unsigned long flags;
-	unsigned int size = snd_pcm_lib_buffer_bytes(substream);
+        unsigned long flags = 0;
+        unsigned int size = snd_pcm_lib_buffer_bytes(substream);
 	unsigned int count = snd_pcm_lib_period_bytes(substream);
 
 	spin_lock_irqsave(&chip->reg_lock, flags);
@@ -1038,10 +1041,10 @@ static int snd_wss_capture_hw_params(struct snd_pcm_substream *substream,
 					struct snd_pcm_hw_params *hw_params)
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
-	unsigned char new_cdfr;
-	int err;
+        unsigned char new_cdfr = 0;
+        int err = 0;
 
-	if ((err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params))) < 0)
+        if ((err = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(hw_params))) < 0)
 		return err;
 	new_cdfr = snd_wss_get_format(chip, params_format(hw_params),
 			   params_channels(hw_params)) |
@@ -1059,8 +1062,8 @@ static int snd_wss_capture_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	unsigned long flags;
-	unsigned int size = snd_pcm_lib_buffer_bytes(substream);
+        unsigned long flags = 0;
+        unsigned int size = snd_pcm_lib_buffer_bytes(substream);
 	unsigned int count = snd_pcm_lib_period_bytes(substream);
 
 	spin_lock_irqsave(&chip->reg_lock, flags);
@@ -1089,23 +1092,25 @@ static int snd_wss_capture_prepare(struct snd_pcm_substream *substream)
 
 void snd_wss_overrange(struct snd_wss *chip)
 {
-	unsigned long flags;
-	unsigned char res;
+  unsigned long flags = 0;
+  unsigned char res = 0;
 
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	res = snd_wss_in(chip, CS4231_TEST_INIT);
-	spin_unlock_irqrestore(&chip->reg_lock, flags);
-	if (res & (0x08 | 0x02))	/* detect overrange only above 0dB; may be user selectable? */
-		chip->capture_substream->runtime->overrange++;
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  res = snd_wss_in(chip, CS4231_TEST_INIT);
+  spin_unlock_irqrestore(&chip->reg_lock, flags);
+  if (res &
+      (0x08 |
+       0x02)) /* detect overrange only above 0dB; may be user selectable? */
+    chip->capture_substream->runtime->overrange++;
 }
 EXPORT_SYMBOL(snd_wss_overrange);
 
 irqreturn_t snd_wss_interrupt(int irq, void *dev_id)
 {
 	struct snd_wss *chip = dev_id;
-	unsigned char status;
+        unsigned char status = 0;
 
-	if (chip->hardware & WSS_HW_AD1848_MASK)
+        if (chip->hardware & WSS_HW_AD1848_MASK)
 		/* pretend it was the only possible irq for AD1848 */
 		status = CS4231_PLAYBACK_IRQ;
 	else
@@ -1179,17 +1184,16 @@ static snd_pcm_uframes_t snd_wss_capture_pointer(struct snd_pcm_substream *subst
 
 static int snd_ad1848_probe(struct snd_wss *chip)
 {
-	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
-	unsigned long flags;
-	unsigned char r;
-	unsigned short hardware = 0;
-	int err = 0;
-	int i;
+  unsigned long timeout = 0 = jiffies + msecs_to_jiffies(1000);
+  unsigned long flags = 0;
+  unsigned char r = 0;
+  unsigned short hardware = 0;
+  int err = 0;
+  int i = 0;
 
-	while (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT) {
-		if (time_after(jiffies, timeout))
-			return -ENODEV;
-		cond_resched();
+  while (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT) {
+    if (time_after(jiffies, timeout)) return -ENODEV;
+    cond_resched();
 	}
 	spin_lock_irqsave(&chip->reg_lock, flags);
 
@@ -1261,59 +1265,54 @@ out:
 
 static int snd_wss_probe(struct snd_wss *chip)
 {
-	unsigned long flags;
-	int i, id, rev, regnum;
-	unsigned char *ptr;
-	unsigned int hw;
+  unsigned long flags = 0;
+  int i = 0, id = 0, rev = 0, regnum = 0;
+  unsigned char *ptr = NULL;
+  unsigned int hw = 0;
 
-	id = snd_ad1848_probe(chip);
-	if (id < 0)
-		return id;
+  id = snd_ad1848_probe(chip);
+  if (id < 0) return id;
 
-	hw = chip->hardware;
-	if ((hw & WSS_HW_TYPE_MASK) == WSS_HW_DETECT) {
-		for (i = 0; i < 50; i++) {
-			mb();
-			if (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT)
-				msleep(2);
-			else {
-				spin_lock_irqsave(&chip->reg_lock, flags);
-				snd_wss_out(chip, CS4231_MISC_INFO,
-					    CS4231_MODE2);
-				id = snd_wss_in(chip, CS4231_MISC_INFO) & 0x0f;
-				spin_unlock_irqrestore(&chip->reg_lock, flags);
-				if (id == 0x0a)
-					break;	/* this is valid value */
-			}
-		}
-		snd_printdd("wss: port = 0x%lx, id = 0x%x\n", chip->port, id);
-		if (id != 0x0a)
-			return -ENODEV;	/* no valid device found */
+  hw = chip->hardware;
+  if ((hw & WSS_HW_TYPE_MASK) == WSS_HW_DETECT) {
+    for (i = 0; i < 50; i++) {
+      mb();
+      if (wss_inb(chip, CS4231P(REGSEL)) & CS4231_INIT)
+        msleep(2);
+      else {
+        spin_lock_irqsave(&chip->reg_lock, flags);
+        snd_wss_out(chip, CS4231_MISC_INFO, CS4231_MODE2);
+        id = snd_wss_in(chip, CS4231_MISC_INFO) & 0x0f;
+        spin_unlock_irqrestore(&chip->reg_lock, flags);
+        if (id == 0x0a) break; /* this is valid value */
+      }
+    }
+    snd_printdd("wss: port = 0x%lx, id = 0x%x\n", chip->port, id);
+    if (id != 0x0a) return -ENODEV; /* no valid device found */
 
-		rev = snd_wss_in(chip, CS4231_VERSION) & 0xe7;
-		snd_printdd("CS4231: VERSION (I25) = 0x%x\n", rev);
-		if (rev == 0x80) {
-			unsigned char tmp = snd_wss_in(chip, 23);
-			snd_wss_out(chip, 23, ~tmp);
-			if (snd_wss_in(chip, 23) != tmp)
-				chip->hardware = WSS_HW_AD1845;
-			else
-				chip->hardware = WSS_HW_CS4231;
-		} else if (rev == 0xa0) {
-			chip->hardware = WSS_HW_CS4231A;
-		} else if (rev == 0xa2) {
-			chip->hardware = WSS_HW_CS4232;
-		} else if (rev == 0xb2) {
-			chip->hardware = WSS_HW_CS4232A;
-		} else if (rev == 0x83) {
-			chip->hardware = WSS_HW_CS4236;
-		} else if (rev == 0x03) {
-			chip->hardware = WSS_HW_CS4236B;
-		} else {
-			snd_printk(KERN_ERR
-				   "unknown CS chip with version 0x%x\n", rev);
-			return -ENODEV;		/* unknown CS4231 chip? */
-		}
+    rev = snd_wss_in(chip, CS4231_VERSION) & 0xe7;
+    snd_printdd("CS4231: VERSION (I25) = 0x%x\n", rev);
+    if (rev == 0x80) {
+      unsigned char tmp = snd_wss_in(chip, 23);
+      snd_wss_out(chip, 23, ~tmp);
+      if (snd_wss_in(chip, 23) != tmp)
+        chip->hardware = WSS_HW_AD1845;
+      else
+        chip->hardware = WSS_HW_CS4231;
+    } else if (rev == 0xa0) {
+      chip->hardware = WSS_HW_CS4231A;
+    } else if (rev == 0xa2) {
+      chip->hardware = WSS_HW_CS4232;
+    } else if (rev == 0xb2) {
+      chip->hardware = WSS_HW_CS4232A;
+    } else if (rev == 0x83) {
+      chip->hardware = WSS_HW_CS4236;
+    } else if (rev == 0x03) {
+      chip->hardware = WSS_HW_CS4236B;
+    } else {
+      snd_printk(KERN_ERR "unknown CS chip with version 0x%x\n", rev);
+      return -ENODEV; /* unknown CS4231 chip? */
+    }
 	}
 	spin_lock_irqsave(&chip->reg_lock, flags);
 	wss_inb(chip, CS4231P(STATUS));	/* clear any pendings IRQ */
@@ -1501,9 +1500,9 @@ static int snd_wss_playback_open(struct snd_pcm_substream *substream)
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	int err;
+        int err = 0;
 
-	runtime->hw = snd_wss_playback;
+        runtime->hw = snd_wss_playback;
 
 	/* hardware limitation of older chipsets */
 	if (chip->hardware & WSS_HW_AD1848_MASK)
@@ -1544,9 +1543,9 @@ static int snd_wss_capture_open(struct snd_pcm_substream *substream)
 {
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
 	struct snd_pcm_runtime *runtime = substream->runtime;
-	int err;
+        int err = 0;
 
-	runtime->hw = snd_wss_capture;
+        runtime->hw = snd_wss_capture;
 
 	/* hardware limitation of older chipsets */
 	if (chip->hardware & WSS_HW_AD1848_MASK)
@@ -1601,22 +1600,20 @@ static int snd_wss_capture_close(struct snd_pcm_substream *substream)
 
 static void snd_wss_thinkpad_twiddle(struct snd_wss *chip, int on)
 {
-	int tmp;
+  int tmp = 0;
 
-	if (!chip->thinkpad_flag)
-		return;
+  if (!chip->thinkpad_flag) return;
 
-	outb(0x1c, AD1848_THINKPAD_CTL_PORT1);
-	tmp = inb(AD1848_THINKPAD_CTL_PORT2);
+  outb(0x1c, AD1848_THINKPAD_CTL_PORT1);
+  tmp = inb(AD1848_THINKPAD_CTL_PORT2);
 
-	if (on)
-		/* turn it on */
-		tmp |= AD1848_THINKPAD_CS4248_ENABLE_BIT;
-	else
-		/* turn it off */
-		tmp &= ~AD1848_THINKPAD_CS4248_ENABLE_BIT;
+  if (on) /* turn it on */
+    tmp |= AD1848_THINKPAD_CS4248_ENABLE_BIT;
+  else
+    /* turn it off */
+    tmp &= ~AD1848_THINKPAD_CS4248_ENABLE_BIT;
 
-	outb(tmp, AD1848_THINKPAD_CTL_PORT2);
+  outb(tmp, AD1848_THINKPAD_CTL_PORT2);
 }
 
 #ifdef CONFIG_PM
@@ -1766,31 +1763,30 @@ static int snd_wss_new(struct snd_card *card,
 			  unsigned short hwshare,
 			  struct snd_wss **rchip)
 {
-	struct snd_wss *chip;
+  struct snd_wss *chip = NULL;
 
-	*rchip = NULL;
-	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
-	if (chip == NULL)
-		return -ENOMEM;
-	chip->hardware = hardware;
-	chip->hwshare = hwshare;
+  *rchip = NULL;
+  chip = kzalloc(sizeof(*chip), GFP_KERNEL);
+  if (chip == NULL) return -ENOMEM;
+  chip->hardware = hardware;
+  chip->hwshare = hwshare;
 
-	spin_lock_init(&chip->reg_lock);
-	mutex_init(&chip->mce_mutex);
-	mutex_init(&chip->open_mutex);
-	chip->card = card;
-	chip->rate_constraint = snd_wss_xrate;
-	chip->set_playback_format = snd_wss_playback_format;
-	chip->set_capture_format = snd_wss_capture_format;
-	if (chip->hardware == WSS_HW_OPTI93X)
-		memcpy(&chip->image, &snd_opti93x_original_image,
-		       sizeof(snd_opti93x_original_image));
-	else
-		memcpy(&chip->image, &snd_wss_original_image,
-		       sizeof(snd_wss_original_image));
-	if (chip->hardware & WSS_HW_AD1848_MASK) {
-		chip->image[CS4231_PIN_CTRL] = 0;
-		chip->image[CS4231_TEST_INIT] = 0;
+  spin_lock_init(&chip->reg_lock);
+  mutex_init(&chip->mce_mutex);
+  mutex_init(&chip->open_mutex);
+  chip->card = card;
+  chip->rate_constraint = snd_wss_xrate;
+  chip->set_playback_format = snd_wss_playback_format;
+  chip->set_capture_format = snd_wss_capture_format;
+  if (chip->hardware == WSS_HW_OPTI93X)
+    memcpy(&chip->image, &snd_opti93x_original_image,
+           sizeof(snd_opti93x_original_image));
+  else
+    memcpy(&chip->image, &snd_wss_original_image,
+           sizeof(snd_wss_original_image));
+  if (chip->hardware & WSS_HW_AD1848_MASK) {
+    chip->image[CS4231_PIN_CTRL] = 0;
+    chip->image[CS4231_TEST_INIT] = 0;
 	}
 
 	*rchip = chip;
@@ -1808,10 +1804,10 @@ int snd_wss_create(struct snd_card *card,
 	static struct snd_device_ops ops = {
 		.dev_free =	snd_wss_dev_free,
 	};
-	struct snd_wss *chip;
-	int err;
+        struct snd_wss *chip = NULL;
+        int err = 0;
 
-	err = snd_wss_new(card, hardware, hwshare, &chip);
+        err = snd_wss_new(card, hardware, hwshare, &chip);
 	if (err < 0)
 		return err;
 
@@ -1925,31 +1921,29 @@ static struct snd_pcm_ops snd_wss_capture_ops = {
 
 int snd_wss_pcm(struct snd_wss *chip, int device)
 {
-	struct snd_pcm *pcm;
-	int err;
+  struct snd_pcm *pcm = NULL;
+  int err = 0;
 
-	err = snd_pcm_new(chip->card, "WSS", device, 1, 1, &pcm);
-	if (err < 0)
-		return err;
+  err = snd_pcm_new(chip->card, "WSS", device, 1, 1, &pcm);
+  if (err < 0) return err;
 
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_wss_playback_ops);
-	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_wss_capture_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_wss_playback_ops);
+  snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_wss_capture_ops);
 
-	/* global setup */
-	pcm->private_data = chip;
-	pcm->info_flags = 0;
-	if (chip->single_dma)
-		pcm->info_flags |= SNDRV_PCM_INFO_HALF_DUPLEX;
-	if (chip->hardware != WSS_HW_INTERWAVE)
-		pcm->info_flags |= SNDRV_PCM_INFO_JOINT_DUPLEX;
-	strcpy(pcm->name, snd_wss_chip_id(chip));
+  /* global setup */
+  pcm->private_data = chip;
+  pcm->info_flags = 0;
+  if (chip->single_dma) pcm->info_flags |= SNDRV_PCM_INFO_HALF_DUPLEX;
+  if (chip->hardware != WSS_HW_INTERWAVE)
+    pcm->info_flags |= SNDRV_PCM_INFO_JOINT_DUPLEX;
+  strcpy(pcm->name, snd_wss_chip_id(chip));
 
-	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
-					      snd_dma_isa_data(),
-					      64*1024, chip->dma1 > 3 || chip->dma2 > 3 ? 128*1024 : 64*1024);
+  snd_pcm_lib_preallocate_pages_for_all(
+      pcm, SNDRV_DMA_TYPE_DEV, snd_dma_isa_data(), 64 * 1024,
+      chip->dma1 > 3 || chip->dma2 > 3 ? 128 * 1024 : 64 * 1024);
 
-	chip->pcm = pcm;
-	return 0;
+  chip->pcm = pcm;
+  return 0;
 }
 EXPORT_SYMBOL(snd_wss_pcm);
 
@@ -1961,24 +1955,23 @@ static void snd_wss_timer_free(struct snd_timer *timer)
 
 int snd_wss_timer(struct snd_wss *chip, int device)
 {
-	struct snd_timer *timer;
-	struct snd_timer_id tid;
-	int err;
+  struct snd_timer *timer = NULL;
+  struct snd_timer_id tid;
+  int err = 0;
 
-	/* Timer initialization */
-	tid.dev_class = SNDRV_TIMER_CLASS_CARD;
-	tid.dev_sclass = SNDRV_TIMER_SCLASS_NONE;
-	tid.card = chip->card->number;
-	tid.device = device;
-	tid.subdevice = 0;
-	if ((err = snd_timer_new(chip->card, "CS4231", &tid, &timer)) < 0)
-		return err;
-	strcpy(timer->name, snd_wss_chip_id(chip));
-	timer->private_data = chip;
-	timer->private_free = snd_wss_timer_free;
-	timer->hw = snd_wss_timer_table;
-	chip->timer = timer;
-	return 0;
+  /* Timer initialization */
+  tid.dev_class = SNDRV_TIMER_CLASS_CARD;
+  tid.dev_sclass = SNDRV_TIMER_SCLASS_NONE;
+  tid.card = chip->card->number;
+  tid.device = device;
+  tid.subdevice = 0;
+  if ((err = snd_timer_new(chip->card, "CS4231", &tid, &timer)) < 0) return err;
+  strcpy(timer->name, snd_wss_chip_id(chip));
+  timer->private_data = chip;
+  timer->private_free = snd_wss_timer_free;
+  timer->hw = snd_wss_timer_table;
+  chip->timer = timer;
+  return 0;
 }
 EXPORT_SYMBOL(snd_wss_timer);
 
@@ -2021,9 +2014,9 @@ static int snd_wss_get_mux(struct snd_kcontrol *kcontrol,
 			   struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_wss *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
+        unsigned long flags = 0;
 
-	spin_lock_irqsave(&chip->reg_lock, flags);
+        spin_lock_irqsave(&chip->reg_lock, flags);
 	ucontrol->value.enumerated.item[0] = (chip->image[CS4231_LEFT_INPUT] & CS4231_MIXS_ALL) >> 6;
 	ucontrol->value.enumerated.item[1] = (chip->image[CS4231_RIGHT_INPUT] & CS4231_MIXS_ALL) >> 6;
 	spin_unlock_irqrestore(&chip->reg_lock, flags);
@@ -2034,11 +2027,11 @@ static int snd_wss_put_mux(struct snd_kcontrol *kcontrol,
 			   struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_wss *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	unsigned short left, right;
-	int change;
+        unsigned long flags = 0;
+        unsigned short left = 0, right = 0;
+        int change = 0;
 
-	if (ucontrol->value.enumerated.item[0] > 3 ||
+        if (ucontrol->value.enumerated.item[0] > 3 ||
 	    ucontrol->value.enumerated.item[1] > 3)
 		return -EINVAL;
 	left = ucontrol->value.enumerated.item[0] << 6;
@@ -2071,8 +2064,8 @@ int snd_wss_get_single(struct snd_kcontrol *kcontrol,
 		       struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_wss *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 8) & 0xff;
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 0xff;
@@ -2090,15 +2083,15 @@ int snd_wss_put_single(struct snd_kcontrol *kcontrol,
 		       struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_wss *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int reg = kcontrol->private_value & 0xff;
 	int shift = (kcontrol->private_value >> 8) & 0xff;
 	int mask = (kcontrol->private_value >> 16) & 0xff;
 	int invert = (kcontrol->private_value >> 24) & 0xff;
-	int change;
-	unsigned short val;
+        int change = 0;
+        unsigned short val = 0;
 
-	val = (ucontrol->value.integer.value[0] & mask);
+        val = (ucontrol->value.integer.value[0] & mask);
 	if (invert)
 		val = mask - val;
 	val <<= shift;
@@ -2128,8 +2121,8 @@ int snd_wss_get_double(struct snd_kcontrol *kcontrol,
 		       struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_wss *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int shift_left = (kcontrol->private_value >> 16) & 0x07;
 	int shift_right = (kcontrol->private_value >> 19) & 0x07;
@@ -2152,17 +2145,17 @@ int snd_wss_put_double(struct snd_kcontrol *kcontrol,
 		       struct snd_ctl_elem_value *ucontrol)
 {
 	struct snd_wss *chip = snd_kcontrol_chip(kcontrol);
-	unsigned long flags;
-	int left_reg = kcontrol->private_value & 0xff;
+        unsigned long flags = 0;
+        int left_reg = kcontrol->private_value & 0xff;
 	int right_reg = (kcontrol->private_value >> 8) & 0xff;
 	int shift_left = (kcontrol->private_value >> 16) & 0x07;
 	int shift_right = (kcontrol->private_value >> 19) & 0x07;
 	int mask = (kcontrol->private_value >> 24) & 0xff;
 	int invert = (kcontrol->private_value >> 22) & 1;
-	int change;
-	unsigned short val1, val2;
+        int change = 0;
+        unsigned short val1 = 0, val2 = 0;
 
-	val1 = ucontrol->value.integer.value[0] & mask;
+        val1 = ucontrol->value.integer.value[0] & mask;
 	val2 = ucontrol->value.integer.value[1] & mask;
 	if (invert) {
 		val1 = mask - val1;
@@ -2243,31 +2236,26 @@ WSS_SINGLE("Beep Bypass Playback Switch", 0,
 
 int snd_wss_mixer(struct snd_wss *chip)
 {
-	struct snd_card *card;
-	unsigned int idx;
-	int err;
-	int count = ARRAY_SIZE(snd_wss_controls);
+  struct snd_card *card = NULL;
+  unsigned int idx = 0;
+  int err = 0;
+  int count = ARRAY_SIZE(snd_wss_controls);
 
-	if (snd_BUG_ON(!chip || !chip->pcm))
-		return -EINVAL;
+  if (snd_BUG_ON(!chip || !chip->pcm)) return -EINVAL;
 
-	card = chip->card;
+  card = chip->card;
 
-	strcpy(card->mixername, chip->pcm->name);
+  strcpy(card->mixername, chip->pcm->name);
 
-	/* Use only the first 11 entries on AD1848 */
-	if (chip->hardware & WSS_HW_AD1848_MASK)
-		count = 11;
-	/* There is no loopback on OPTI93X */
-	else if (chip->hardware == WSS_HW_OPTI93X)
-		count = 9;
+  /* Use only the first 11 entries on AD1848 */
+  if (chip->hardware & WSS_HW_AD1848_MASK) count = 11;
+  /* There is no loopback on OPTI93X */
+  else if (chip->hardware == WSS_HW_OPTI93X)
+    count = 9;
 
-	for (idx = 0; idx < count; idx++) {
-		err = snd_ctl_add(card,
-				snd_ctl_new1(&snd_wss_controls[idx],
-					     chip));
-		if (err < 0)
-			return err;
+  for (idx = 0; idx < count; idx++) {
+    err = snd_ctl_add(card, snd_ctl_new1(&snd_wss_controls[idx], chip));
+    if (err < 0) return err;
 	}
 	return 0;
 }

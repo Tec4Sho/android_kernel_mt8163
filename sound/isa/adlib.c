@@ -49,14 +49,14 @@ static void snd_adlib_free(struct snd_card *card)
 
 static int snd_adlib_probe(struct device *dev, unsigned int n)
 {
-	struct snd_card *card;
-	struct snd_opl3 *opl3;
-	int error;
+  struct snd_card *card = NULL;
+  struct snd_opl3 *opl3 = NULL;
+  int error = 0;
 
-	error = snd_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
-	if (error < 0) {
-		dev_err(dev, "could not create card\n");
-		return error;
+  error = snd_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);
+  if (error < 0) {
+    dev_err(dev, "could not create card\n");
+    return error;
 	}
 
 	card->private_data = request_region(port[n], 4, CRD_NAME);

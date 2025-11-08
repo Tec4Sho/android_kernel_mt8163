@@ -37,13 +37,13 @@ MODULE_AUTHOR("Jaroslav Kysela <perex@perex.cz>");
 MODULE_DESCRIPTION("ALSA lowlevel driver for Sound Blaster cards");
 MODULE_LICENSE("GPL");
 
-#define BUSY_LOOPS 100000
+enum { BUSY_LOOPS = 100000 };
 
 #undef IO_DEBUG
 
 int snd_sbdsp_command(struct snd_sb *chip, unsigned char val)
 {
-	int i;
+  int i = 0;
 #ifdef IO_DEBUG
 	snd_printk(KERN_DEBUG "command 0x%x\n", val);
 #endif
@@ -58,11 +58,11 @@ int snd_sbdsp_command(struct snd_sb *chip, unsigned char val)
 
 int snd_sbdsp_get_byte(struct snd_sb *chip)
 {
-	int val;
-	int i;
-	for (i = BUSY_LOOPS; i; i--) {
-		if (inb(SBP(chip, DATA_AVAIL)) & 0x80) {
-			val = inb(SBP(chip, READ));
+  int val = 0;
+  int i = 0;
+  for (i = BUSY_LOOPS; i; i--) {
+    if (inb(SBP(chip, DATA_AVAIL)) & 0x80) {
+      val = inb(SBP(chip, READ));
 #ifdef IO_DEBUG
 			snd_printk(KERN_DEBUG "get_byte 0x%x\n", val);
 #endif
@@ -75,48 +75,48 @@ int snd_sbdsp_get_byte(struct snd_sb *chip)
 
 int snd_sbdsp_reset(struct snd_sb *chip)
 {
-	int i;
+  int i = 0;
 
-	outb(1, SBP(chip, RESET));
-	udelay(10);
-	outb(0, SBP(chip, RESET));
-	udelay(30);
-	for (i = BUSY_LOOPS; i; i--)
-		if (inb(SBP(chip, DATA_AVAIL)) & 0x80) {
-			if (inb(SBP(chip, READ)) == 0xaa)
-				return 0;
-			else
-				break;
-		}
+  outb(1, SBP(chip, RESET));
+  udelay(10);
+  outb(0, SBP(chip, RESET));
+  udelay(30);
+  for (i = BUSY_LOOPS; i; i--)
+    if (inb(SBP(chip, DATA_AVAIL)) & 0x80) {
+      if (inb(SBP(chip, READ)) == 0xaa)
+        return 0;
+      else
+        break;
+    }
 	snd_printdd("%s [0x%lx] failed...\n", __func__, chip->port);
 	return -ENODEV;
 }
 
 static int snd_sbdsp_version(struct snd_sb * chip)
 {
-	unsigned int result = -ENODEV;
+  unsigned int result = 0 = -ENODEV;
 
-	snd_sbdsp_command(chip, SB_DSP_GET_VERSION);
-	result = (short) snd_sbdsp_get_byte(chip) << 8;
-	result |= (short) snd_sbdsp_get_byte(chip);
-	return result;
+  snd_sbdsp_command(chip, SB_DSP_GET_VERSION);
+  result = (short)snd_sbdsp_get_byte(chip) << 8;
+  result |= (short)snd_sbdsp_get_byte(chip);
+  return result;
 }
 
 static int snd_sbdsp_probe(struct snd_sb * chip)
 {
-	int version;
-	int major, minor;
-	char *str;
-	unsigned long flags;
+  int version = 0;
+  int major = 0, minor = 0;
+  char *str = NULL;
+  unsigned long flags = 0;
 
-	/*
-	 *  initialization sequence
-	 */
+  /*
+   *  initialization sequence
+   */
 
-	spin_lock_irqsave(&chip->reg_lock, flags);
-	if (snd_sbdsp_reset(chip) < 0) {
-		spin_unlock_irqrestore(&chip->reg_lock, flags);
-		return -ENODEV;
+  spin_lock_irqsave(&chip->reg_lock, flags);
+  if (snd_sbdsp_reset(chip) < 0) {
+    spin_unlock_irqrestore(&chip->reg_lock, flags);
+    return -ENODEV;
 	}
 	version = snd_sbdsp_version(chip);
 	if (version < 0) {
@@ -216,35 +216,33 @@ int snd_sbdsp_create(struct snd_card *card,
 		     unsigned short hardware,
 		     struct snd_sb **r_chip)
 {
-	struct snd_sb *chip;
-	int err;
-	static struct snd_device_ops ops = {
-		.dev_free =	snd_sbdsp_dev_free,
-	};
+  struct snd_sb *chip = NULL;
+  int err = 0;
+  static struct snd_device_ops ops = {
+      .dev_free = snd_sbdsp_dev_free,
+  };
 
-	if (snd_BUG_ON(!r_chip))
-		return -EINVAL;
-	*r_chip = NULL;
-	chip = kzalloc(sizeof(*chip), GFP_KERNEL);
-	if (chip == NULL)
-		return -ENOMEM;
-	spin_lock_init(&chip->reg_lock);
-	spin_lock_init(&chip->open_lock);
-	spin_lock_init(&chip->midi_input_lock);
-	spin_lock_init(&chip->mixer_lock);
-	chip->irq = -1;
-	chip->dma8 = -1;
-	chip->dma16 = -1;
-	chip->port = port;
-	
-	if (request_irq(irq, irq_handler,
-			(hardware == SB_HW_ALS4000 ||
-			 hardware == SB_HW_CS5530) ?
-			IRQF_SHARED : 0,
-			"SoundBlaster", (void *) chip)) {
-		snd_printk(KERN_ERR "sb: can't grab irq %d\n", irq);
-		snd_sbdsp_free(chip);
-		return -EBUSY;
+  if (snd_BUG_ON(!r_chip)) return -EINVAL;
+  *r_chip = NULL;
+  chip = kzalloc(sizeof(*chip), GFP_KERNEL);
+  if (chip == NULL) return -ENOMEM;
+  spin_lock_init(&chip->reg_lock);
+  spin_lock_init(&chip->open_lock);
+  spin_lock_init(&chip->midi_input_lock);
+  spin_lock_init(&chip->mixer_lock);
+  chip->irq = -1;
+  chip->dma8 = -1;
+  chip->dma16 = -1;
+  chip->port = port;
+
+  if (request_irq(irq, irq_handler,
+                  (hardware == SB_HW_ALS4000 || hardware == SB_HW_CS5530)
+                      ? IRQF_SHARED
+                      : 0,
+                  "SoundBlaster", (void *)chip)) {
+    snd_printk(KERN_ERR "sb: can't grab irq %d\n", irq);
+    snd_sbdsp_free(chip);
+    return -EBUSY;
 	}
 	chip->irq = irq;
 
