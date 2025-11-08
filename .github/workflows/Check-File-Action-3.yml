@@ -17,6 +17,11 @@ on:
         type: boolean
         required: false
         default: 'false'
+      number:
+        description: 'FILE COUNT'
+        type: number
+        required: false
+        default: 0
       DEVICE_TREE:
         description: 'DEVICE TREE'
         required: true
@@ -84,6 +89,7 @@ jobs:
           filename: ${{ inputs.checkfile }}
           filetext: ${{ inputs.checktext }}
           #filetype: .c .h
+          database: true
           dirname: workspace
           content: false
           include: false
@@ -93,6 +99,5 @@ jobs:
           report: true
           update: true
           stored: true
-          locate: true
-          number: 25
+          number: ${{ inputs.number }}
         continue-on-error: false
