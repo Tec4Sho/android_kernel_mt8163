@@ -96,7 +96,7 @@ static void
 release_voice(struct snd_emux_voice *vp)
 {
   int dcysusv = 0;
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   hw = vp->hw;
   dcysusv = 0x8000 | (unsigned char)vp->reg.parm.modrelease;
@@ -111,7 +111,7 @@ release_voice(struct snd_emux_voice *vp)
 static void
 terminate_voice(struct snd_emux_voice *vp)
 {
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   hw = vp->hw;
   EMU8000_DCYSUSV_WRITE(hw, vp->ch, 0x807F);
@@ -123,7 +123,7 @@ terminate_voice(struct snd_emux_voice *vp)
 static void
 update_voice(struct snd_emux_voice *vp, int update)
 {
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   hw = vp->hw;
   if (update & SNDRV_EMUX_UPDATE_VOLUME) set_volume(hw, vp);
@@ -150,8 +150,8 @@ static struct snd_emux_voice *
 get_voice(struct snd_emux *emu, struct snd_emux_port *port)
 {
   int i = 0;
-  struct snd_emux_voice *vp = NULL;
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emux_voice *vp = NULL = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   /* what we are looking for, in order of preference */
   enum { OFF = 0, RELEASED, PLAYING, END };
@@ -161,7 +161,7 @@ get_voice(struct snd_emux *emu, struct snd_emux_port *port)
     unsigned int time;
     int voice;
 	} best[END];
-        struct best *bp = NULL;
+        struct best *bp = NULL = NULL;
 
         hw = emu->hw;
 
@@ -226,8 +226,8 @@ start_voice(struct snd_emux_voice *vp)
   unsigned int temp = 0;
   int ch = 0;
   int addr = 0;
-  struct snd_midi_channel *chan = NULL;
-  struct snd_emu8000 *hw = NULL;
+  struct snd_midi_channel *chan = NULL = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   hw = vp->hw;
   ch = vp->ch;
@@ -305,7 +305,7 @@ trigger_voice(struct snd_emux_voice *vp)
 {
 	int ch = vp->ch;
         unsigned int temp = 0;
-        struct snd_emu8000 *hw = NULL;
+        struct snd_emu8000 *hw = NULL = NULL;
 
         hw = vp->hw;
 
@@ -325,7 +325,7 @@ trigger_voice(struct snd_emux_voice *vp)
 static void
 reset_voice(struct snd_emux *emu, int ch)
 {
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   hw = emu->hw;
   EMU8000_DCYSUSV_WRITE(hw, ch, 0x807F);
@@ -449,7 +449,7 @@ snd_emu8000_tweak_voice(struct snd_emu8000 *emu, int i)
 static void
 sysex(struct snd_emux *emu, char *buf, int len, int parsed, struct snd_midi_channel_set *chset)
 {
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
 
   hw = emu->hw;
 
@@ -520,7 +520,7 @@ enum {
 static int
 load_fx(struct snd_emux *emu, int type, int mode, const void __user *buf, long len)
 {
-  struct snd_emu8000 *hw = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
   hw = emu->hw;
 
   /* skip header */

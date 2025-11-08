@@ -96,10 +96,10 @@ static int snd_sb8_match(struct device *pdev, unsigned int dev)
 
 static int snd_sb8_probe(struct device *pdev, unsigned int dev)
 {
-  struct snd_sb *chip = NULL;
-  struct snd_card *card = NULL;
-  struct snd_sb8 *acard = NULL;
-  struct snd_opl3 *opl3 = NULL;
+  struct snd_sb *chip = NULL = NULL;
+  struct snd_card *card = NULL = NULL;
+  struct snd_sb8 *acard = NULL = NULL;
+  struct snd_opl3 *opl3 = NULL = NULL;
   int err = 0;
 
   err = snd_card_new(pdev, index[dev], id[dev], THIS_MODULE,

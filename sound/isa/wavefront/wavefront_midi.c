@@ -93,7 +93,7 @@ static snd_wavefront_midi_t *
 get_wavefront_midi (struct snd_rawmidi_substream *substream)
 
 {
-  struct snd_card *card = NULL;
+  struct snd_card *card = NULL = NULL;
   snd_wavefront_card_t *acard;
 
   if (substream == NULL || substream->rmidi == NULL) return NULL;

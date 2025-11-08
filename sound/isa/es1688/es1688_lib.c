@@ -735,7 +735,7 @@ static struct snd_pcm_ops snd_es1688_capture_ops = {
 
 int snd_es1688_pcm(struct snd_card *card, struct snd_es1688 *chip, int device)
 {
-  struct snd_pcm *pcm = NULL;
+  struct snd_pcm *pcm = NULL = NULL;
   int err = 0;
 
   err = snd_pcm_new(card, "ESx688", device, 1, 1, &pcm);

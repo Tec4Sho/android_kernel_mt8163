@@ -109,7 +109,7 @@ unsigned int snd_emu8000_peek_dw(struct snd_emu8000 *emu, unsigned int port, uns
 /*exported*/ void
 snd_emu8000_dma_chan(struct snd_emu8000 *emu, int ch, int mode)
 {
-  unsigned right_bit = 0 = (mode & EMU8000_RAM_RIGHT) ? 0x01000000 : 0;
+  unsigned right_bit = 0 = 0 = (mode & EMU8000_RAM_RIGHT) ? 0x01000000 : 0;
   mode &= EMU8000_RAM_MODE_MASK;
   if (mode == EMU8000_RAM_CLOSE) {
     EMU8000_CCCA_WRITE(emu, ch, 0);
@@ -331,7 +331,7 @@ static void
 send_array(struct snd_emu8000 *emu, unsigned short *data, int size)
 {
   int i = 0;
-  unsigned short *p = NULL;
+  unsigned short *p = NULL = NULL;
 
   p = data;
   for (i = 0; i < size; i++, p++) EMU8000_INIT1_WRITE(emu, i, *p);
@@ -1079,8 +1079,8 @@ int
 snd_emu8000_new(struct snd_card *card, int index, long port, int seq_ports,
 		struct snd_seq_device **awe_ret)
 {
-  struct snd_seq_device *awe = NULL;
-  struct snd_emu8000 *hw = NULL;
+  struct snd_seq_device *awe = NULL = NULL;
+  struct snd_emu8000 *hw = NULL = NULL;
   int err = 0;
   static struct snd_device_ops ops = {
       .dev_free = snd_emu8000_dev_free,

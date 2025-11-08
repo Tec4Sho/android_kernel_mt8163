@@ -34,7 +34,7 @@
 
 irqreturn_t snd_sb8dsp_midi_interrupt(struct snd_sb *chip)
 {
-  struct snd_rawmidi *rmidi = NULL;
+  struct snd_rawmidi *rmidi = NULL = NULL;
   int max = 64;
   char byte = 0;
 
@@ -62,7 +62,7 @@ irqreturn_t snd_sb8dsp_midi_interrupt(struct snd_sb *chip)
 static int snd_sb8dsp_midi_input_open(struct snd_rawmidi_substream *substream)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
   unsigned int valid_open_flags = 0;
 
   chip = substream->rmidi->private_data;
@@ -90,7 +90,7 @@ static int snd_sb8dsp_midi_input_open(struct snd_rawmidi_substream *substream)
 static int snd_sb8dsp_midi_output_open(struct snd_rawmidi_substream *substream)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
   unsigned int valid_open_flags = 0;
 
   chip = substream->rmidi->private_data;
@@ -118,7 +118,7 @@ static int snd_sb8dsp_midi_output_open(struct snd_rawmidi_substream *substream)
 static int snd_sb8dsp_midi_input_close(struct snd_rawmidi_substream *substream)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
 
   chip = substream->rmidi->private_data;
   spin_lock_irqsave(&chip->open_lock, flags);
@@ -136,7 +136,7 @@ static int snd_sb8dsp_midi_input_close(struct snd_rawmidi_substream *substream)
 static int snd_sb8dsp_midi_output_close(struct snd_rawmidi_substream *substream)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
 
   chip = substream->rmidi->private_data;
   spin_lock_irqsave(&chip->open_lock, flags);
@@ -154,7 +154,7 @@ static int snd_sb8dsp_midi_output_close(struct snd_rawmidi_substream *substream)
 static void snd_sb8dsp_midi_input_trigger(struct snd_rawmidi_substream *substream, int up)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
 
   chip = substream->rmidi->private_data;
   spin_lock_irqsave(&chip->open_lock, flags);
@@ -177,7 +177,7 @@ static void snd_sb8dsp_midi_input_trigger(struct snd_rawmidi_substream *substrea
 static void snd_sb8dsp_midi_output_write(struct snd_rawmidi_substream *substream)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
   char byte = 0;
   int max = 32;
 
@@ -224,7 +224,7 @@ static void snd_sb8dsp_midi_output_timer(unsigned long data)
 static void snd_sb8dsp_midi_output_trigger(struct snd_rawmidi_substream *substream, int up)
 {
   unsigned long flags = 0;
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
 
   chip = substream->rmidi->private_data;
   spin_lock_irqsave(&chip->open_lock, flags);
@@ -262,7 +262,7 @@ static struct snd_rawmidi_ops snd_sb8dsp_midi_input =
 
 int snd_sb8dsp_midi(struct snd_sb *chip, int device)
 {
-  struct snd_rawmidi *rmidi = NULL;
+  struct snd_rawmidi *rmidi = NULL = NULL;
   int err = 0;
 
   if ((err = snd_rawmidi_new(chip->card, "SB8 MIDI", device, 1, 1, &rmidi)) < 0)

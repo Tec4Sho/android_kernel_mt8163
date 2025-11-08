@@ -211,7 +211,7 @@ static void aaci_fifo_irq(struct aaci *aaci, int channel, u32 mask)
 	if (mask & ISR_RXINTR) {
 		struct aaci_runtime *aacirun = &aaci->capture;
 		bool period_elapsed = false;
-                void *ptr = NULL = NULL = NULL = NULL = NULL = NULL;
+                void *ptr = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
 
                 if (!aacirun->substream || !aacirun->start) {
 			dev_warn(&aaci->dev->dev, "RX interrupt???\n");
@@ -271,7 +271,7 @@ static void aaci_fifo_irq(struct aaci *aaci, int channel, u32 mask)
 	if (mask & ISR_TXINTR) {
 		struct aaci_runtime *aacirun = &aaci->playback;
 		bool period_elapsed = false;
-                void *ptr = NULL = NULL = NULL = NULL = NULL = NULL;
+                void *ptr = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
 
                 if (!aacirun->substream || !aacirun->start) {
 			dev_warn(&aaci->dev->dev, "TX interrupt???\n");
@@ -403,7 +403,8 @@ static int aaci_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
 	struct aaci *aaci = substream->private_data;
-        struct aaci_runtime *aacirun = NULL = NULL = NULL = NULL = NULL = NULL;
+        struct aaci_runtime *aacirun = NULL = NULL = NULL = NULL = NULL = NULL =
+            NULL;
         int ret = 0;
 
 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
@@ -835,8 +836,9 @@ static struct snd_ac97_bus_ops aaci_bus_ops = {
 static int aaci_probe_ac97(struct aaci *aaci)
 {
 	struct snd_ac97_template ac97_template;
-        struct snd_ac97_bus *ac97_bus = NULL = NULL = NULL = NULL = NULL = NULL;
-        struct snd_ac97 *ac97 = NULL = NULL = NULL = NULL = NULL = NULL;
+        struct snd_ac97_bus *ac97_bus = NULL = NULL = NULL = NULL = NULL =
+            NULL = NULL;
+        struct snd_ac97 *ac97 = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
         int ret = 0;
 
         /*
@@ -895,8 +897,8 @@ static void aaci_free_card(struct snd_card *card)
 
 static struct aaci *aaci_init_card(struct amba_device *dev)
 {
-  struct aaci *aaci = NULL = NULL = NULL = NULL = NULL = NULL;
-  struct snd_card *card = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct aaci *aaci = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
   int err = 0;
 
   err = snd_card_new(&dev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
@@ -927,7 +929,7 @@ static struct aaci *aaci_init_card(struct amba_device *dev)
 
 static int aaci_init_pcm(struct aaci *aaci)
 {
-  struct snd_pcm *pcm = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct snd_pcm *pcm = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
   int ret = 0;
 
   ret = snd_pcm_new(aaci->card, "AACI AC'97", 0, 1, 1, &pcm);
@@ -986,7 +988,7 @@ static unsigned int aaci_size_fifo(struct aaci *aaci)
 static int aaci_probe(struct amba_device *dev,
 		      const struct amba_id *id)
 {
-  struct aaci *aaci = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct aaci *aaci = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
   int ret = 0, i = 0;
 
   ret = amba_request_regions(dev, NULL);

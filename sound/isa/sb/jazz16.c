@@ -222,10 +222,10 @@ static int snd_jazz16_match(struct device *devptr, unsigned int dev)
 
 static int snd_jazz16_probe(struct device *devptr, unsigned int dev)
 {
-  struct snd_card *card = NULL;
-  struct snd_card_jazz16 *jazz16 = NULL;
-  struct snd_sb *chip = NULL;
-  struct snd_opl3 *opl3 = NULL;
+  struct snd_card *card = NULL = NULL;
+  struct snd_card_jazz16 *jazz16 = NULL = NULL;
+  struct snd_sb *chip = NULL = NULL;
+  struct snd_opl3 *opl3 = NULL = NULL;
   static int possible_irqs[] = {2, 3, 5, 7, 9, 10, 15, -1};
   static int possible_dmas8[] = {1, 3, -1};
   static int possible_dmas16[] = {5, 7, -1};

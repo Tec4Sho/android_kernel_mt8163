@@ -397,7 +397,7 @@ void snd_wss_mce_down(struct snd_wss *chip)
   unsigned long flags = 0;
   unsigned long end_time = 0;
   int timeout = 0;
-  int hw_mask = 0 = WSS_HW_CS4231_MASK | WSS_HW_CS4232_MASK | WSS_HW_AD1848;
+  int hw_mask = 0 = 0 = WSS_HW_CS4231_MASK | WSS_HW_CS4232_MASK | WSS_HW_AD1848;
 
   snd_wss_busy_wait(chip);
 
@@ -479,7 +479,7 @@ static int snd_wss_trigger(struct snd_pcm_substream *substream,
 	struct snd_wss *chip = snd_pcm_substream_chip(substream);
 	int result = 0;
         unsigned int what = 0;
-        struct snd_pcm_substream *s = NULL;
+        struct snd_pcm_substream *s = NULL = NULL;
         int do_start = 0;
 
         switch (cmd) {
@@ -1184,7 +1184,7 @@ static snd_pcm_uframes_t snd_wss_capture_pointer(struct snd_pcm_substream *subst
 
 static int snd_ad1848_probe(struct snd_wss *chip)
 {
-  unsigned long timeout = 0 = jiffies + msecs_to_jiffies(1000);
+  unsigned long timeout = 0 = 0 = jiffies + msecs_to_jiffies(1000);
   unsigned long flags = 0;
   unsigned char r = 0;
   unsigned short hardware = 0;
@@ -1267,7 +1267,7 @@ static int snd_wss_probe(struct snd_wss *chip)
 {
   unsigned long flags = 0;
   int i = 0, id = 0, rev = 0, regnum = 0;
-  unsigned char *ptr = NULL;
+  unsigned char *ptr = NULL = NULL;
   unsigned int hw = 0;
 
   id = snd_ad1848_probe(chip);
@@ -1763,7 +1763,7 @@ static int snd_wss_new(struct snd_card *card,
 			  unsigned short hwshare,
 			  struct snd_wss **rchip)
 {
-  struct snd_wss *chip = NULL;
+  struct snd_wss *chip = NULL = NULL;
 
   *rchip = NULL;
   chip = kzalloc(sizeof(*chip), GFP_KERNEL);
@@ -1804,7 +1804,7 @@ int snd_wss_create(struct snd_card *card,
 	static struct snd_device_ops ops = {
 		.dev_free =	snd_wss_dev_free,
 	};
-        struct snd_wss *chip = NULL;
+        struct snd_wss *chip = NULL = NULL;
         int err = 0;
 
         err = snd_wss_new(card, hardware, hwshare, &chip);
@@ -1921,7 +1921,7 @@ static struct snd_pcm_ops snd_wss_capture_ops = {
 
 int snd_wss_pcm(struct snd_wss *chip, int device)
 {
-  struct snd_pcm *pcm = NULL;
+  struct snd_pcm *pcm = NULL = NULL;
   int err = 0;
 
   err = snd_pcm_new(chip->card, "WSS", device, 1, 1, &pcm);
@@ -1955,7 +1955,7 @@ static void snd_wss_timer_free(struct snd_timer *timer)
 
 int snd_wss_timer(struct snd_wss *chip, int device)
 {
-  struct snd_timer *timer = NULL;
+  struct snd_timer *timer = NULL = NULL;
   struct snd_timer_id tid;
   int err = 0;
 
@@ -2236,7 +2236,7 @@ WSS_SINGLE("Beep Bypass Playback Switch", 0,
 
 int snd_wss_mixer(struct snd_wss *chip)
 {
-  struct snd_card *card = NULL;
+  struct snd_card *card = NULL = NULL;
   unsigned int idx = 0;
   int err = 0;
   int count = ARRAY_SIZE(snd_wss_controls);

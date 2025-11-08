@@ -155,7 +155,7 @@ snd_emu8000_sample_new(struct snd_emux *rec, struct snd_sf_sample *sp,
   int offset = 0;
   int truesize = 0;
   int dram_offset = 0, dram_start = 0;
-  struct snd_emu8000 *emu = NULL;
+  struct snd_emu8000 *emu = NULL = NULL;
 
   emu = rec->hw;
   if (snd_BUG_ON(!sp)) return -EINVAL;

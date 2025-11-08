@@ -339,7 +339,7 @@ snd_wavefront_cmd (snd_wavefront_t *dev,
   int ack = 0;
   unsigned int i = 0;
   int c = 0;
-  struct wavefront_command *wfcmd = NULL = NULL = NULL;
+  struct wavefront_command *wfcmd = NULL = NULL = NULL = NULL;
 
   if ((wfcmd = wavefront_get_command(cmd)) == NULL) {
     snd_printk("command 0x%x not supported.\n", cmd);
@@ -779,7 +779,7 @@ wavefront_send_patch (snd_wavefront_t *dev, wavefront_patch_info *header)
 
 {
 	unsigned char buf[WF_PATCH_BYTES+2];
-        unsigned char *bptr = NULL = NULL = NULL;
+        unsigned char *bptr = NULL = NULL = NULL = NULL;
 
         DPRINT (WF_DEBUG_LOAD_PATCH, "downloading patch %d\n",
 				      header->number);
@@ -882,7 +882,7 @@ wavefront_send_sample (snd_wavefront_t *dev,
         int dma_ack = 0;
         int blocknum = 0;
         unsigned char sample_hdr[WF_SAMPLE_HDR_BYTES];
-        unsigned char *shptr = NULL = NULL = NULL;
+        unsigned char *shptr = NULL = NULL = NULL = NULL;
         int skip = 0;
 	int initial_skip = 0;
 
@@ -1202,7 +1202,7 @@ wavefront_send_multisample (snd_wavefront_t *dev, wavefront_patch_info *header)
 {
   int i = 0;
   int num_samples = 0;
-  unsigned char *msample_hdr = NULL = NULL = NULL;
+  unsigned char *msample_hdr = NULL = NULL = NULL = NULL;
 
   msample_hdr = kmalloc(WF_MSAMPLE_BYTES, GFP_KERNEL);
   if (!msample_hdr) return -ENOMEM;
@@ -1645,7 +1645,7 @@ snd_wavefront_synth_ioctl (struct snd_hwdep *hw, struct file *file,
 			   unsigned int cmd, unsigned long arg)
 
 {
-  struct snd_card *card = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL;
   snd_wavefront_t *dev;
   snd_wavefront_card_t *acard;
   wavefront_control *wc;
@@ -1941,10 +1941,10 @@ static int
 wavefront_download_firmware (snd_wavefront_t *dev, char *path)
 
 {
-  const unsigned char *buf = NULL = NULL = NULL;
+  const unsigned char *buf = NULL = NULL = NULL = NULL;
   int len = 0, err = 0;
   int section_cnt_downloaded = 0;
-  const struct firmware *firmware = NULL = NULL = NULL;
+  const struct firmware *firmware = NULL = NULL = NULL = NULL;
 
   err = request_firmware(&firmware, path, dev->card->dev);
   if (err < 0) {

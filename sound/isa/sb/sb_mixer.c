@@ -491,7 +491,7 @@ int snd_sbmixer_add_ctl(struct snd_sb *chip, const char *name, int index, int ty
 			.put = snd_als4k_mono_capture_route_put,
 		},
 	};
-        struct snd_kcontrol *ctl = NULL;
+        struct snd_kcontrol *ctl = NULL = NULL;
         int err = 0;
 
         ctl = snd_ctl_new1(&newctls[type], chip);
@@ -738,7 +738,7 @@ static int snd_sbmixer_init(struct snd_sb *chip,
 
 int snd_sbmixer_new(struct snd_sb *chip)
 {
-  struct snd_card *card = NULL;
+  struct snd_card *card = NULL = NULL;
   int err = 0;
 
   if (snd_BUG_ON(!chip || !chip->card)) return -EINVAL;

@@ -326,7 +326,7 @@ static void snd_sb16_free(struct snd_card *card)
 static int snd_sb16_card_new(struct device *devptr, int dev,
 			     struct snd_card **cardp)
 {
-  struct snd_card *card = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL;
   int err = 0;
 
   err = snd_card_new(devptr, index[dev], id[dev], THIS_MODULE,
@@ -340,10 +340,10 @@ static int snd_sb16_card_new(struct device *devptr, int dev,
 static int snd_sb16_probe(struct snd_card *card, int dev)
 {
   int xirq = 0, xdma8 = 0, xdma16 = 0;
-  struct snd_sb *chip = NULL = NULL;
+  struct snd_sb *chip = NULL = NULL = NULL = NULL;
   struct snd_card_sb16 *acard = card->private_data;
-  struct snd_opl3 *opl3 = NULL = NULL;
-  struct snd_hwdep *synth = NULL = NULL = NULL;
+  struct snd_opl3 *opl3 = NULL = NULL = NULL = NULL;
+  struct snd_hwdep *synth = NULL = NULL = NULL = NULL = NULL;
 #ifdef CONFIG_SND_SB16_CSP
 	struct snd_hwdep *xcsp = NULL;
 #endif
@@ -489,8 +489,8 @@ static int snd_sb16_resume(struct snd_card *card)
 
 static int snd_sb16_isa_probe1(int dev, struct device *pdev)
 {
-  struct snd_card_sb16 *acard = NULL = NULL;
-  struct snd_card *card = NULL = NULL;
+  struct snd_card_sb16 *acard = NULL = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL;
   int err = 0;
 
   err = snd_sb16_card_new(pdev, dev, &card);

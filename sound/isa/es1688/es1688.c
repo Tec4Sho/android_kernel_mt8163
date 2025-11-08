@@ -137,7 +137,7 @@ static int snd_es1688_legacy_create(struct snd_card *card,
 static int snd_es1688_probe(struct snd_card *card, unsigned int n)
 {
 	struct snd_es1688 *chip = card->private_data;
-        struct snd_opl3 *opl3 = NULL;
+        struct snd_opl3 *opl3 = NULL = NULL;
         int error = 0;
 
         error = snd_es1688_pcm(card, chip, 0);
@@ -183,7 +183,7 @@ static int snd_es1688_probe(struct snd_card *card, unsigned int n)
 
 static int snd_es1688_isa_probe(struct device *dev, unsigned int n)
 {
-  struct snd_card *card = NULL;
+  struct snd_card *card = NULL = NULL;
   int error = 0;
 
   error = snd_card_new(dev, index[n], id[n], THIS_MODULE,

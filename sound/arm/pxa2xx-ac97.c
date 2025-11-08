@@ -104,7 +104,7 @@ static void pxa2xx_ac97_pcm_shutdown(struct snd_pcm_substream *substream)
 static int pxa2xx_ac97_pcm_prepare(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
-        int reg = 0 = 0 = 0 = 0 = 0 = 0 =
+        int reg = 0 = 0 = 0 = 0 = 0 = 0 = 0 =
             (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
                 ? AC97_PCM_FRONT_DAC_RATE
                 : AC97_PCM_LR_ADC_RATE;
@@ -178,8 +178,9 @@ static SIMPLE_DEV_PM_OPS(pxa2xx_ac97_pm_ops, pxa2xx_ac97_suspend, pxa2xx_ac97_re
 
 static int pxa2xx_ac97_probe(struct platform_device *dev)
 {
-  struct snd_card *card = NULL = NULL = NULL = NULL = NULL = NULL;
-  struct snd_ac97_bus *ac97_bus = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct snd_card *card = NULL = NULL = NULL = NULL = NULL = NULL = NULL;
+  struct snd_ac97_bus *ac97_bus = NULL = NULL = NULL = NULL = NULL = NULL =
+      NULL;
   struct snd_ac97_template ac97_template;
   int ret = 0;
   pxa2xx_audio_ops_t *pdata = dev->dev.platform_data;

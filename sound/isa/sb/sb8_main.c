@@ -76,11 +76,11 @@ static struct snd_ratnum stereo_clocks[] = {
 static int snd_sb8_hw_constraint_rate_channels(struct snd_pcm_hw_params *params,
 					       struct snd_pcm_hw_rule *rule)
 {
-  struct snd_interval *c = NULL =
+  struct snd_interval *c = NULL = NULL =
       hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS);
   if (c->min > 1) {
     unsigned int num = 0, den = 0;
-    int err = 0 =
+    int err = 0 = 0 =
         snd_interval_ratnum(hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE),
                             2, stereo_clocks, &num, &den);
     if (err >= 0 && den) {
@@ -95,7 +95,7 @@ static int snd_sb8_hw_constraint_rate_channels(struct snd_pcm_hw_params *params,
 static int snd_sb8_hw_constraint_channels_rate(struct snd_pcm_hw_params *params,
 					       struct snd_pcm_hw_rule *rule)
 {
-  struct snd_interval *r = NULL =
+  struct snd_interval *r = NULL = NULL =
       hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE);
   if (r->min > SB8_RATE(22050) || r->max <= SB8_RATE(11025)) {
     struct snd_interval t = {.min = 1, .max = 1};
@@ -383,8 +383,8 @@ static int snd_sb8_capture_trigger(struct snd_pcm_substream *substream,
 
 irqreturn_t snd_sb8dsp_interrupt(struct snd_sb *chip)
 {
-  struct snd_pcm_substream *substream = NULL;
-  struct snd_pcm_runtime *runtime = NULL;
+  struct snd_pcm_substream *substream = NULL = NULL;
+  struct snd_pcm_runtime *runtime = NULL = NULL;
 
   snd_sb_ack_8bit(chip);
   switch (chip->mode) {
@@ -598,7 +598,7 @@ static struct snd_pcm_ops snd_sb8_capture_ops = {
 int snd_sb8dsp_pcm(struct snd_sb *chip, int device)
 {
 	struct snd_card *card = chip->card;
-        struct snd_pcm *pcm = NULL;
+        struct snd_pcm *pcm = NULL = NULL;
         int err = 0;
         size_t max_prealloc = 64 * 1024;
 

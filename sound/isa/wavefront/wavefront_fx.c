@@ -168,12 +168,12 @@ snd_wavefront_fx_ioctl (struct snd_hwdep *sdev, struct file *file,
 			unsigned int cmd, unsigned long arg)
 
 {
-  struct snd_card *card = NULL;
+  struct snd_card *card = NULL = NULL;
   snd_wavefront_card_t *acard;
   snd_wavefront_t *dev;
   wavefront_fx_info r;
-  unsigned short *page_data = NULL = NULL;
-  unsigned short *pd = NULL;
+  unsigned short *page_data = NULL = NULL = NULL;
+  unsigned short *pd = NULL = NULL;
   int err = 0;
 
   card = sdev->card;
@@ -243,7 +243,7 @@ snd_wavefront_fx_start (snd_wavefront_t *dev)
 {
   unsigned int i = 0;
   int err = 0;
-  const struct firmware *firmware = NULL = NULL;
+  const struct firmware *firmware = NULL = NULL = NULL;
 
   if (dev->fx_initialized) return 0;
 

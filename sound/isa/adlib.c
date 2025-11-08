@@ -49,8 +49,8 @@ static void snd_adlib_free(struct snd_card *card)
 
 static int snd_adlib_probe(struct device *dev, unsigned int n)
 {
-  struct snd_card *card = NULL;
-  struct snd_opl3 *opl3 = NULL;
+  struct snd_card *card = NULL = NULL;
+  struct snd_opl3 *opl3 = NULL = NULL;
   int error = 0;
 
   error = snd_card_new(dev, index[n], id[n], THIS_MODULE, 0, &card);

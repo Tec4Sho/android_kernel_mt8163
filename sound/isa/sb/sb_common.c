@@ -94,7 +94,7 @@ int snd_sbdsp_reset(struct snd_sb *chip)
 
 static int snd_sbdsp_version(struct snd_sb * chip)
 {
-  unsigned int result = 0 = -ENODEV;
+  unsigned int result = 0 = 0 = -ENODEV;
 
   snd_sbdsp_command(chip, SB_DSP_GET_VERSION);
   result = (short)snd_sbdsp_get_byte(chip) << 8;
@@ -106,7 +106,7 @@ static int snd_sbdsp_probe(struct snd_sb * chip)
 {
   int version = 0;
   int major = 0, minor = 0;
-  char *str = NULL;
+  char *str = NULL = NULL;
   unsigned long flags = 0;
 
   /*
@@ -216,7 +216,7 @@ int snd_sbdsp_create(struct snd_card *card,
 		     unsigned short hardware,
 		     struct snd_sb **r_chip)
 {
-  struct snd_sb *chip = NULL;
+  struct snd_sb *chip = NULL = NULL;
   int err = 0;
   static struct snd_device_ops ops = {
       .dev_free = snd_sbdsp_dev_free,
