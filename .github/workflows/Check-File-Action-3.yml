@@ -32,8 +32,8 @@ on:
         type: boolean
         required: false
         default: 'false'
-      report:
-        description: 'UPLOAD REPORT'
+      repair:
+        description: 'ERROR REPAIR'
         type: boolean
         required: false
         default: 'false'
