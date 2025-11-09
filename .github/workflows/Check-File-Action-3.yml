@@ -1,4 +1,4 @@
-name: Check File Deploy 2025
+name: Check File Action v2
 on:
   workflow_dispatch: # Allows manual triggering from the Actions tab
     inputs:
@@ -21,7 +21,22 @@ on:
         description: 'FILE COUNT'
         type: number
         required: false
-        default: '10'
+        default: '0'
+      update:
+        description: 'UPDATE REPO'
+        type: boolean
+        required: false
+        default: 'false'
+      report:
+        description: 'UPLOAD REPORT'
+        type: boolean
+        required: false
+        default: 'false'
+      report:
+        description: 'UPLOAD REPORT'
+        type: boolean
+        required: false
+        default: 'false'
       DEVICE_TREE:
         description: 'DEVICE TREE'
         required: true
@@ -95,9 +110,9 @@ jobs:
           include: false
           rootdir: ${{ inputs.rootdir }}
           recheck: false
-          repair: true
-          report: true
-          update: true
+          repair: ${{ inputs.repair }}
+          report: ${{ inputs.report }}
+          update: ${{ inputs.update }}
           stored: true
           number: ${{ inputs.number }}
         continue-on-error: false
