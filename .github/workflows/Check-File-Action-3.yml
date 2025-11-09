@@ -21,7 +21,7 @@ on:
         description: 'FILE COUNT'
         type: number
         required: false
-        default: 0
+        default: '10'
       DEVICE_TREE:
         description: 'DEVICE TREE'
         required: true
