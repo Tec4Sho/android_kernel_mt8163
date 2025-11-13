@@ -98,7 +98,7 @@ jobs:
           du . -h -d 6
           
       - name: Check File
-        if: inputs.checkfile != '' || inputs.checktext != ''
+        if: inputs.filename != '' || inputs.pattern != ''
         uses: Tec4Sho/check-file-action@v2
         with:
           filename: ${{ inputs.filename }}
