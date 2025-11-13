@@ -2,12 +2,12 @@ name: Check File Action v2
 on:
   workflow_dispatch: # Allows manual triggering from the Actions tab
     inputs:
-      checkfile:
+      filename:
         description: 'CHECK FILE'
         type: string
         required: false
         default: ''
-      checktext:
+      pattern:
         description: 'CHECK TEXT'
         type: string
         required: false
@@ -21,7 +21,7 @@ on:
         description: 'FILE COUNT'
         type: number
         required: false
-        default: '0'
+        default: 0
       update:
         description: 'UPDATE REPO'
         type: boolean
@@ -101,10 +101,10 @@ jobs:
         if: inputs.checkfile != '' || inputs.checktext != ''
         uses: Tec4Sho/check-file-action@v2
         with:
-          filename: ${{ inputs.checkfile }}
-          filetext: ${{ inputs.checktext }}
+          filename: ${{ inputs.filename }}
           #filetype: .c .h
           database: true
+          pattern: ${{ inputs.pattern }}
           dirname: workspace
           content: false
           include: false
