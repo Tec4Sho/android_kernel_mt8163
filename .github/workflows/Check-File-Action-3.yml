@@ -102,7 +102,7 @@ jobs:
         uses: Tec4Sho/check-file-action@v2
         with:
           filename: ${{ inputs.filename }}
-          filetype: \.c$
+          filetype: .c .h
           database: true
           pattern: ${{ inputs.pattern }}
           dirname: workspace
