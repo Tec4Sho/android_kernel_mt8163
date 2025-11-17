@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10) # Or a newer version
 # ... other project settings ... #
-project(${{ github.repository }} VERSION 1.0 LANGUAGES CXX)
+project(MyProject VERSION 1.0 LANGUAGES CXX)
 
 #add_executable(MyExecutable main.cpp my_source.cpp)
 
