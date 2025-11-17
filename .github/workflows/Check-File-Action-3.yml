@@ -105,6 +105,7 @@ jobs:
           #filetype: .c
           database: true
           pattern: ${{ inputs.pattern }}
+          project: true
           dirname: workspace
           content: false
           include: false
