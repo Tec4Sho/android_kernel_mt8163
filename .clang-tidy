@@ -1,4 +1,4 @@
---
+---
 Checks:                'clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,-modernize-use-trailing-return-type,hicpp'
 WarningsAsErrors:      'hicpp'
 HeaderFileExtensions:         ['', 'h','hh','hpp','hxx']
@@ -38,5 +38,4 @@ CheckOptions:
     value:           llvm
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
---
-
+...
