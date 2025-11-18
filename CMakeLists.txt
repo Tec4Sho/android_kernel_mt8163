@@ -11,21 +11,21 @@ set(CMAKE_CXX_STANDARD 17) # Sets the C++ standard to C++17
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # Ensures the specified C++ standard is strictly enforced
 
-set(CMAKE_CXX_EXTENSIONS OFF) # Disables compiler-specific extensions for C++
+set(CMAKE_CXX_EXTENSIONS ON) # Disables compiler-specific extensions for C++
 
-add_executable(MyProject main.cpp) # Creates an executable target named "MyProject" from main.cpp
+add_executable(MyProject ./init/main.c) # Creates an executable target named "MyProject" from main.cpp
 
-#add_executable(MyExecutable main.cpp my_source.cpp)
+# add_executable(MyExecutable main.cpp my_source.cpp)
 
-#target_link_libraries(MyExecutable PRIVATE MyLibrary)
+# target_link_libraries(MyExecutable PRIVATE MyLibrary)
 
-#add_library(MyLibrary STATIC my_library_source.cpp)
+# add_library(MyLibrary STATIC my_library_source.cpp)
 
-#install(TARGETS MyExecutable DESTINATION bin)
+# install(TARGETS MyExecutable DESTINATION bin)
 
-#install(TARGETS MyLibrary DESTINATION lib)
+# install(TARGETS MyLibrary DESTINATION lib)
 
-#install(FILES my_library.h DESTINATION include)
+# install(FILES my_library.h DESTINATION include)
 
 find_program(CLANG_TIDY_EXE "clang-tidy")
   if(CLANG_TIDY_EXE)
