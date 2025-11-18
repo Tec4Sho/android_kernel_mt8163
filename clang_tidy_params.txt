@@ -1,0 +1,5 @@
+-checks=clang-diagnostic,clang-analyzer,cppcoreguidelines,modernize,modernize-use-nullptr,readability-identifier-naming
+-header-filter=.*
+-fix
+-fix-errors
+-- ## don't remove or add options beyond this line.
