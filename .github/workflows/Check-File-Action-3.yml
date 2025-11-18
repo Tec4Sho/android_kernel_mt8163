@@ -89,7 +89,7 @@ jobs:
           repository: ${{ github.repository }}
           path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
           ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
-          clean: false
+          clean: true
           
       - name: Check Workspace
         run: |
@@ -97,4 +97,23 @@ jobs:
           echo
           du . -h -d 6
           
-      
+      - name: Check File
+        uses: Tec4Sho/check-file-action@v2
+        with:
+          filename: ${{ inputs.filename }}
+          filetype: .c
+          database: true
+          pattern: ${{ inputs.pattern }}
+          project: true
+          dirname: workspace
+          content: false
+          include: false
+          rootdir: ${{ inputs.rootdir }}
+          recheck: false
+          repair: ${{ inputs.repair }}
+          report: ${{ inputs.report }}
+          update: ${{ inputs.update }}
+          stored: true
+          number: ${{ inputs.number }}
+        continue-on-error: false
+
