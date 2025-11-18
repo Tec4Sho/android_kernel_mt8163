@@ -11,9 +11,9 @@ set(CMAKE_CXX_STANDARD 17) # Sets the C++ standard to C++17
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # Ensures the specified C++ standard is strictly enforced
 
-set(CMAKE_CXX_EXTENSIONS ON) # Disables compiler-specific extensions for C++
+set(CMAKE_CXX_EXTENSIONS OFF) # Disables compiler-specific extensions for C++
 
-add_executable(MyProject ./init/main.c) # Creates an executable target named "MyProject" from main.cpp
+add_executable(MyExecutable init/main.c) # Creates an executable target named "MyProject" from main.cpp
 
 # add_executable(MyExecutable main.cpp my_source.cpp)
 
