@@ -1,2 +1,0 @@
-/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/CMakeFiles/edit_cache.dir
-/home/runner/work/android_kernel_mt8163/android_kernel_mt8163/workspace/kernel/alps/tb8163p3_bsp/CMakeFiles/rebuild_cache.dir
