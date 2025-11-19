@@ -17,17 +17,17 @@ set(CMAKE_CXX_EXTENSIONS ON) # Disables compiler-specific extensions for C++
 
 add_executable(MyProject init/main.c) # Creates an executable target named "MyProject" from main.cpp
 
-#add_executable(MyExecutable main.cpp my_source.cpp)
+#. add_executable(MyExecutable main.cpp my_source.cpp)
 
-#target_link_libraries(MyExecutable PRIVATE MyLibrary)
+#. target_link_libraries(MyExecutable PRIVATE MyLibrary)
 
-#add_library(MyLibrary STATIC my_library_source.cpp)
+#. add_library(MyLibrary STATIC my_library_source.cpp)
 
-#install(TARGETS MyExecutable DESTINATION bin)
+#. install(TARGETS MyExecutable DESTINATION bin)
 
-#install(TARGETS MyLibrary DESTINATION lib)
+#. install(TARGETS MyLibrary DESTINATION lib)
 
-#install(FILES my_library.h DESTINATION include)
+#. install(FILES my_library.h DESTINATION include)
 
 find_program(CLANG_TIDY_EXE "clang-tidy")
   if(CLANG_TIDY_EXE)
@@ -35,7 +35,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     # Configure clang-tidy to run with all checks and fix errors
     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*; -header-filter=.; -fix")
     # You can also specify specific checks instead of -checks=*
-    # set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
+    #. set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming; -fix")
   else()
     message(WARNING "clang-tidy not found! Static analysis will be skipped.")
   endif()
