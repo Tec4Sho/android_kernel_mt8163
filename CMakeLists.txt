@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.10) # Specifies the minimum required CMake vers
 # ... other project settings ... #
 project(MyProject VERSION 1.0 LANGUAGES CXX)
 
-set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE CXX)
-
 set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -41,3 +39,6 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
   else()
     message(WARNING "clang-tidy not found! Static analysis will be skipped.")
   endif()
+
+set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE CXX)
+
