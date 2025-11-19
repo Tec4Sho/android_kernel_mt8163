@@ -21,7 +21,18 @@ set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly
 
 set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
 
-file(GLOB SOURCES "*.c")
+find_program(CLANG_TIDY_EXE "clang-tidy")
+  if(CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    # Configure clang-tidy to run with all checks and fix errors
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*; -header-filter=.; -fix")
+    # You can also specify specific checks instead of -checks=*
+    # set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
+  else()
+    message(WARNING "clang-tidy not found! Static analysis will be skipped.")
+  endif()
+
+file(GLOB_RECURSE SOURCES "main.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
@@ -38,17 +49,6 @@ add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyPro
 # .install(TARGETS MyLibrary DESTINATION lib)
 
 # .install(FILES my_library.h DESTINATION include)
-
-find_program(CLANG_TIDY_EXE "clang-tidy")
-  if(CLANG_TIDY_EXE)
-    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-    # Configure clang-tidy to run with all checks and fix errors
-    set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*; -header-filter=.; -fix")
-    # You can also specify specific checks instead of -checks=*
-    # set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
-  else()
-    message(WARNING "clang-tidy not found! Static analysis will be skipped.")
-  endif()
 
 # .set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE CXX)
 
