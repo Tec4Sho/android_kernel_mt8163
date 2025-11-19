@@ -9,25 +9,35 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_BUILD_TYPE Release)
 
-set(CMAKE_CXX_STANDARD 17) # Sets the C++ standard to C++17
+set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
 
-set(CMAKE_CXX_STANDARD_REQUIRED ON) # Ensures the specified C++ standard is strictly enforced
+# .set(CMAKE_CXX_STANDARD 17) # Sets the C++ standard to C++17
 
-set(CMAKE_CXX_EXTENSIONS ON) # Disables compiler-specific extensions for C++
+# .set(CMAKE_CXX_STANDARD_REQUIRED ON) # Ensures the specified C++ standard is strictly enforced
 
-add_executable(MyProject init/main.c) # Creates an executable target named "MyProject" from main.cpp
+# .set(CMAKE_CXX_EXTENSIONS ON) # Enables compiler-specific extensions for C++
 
-#. add_executable(MyExecutable main.cpp my_source.cpp)
+set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-#. target_link_libraries(MyExecutable PRIVATE MyLibrary)
+set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
 
-#. add_library(MyLibrary STATIC my_library_source.cpp)
+file(GLOB SOURCES "*.c")
 
-#. install(TARGETS MyExecutable DESTINATION bin)
+add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-#. install(TARGETS MyLibrary DESTINATION lib)
+# .add_executable(MyProject main.cpp) 
 
-#. install(FILES my_library.h DESTINATION include)
+# .add_executable(MyExecutable main.cpp my_source.cpp)
+
+# .target_link_libraries(MyExecutable PRIVATE MyLibrary)
+
+# .add_library(MyLibrary STATIC my_library_source.cpp)
+
+# .install(TARGETS MyExecutable DESTINATION bin)
+
+# .install(TARGETS MyLibrary DESTINATION lib)
+
+# .install(FILES my_library.h DESTINATION include)
 
 find_program(CLANG_TIDY_EXE "clang-tidy")
   if(CLANG_TIDY_EXE)
@@ -35,10 +45,15 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     # Configure clang-tidy to run with all checks and fix errors
     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*; -header-filter=.; -fix")
     # You can also specify specific checks instead of -checks=*
-    #. set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming; -fix")
+    # set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
   else()
     message(WARNING "clang-tidy not found! Static analysis will be skipped.")
   endif()
 
-set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE CXX)
+# .set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE CXX)
 
+# .set_target_properties(MyProject PROPERTIES CXX_STANDARD 17) 
+
+set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE C)
+
+set_target_properties(MyProject PROPERTIES C_STANDARD 90) 
