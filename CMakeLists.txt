@@ -5,7 +5,9 @@ project(MyProject VERSION 1.0 LANGUAGES CXX)
 
 set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# .set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # does not produce the json file on wrong cmake version 
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
 
 set(CMAKE_BUILD_TYPE Release)
 
