@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10) # Specifies the minimum required CMake version
 
 # ... other project settings ... #
-project(MyProject VERSION 1.0 LANGUAGES CXX)
+project(MyProject VERSION 1.0 LANGUAGES C)
 
 set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
 
@@ -18,6 +18,8 @@ set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
 # .set(CMAKE_CXX_STANDARD_REQUIRED ON) # Ensures the specified C++ standard is strictly enforced
 
 # .set(CMAKE_CXX_EXTENSIONS ON) # Enables compiler-specific extensions for C++
+
+set(CMAKE_C_STANDARD 17) # Sets the C standard to C++17
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
