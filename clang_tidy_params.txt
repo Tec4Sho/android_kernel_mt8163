@@ -1,6 +1,8 @@
--checks=clang-diagnostic,clang-analyzer,cppcoreguidelines,modernize,modernize-use-nullptr,readability-identifier-naming
+-p llvm-project
+-checks=clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines,modernize-*,modernize-use-nullptr,readability-identifier-naming
 -header-filter=.*
--fix
 -fix-errors
+-fix
+
 --
 
