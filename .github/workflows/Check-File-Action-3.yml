@@ -101,7 +101,7 @@ jobs:
         uses: Tec4Sho/check-file-action@v2
         with:
           filename: ${{ inputs.filename }}
-          filetype: .c
+          filetype: c
           database: true
           pattern: ${{ inputs.pattern }}
           project: true
