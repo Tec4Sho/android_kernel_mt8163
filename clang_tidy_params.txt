@@ -2,6 +2,7 @@
 -checks=clang-diagnostic-*,clang-analyzer-*,modernize-*,readability-identifier-naming-*
 -header-filter=.*
 -fix-errors
+-quiet
 -fix
 
 --
