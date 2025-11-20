@@ -19,11 +19,15 @@ set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
 
 # .set(CMAKE_CXX_EXTENSIONS ON) # Enables compiler-specific extensions for C++
 
+# .set(CMAKE_CXX_COMPILER clang++) # Sets the C++ compiler
+
 set(CMAKE_C_STANDARD 17) # Sets the C standard to C++17
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
 set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
+
+set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 find_program(CLANG_TIDY_EXE "clang-tidy")
   if(CLANG_TIDY_EXE)
