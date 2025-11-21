@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10) # Specifies the minimum required CMake vers
 # ... other project settings ... #
 project(MyProject VERSION 1.0 LANGUAGES C)
 
-message(STATUS "GitHub Workspace: $ENV{GITHUB_WORKSPACE}")
+# .message(STATUS "GitHub Workspace Project: $ENV{GITHUB_WORKSPACE}")
 
 set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
 
@@ -46,7 +46,7 @@ file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "$ENV{GITHUB_WORKSPACE}/*")
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
 include_directories(${INCLUDES})
 
