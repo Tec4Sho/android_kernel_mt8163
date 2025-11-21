@@ -46,9 +46,9 @@ file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-include_directories(${INCLUDES})
+# .include_directories(${INCLUDES})
 
 # .add_executable(MyProject main.cpp) 
 
