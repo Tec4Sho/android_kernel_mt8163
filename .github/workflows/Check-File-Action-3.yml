@@ -90,6 +90,8 @@ jobs:
           path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
           ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
           clean: true
+          fetch-depth: 1
+          show-progress: false
           
       - name: Check Workspace
         run: |
