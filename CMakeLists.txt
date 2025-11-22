@@ -46,6 +46,10 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(WARNING "clang-tidy not found! Static analysis will be skipped.")
   endif()
 
+# .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
+
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
+
 file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
