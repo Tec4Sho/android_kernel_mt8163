@@ -48,17 +48,17 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
 
 # .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
+
+target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-include_directories(${INCLUDES})
+# .include_directories(${INCLUDES})
 
 # .add_executable(MyProject main.cpp) 
 
@@ -88,17 +88,17 @@ set_target_properties(MyProject PROPERTIES C_STANDARD 90)
 
 # .add_subdirectory(src)
 
-find_package(PkgConfig REQUIRED)
+# .find_package(PkgConfig REQUIRED)
 
 # .pkg_search_module(LIBCONFIG++ REQUIRED libconfig++)
 
-pkg_search_module(LIBCONFIG REQUIRED libconfig)
+# .pkg_search_module(LIBCONFIG REQUIRED libconfig)
 
 # .target_include_directories(MyProject PUBLIC ${LIBCONFIG++_INCLUDE_DIRS})
 
-target_include_directories(MyProject PUBLIC ${LIBCONFIG_INCLUDE_DIRS})
+# .target_include_directories(MyProject PUBLIC ${LIBCONFIG_INCLUDE_DIRS})
 
-target_link_libraries(MyProject PUBLIC ${LIBCONFIG_LINK_LIBRARES})
+# .target_link_libraries(MyProject PUBLIC ${LIBCONFIG_LINK_LIBRARES})
 
 execute_process(
     COMMAND ${CMAKE_COMMAND} -E create_symlink
