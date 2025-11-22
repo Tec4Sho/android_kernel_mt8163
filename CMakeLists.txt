@@ -1,11 +1,15 @@
-cmake_minimum_required(VERSION 3.10) # Specifies the minimum required CMake version
+cmake_minimum_required(VERSION 3.19) # Specifies the minimum required CMake version
 
 # ... other project settings ... #
 project(MyProject VERSION 1.0 LANGUAGES C)
 
-# .message(STATUS "GitHub Workspace Project: $ENV{GITHUB_WORKSPACE}")
+message(STATUS "GitHub Workspace: $ENV{GITHUB_WORKSPACE}")
 
 set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
+
+# .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic")
 
 # .set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # does not produce the json file on wrong cmake version 
 
@@ -46,9 +50,11 @@ file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-# .include_directories(${INCLUDES})
+target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+include_directories(${INCLUDES})
 
 # .add_executable(MyProject main.cpp) 
 
@@ -71,3 +77,27 @@ add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyPro
 set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE C)
 
 set_target_properties(MyProject PROPERTIES C_STANDARD 90) 
+
+# .enable_language(CUDA)
+
+# .set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
+
+# .add_subdirectory(src)
+
+find_package(PkgConfig REQUIRED)
+
+# .pkg_search_module(LIBCONFIG++ REQUIRED libconfig++)
+
+pkg_search_module(LIBCONFIG REQUIRED libconfig)
+
+# .target_include_directories(MyProject PUBLIC ${LIBCONFIG++_INCLUDE_DIRS})
+
+target_include_directories(MyProject PUBLIC ${LIBCONFIG_INCLUDE_DIRS})
+
+target_link_libraries(MyProject PUBLIC ${LIBCONFIG_LINK_LIBRARES})
+
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -E create_symlink
+        ${CMAKE_BINARY_DIR}/compile_commands.json
+        ${CMAKE_SOURCE_DIR}/compile_commands.json
+)
