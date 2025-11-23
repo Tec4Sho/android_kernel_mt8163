@@ -5,4 +5,5 @@
 --fix
 --fix-errors
 --quiet
---extra-arg=-std=c90 -I
+--extra-arg=-std=c90
+--extra-arg-before=-I
