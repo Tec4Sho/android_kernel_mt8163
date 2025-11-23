@@ -1,4 +1,5 @@
-## NOTE: When editing always leave '--extra-arg=' as last line and '-I' as final argument.
+##### NOTE: https://clang.llvm.org/extra/clang-tidy/ 
+##### Check above for proper information editing rules.
 # -p build/
 --checks=-*,clang-diagnostic-*,clang-analyzer-*,modernize*,clang-analyzer-cplusplus*
 --header-filter=.*
@@ -6,4 +7,3 @@
 --fix-errors
 --quiet
 --extra-arg=-std=c90
---extra-arg-before=-I
