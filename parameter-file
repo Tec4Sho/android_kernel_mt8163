@@ -6,4 +6,3 @@
 --fix
 --fix-errors
 --quiet
---extra-arg=-std=c90
