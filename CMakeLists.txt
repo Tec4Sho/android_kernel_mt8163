@@ -58,9 +58,11 @@ file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(MyProject PUBLIC ${INCLUDES})
+
+# .target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # .include_directories(${INCLUDES})
 
