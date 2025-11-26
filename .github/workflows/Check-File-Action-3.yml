@@ -109,7 +109,7 @@ jobs:
           project: true
           dirname: workspace
           content: false
-          include: false
+          include: true
           rootdir: ${{ inputs.rootdir }}
           recheck: false
           repair: ${{ inputs.repair }}
