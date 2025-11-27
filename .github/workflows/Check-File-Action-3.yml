@@ -21,7 +21,7 @@ on:
         description: 'FILE COUNT'
         type: number
         required: false
-        default: 0
+        default: '0'
       update:
         description: 'UPDATE REPO'
         type: boolean
@@ -102,6 +102,7 @@ jobs:
       - name: Check File
         uses: Tec4Sho/check-file-action@v2
         with:
+          analysis: 2
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
