@@ -81,6 +81,12 @@ jobs:
           fi;
           set +e
         continue-on-error: true
+
+      - name: Cleanup Environment
+        uses: rokibhasansagar/slimhub_actions@main
+        with:
+          retain: "cmake,clang-tidy-*,clang,gcc,g++,python3,batcat,ansi2txt,git,git-repo,git-core,cppcheck,cppcheck-gui,shellcheck,shellharden,checkmake"
+          # That's it! Now use your normal steps  
           
       - name: Clone Recovery Repo
         if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
