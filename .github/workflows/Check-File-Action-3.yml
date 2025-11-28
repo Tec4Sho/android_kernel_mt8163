@@ -124,5 +124,6 @@ jobs:
           update: ${{ inputs.update }}
           stored: true
           number: ${{ inputs.number }}
+          output: 2
         continue-on-error: false
 
