@@ -108,7 +108,7 @@ jobs:
       - name: Check File
         uses: Tec4Sho/check-file-action@v2
         with:
-          analysis: 0
+          analysis: 2
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
@@ -122,8 +122,10 @@ jobs:
           repair: ${{ inputs.repair }}
           report: ${{ inputs.report }}
           update: ${{ inputs.update }}
+          upload: false
           stored: true
           number: ${{ inputs.number }}
           output: 1
+          build: false
         continue-on-error: false
 
