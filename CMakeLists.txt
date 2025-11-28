@@ -13,7 +13,7 @@ set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
 
 # .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c90")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
 # .set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # does not produce the json file on wrong cmake version 
 
@@ -21,7 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
 
 set(CMAKE_BUILD_TYPE Release)
 
-set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
+set(CMAKE_C_STANDARD 99) # Sets the C standard to C90 <C89>
 
 # .set(CMAKE_CXX_STANDARD 17) # Sets the C++ standard to C++17
 
@@ -58,9 +58,9 @@ file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from sources file
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-target_include_directories(MyProject PUBLIC ${INCLUDES})
+# .target_include_directories(MyProject PUBLIC ${INCLUDES})
 
 # .target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -86,7 +86,7 @@ target_include_directories(MyProject PUBLIC ${INCLUDES})
 
 set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE C)
 
-set_target_properties(MyProject PROPERTIES C_STANDARD 90) 
+set_target_properties(MyProject PROPERTIES C_STANDARD 99) 
 
 # .enable_language(CUDA)
 
