@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.19) # Specifies the minimum required CMake version
 
 # ... other project settings ... #
-project(MyProject PUBLIC VERSION 1.0 LANGUAGES C)
+project(MyProject VERSION 1.0 LANGUAGES C)
 
 message(STATUS "Workspace Project Path: $ENV{GITHUB_WORKSPACE}")
 
