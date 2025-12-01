@@ -17,6 +17,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
+message(STATUS "CMAKE_C_LINK_FLAGS=${CMAKE_C_LINK_FLAGS}")
+
 # .set(CMAKE_C_FLAGS_DEBUG "put your flags") set(CMAKE_C_FLAGS_MINSIZEREL "put your flags") set(CMAKE_C_FLAGS_RELWITHDEBINFO "put your flags") set(CMAKE_C_FLAGS_RELEASE "put your flags")
 
 # .set(CMAKE_CXX_FLAGS_DEBUG "put your flags") set(CMAKE_CXX_FLAGS_MINSIZEREL "put your flags") set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "put your flags") set(CMAKE_CXX_FLAGS_RELEASE "put your 
@@ -47,9 +49,9 @@ set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
+# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
-target_include_directories(MyProject PUBLIC ${INCLUDES})
+# .target_include_directories(MyProject PUBLIC ${INCLUDES})
 
 # .include_directories(${INCLUDES})
 
@@ -116,3 +118,27 @@ execute_process(
         ${CMAKE_BINARY_DIR}/compile_commands.json
         ${CMAKE_SOURCE_DIR}/compile_commands.json
 )
+
+function(output_include_dirs)
+    set(include_dir_str "")
+    foreach(DIR ${INCLUDE_DIRECTORIES})
+        set(include_dir_str "${include_dir_str}${DIR}\n")
+    endforeach()
+
+    set(pth "${CMAKE_BINARY_DIR}/cmake-includes.txt")
+    file(WRITE "${pth}" "${include_dir_str}")
+    message(STATUS "Cmake include directories written to: ${pth}")
+endfunction()
+
+output_conan_include_dirs()
+
+# .GET_DIRECTORY_PROPERTY(output INCLUDE_DIRECTORIES) 
+
+# .message(WARNING ${output}) # This will print all -I dirs like: /usr/local/include/
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES) 
+  foreach(dir ${dirs}) 
+    message(STATUS "dir='${dir}'") 
+  endforeach()
+
+
