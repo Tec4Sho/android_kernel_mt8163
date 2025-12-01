@@ -130,7 +130,7 @@ function(output_include_dirs)
     message(STATUS "Cmake include directories written to: ${pth}")
 endfunction()
 
-output_conan_include_dirs()
+output_include_dirs()
 
 # .GET_DIRECTORY_PROPERTY(output INCLUDE_DIRECTORIES) 
 
