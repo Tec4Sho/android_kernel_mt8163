@@ -47,17 +47,17 @@ set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
-include_directories("${INCLUDES}")
+target_include_directories(MyProject PUBLIC ${INCLUDES})
+
+# .include_directories(${INCLUDES})
 
 file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from source files
 
 # .target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# .target_include_directories(MyProject PUBLIC 'include')
 
 # .add_executable(MyProject main.cpp) 
 
