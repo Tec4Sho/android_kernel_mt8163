@@ -1,9 +1,58 @@
 cmake_minimum_required(VERSION 3.19) # Specifies the minimum required CMake version
 
-# ... other project settings ... #
-project(MyProject VERSION 1.0 LANGUAGES C)
+# ... many other user defined project settings ... #
+
+if (DEFINED GITHUB_PROJECT_NAME)
+  set(PROJECT_NAME "${GITHUB_PROJECT_NAME}")
+else()
+  set(PROJECT_NAME "MyProject")
+endif()
+
+project(${PROJECT_NAME} VERSION 1.0 LANGUAGES C)
+
+message(STATUS "Project Owner: $ENV{GITHUB_REPOSITORY_OWNER}")
+
+message(STATUS "Project Name: ${PROJECT_NAME}")
 
 message(STATUS "Workspace Path: $ENV{GITHUB_WORKSPACE}")
+
+find_program(CLANG_TIDY_EXE "clang-tidy")
+  if(CLANG_TIDY_EXE)
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    # Configure clang-tidy to run with all checks and fix errors
+    # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=-*,clang-diagnostic*,clang-analyzer-*,modernize-*,clang-analyzer-cplusplus*';-fix;-header-filter=.*")
+    # You can also specify specific checks instead of -checks=*
+    # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
+  else()
+    message(WARNING "clang-tidy not found! Static analysis will be skipped.")
+  endif()
+
+find_package(Git REQUIRED)
+if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+    message(STATUS "Populating Git submodule.")
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive WORKING_DIRECTORY ${PROJECT_SOURCE_DIR} RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}.")
+    endif()
+endif()
+
+set(_saved_CMAKE_MESSAGE_LOG_LEVEL ${CMAKE_MESSAGE_LOG_LEVEL})
+
+set(CMAKE_MESSAGE_LOG_LEVEL ERROR)
+
+add_subdirectory('third-party/')
+
+include_directories("${CMAKE_SOURCE_DIR}")
+
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+  message(STATUS "include_dir=${dir}")
+endforeach()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES C_STANDARD 99) 
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
@@ -14,6 +63,8 @@ set(LLVM_ENABLE_PROJECTS clang;clang-tools-extra)
 # .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
+
+set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
@@ -41,7 +92,7 @@ set(CMAKE_C_STANDARD 99) # Sets the C standard to C90 <C89>
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
+set(CMAKE_C_EXTENSIONS OFF) # Enables compiler-specific extensions for C
 
 set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
@@ -51,13 +102,15 @@ set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
-# .target_include_directories(MyProject PUBLIC ${INCLUDES})
+# .target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 
 # .include_directories(${INCLUDES})
 
+set(CMAKE_MESSAGE_LOG_LEVEL ${_saved_CMAKE_MESSAGE_LOG_LEVEL})
+
 file(GLOB_RECURSE SOURCES "*.c")
 
-add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyProject" from source files
+add_executable(${PROJECT_NAME} ${SOURCES}) # Creates an executable target named "MyProject" from source files
 
 # .target_include_directories(MyProject PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -79,10 +132,6 @@ add_executable(MyProject ${SOURCES}) # Creates an executable target named "MyPro
 
 # .set_target_properties(MyProject PROPERTIES CXX_STANDARD 17) 
 
-set_target_properties(MyProject PROPERTIES LINKER_LANGUAGE C)
-
-set_target_properties(MyProject PROPERTIES C_STANDARD 99) 
-
 # .enable_language(CUDA)
 
 # .set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
@@ -101,17 +150,9 @@ set_target_properties(MyProject PROPERTIES C_STANDARD 99)
 
 # .target_link_libraries(MyProject PUBLIC ${LIBCONFIG_LINK_LIBRARES})
 
-find_program(CLANG_TIDY_EXE "clang-tidy")
-  if(CLANG_TIDY_EXE)
-    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-    # Configure clang-tidy to run with all checks and fix errors
-    # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=-*,clang-diagnostic*,clang-analyzer-*,modernize*,clang-analyzer-cplusplus*';-fix;-header-filter=^((?!third_party/).)*$")
-    # You can also specify specific checks instead of -checks=*
-    # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
-  else()
-    message(WARNING "clang-tidy not found! Static analysis will be skipped.")
-  endif()
+# .GET_DIRECTORY_PROPERTY(output INCLUDE_DIRECTORIES) 
+
+# .message(WARNING ${output}) # This will print all -I dirs like: /usr/local/include/
 
 execute_process(
     COMMAND ${CMAKE_COMMAND} -E create_symlink
@@ -126,18 +167,9 @@ function(output_include_dirs)
         set(include_dir_str "${include_dir_str}${DIR}\n")
     endforeach()
 
-    set(pth "${CMAKE_BINARY_DIR}/cmake-includes.txt")
-    file(WRITE "${pth}" "${include_dir_str}")
-    message(STATUS "Cmake include directories written to: ${pth}")
+    set(include_file "${CMAKE_BINARY_DIR}/cmake-includes.txt")
+    file(WRITE "${include_file}" "${include_dir_str}")
+    message(STATUS "${PROJECT_NAME} include directories written to: ${include_file}")
 endfunction()
 
 output_include_dirs()
-
-# .GET_DIRECTORY_PROPERTY(output INCLUDE_DIRECTORIES) 
-# .message(WARNING ${output}) # This will print all -I dirs like: /usr/local/include/
-# .get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES) 
-# . foreach(dir ${dirs}) 
-# . message(STATUS "dir='${dir}'") 
-# . endforeach()
-
-
