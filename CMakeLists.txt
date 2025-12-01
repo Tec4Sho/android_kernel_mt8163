@@ -121,7 +121,8 @@ execute_process(
 
 function(output_include_dirs)
     set(include_dir_str "")
-    foreach(DIR ${INCLUDE_DIRECTORIES})
+    get_property(INCLUDE DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+    foreach(DIR ${INCLUDE})
         set(include_dir_str "${include_dir_str}${DIR}\n")
     endforeach()
 
@@ -133,12 +134,10 @@ endfunction()
 output_include_dirs()
 
 # .GET_DIRECTORY_PROPERTY(output INCLUDE_DIRECTORIES) 
-
 # .message(WARNING ${output}) # This will print all -I dirs like: /usr/local/include/
-
-get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES) 
-  foreach(dir ${dirs}) 
-    message(STATUS "dir='${dir}'") 
-  endforeach()
+# .get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES) 
+# . foreach(dir ${dirs}) 
+# . message(STATUS "dir='${dir}'") 
+# . endforeach()
 
 
