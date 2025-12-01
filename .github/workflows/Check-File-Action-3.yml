@@ -1,4 +1,4 @@
-name: Check File Action v2
+name: Check File Action Pro
 on:
   workflow_dispatch: # Allows manual triggering from the Actions tab
     inputs:
@@ -122,7 +122,7 @@ jobs:
           repair: ${{ inputs.repair }}
           report: ${{ inputs.report }}
           update: ${{ inputs.update }}
-          upload: false
+          upload: true
           stored: true
           number: ${{ inputs.number }}
           output: 1
