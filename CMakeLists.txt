@@ -39,24 +39,21 @@ endif()
 
 set(_saved_CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}")
 
-set(CMAKE_MESSAGE_LOG_LEVEL ERROR)
+set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
+
+set(CMAKE_C_CLANG_TIDY "clang-tidy")
+
+set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable("${PROJECT_NAME}" "${SOURCES}") # Creates an executable target named "MyProject" from source files
 
-include_directories("${CMAKE_SOURCE_DIR}")
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
-get_property(dirs DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY INCLUDE_DIRECTORIES)
-foreach(dir ${dirs})
-  message(STATUS "include_dir=${dir}")
-endforeach()
+include_directories("${INCLUDES}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
-
-set(CMAKE_C_CLANG_TIDY "clang-tidy")
-
-set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 # .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
 
