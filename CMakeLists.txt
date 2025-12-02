@@ -49,7 +49,7 @@ file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
 message(STATUS "Found include directories: ${INCLUDES}")
 
-target_include_directories("${PROJECT_NAME}" PRIVATE "${INCLUDES}")
+target_include_directories("${PROJECT_NAME}" PUBLIC "${INCLUDES}")
 
 file(GLOB_RECURSE SOURCES "*.c")
 
