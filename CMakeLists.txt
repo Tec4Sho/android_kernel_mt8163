@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19) # Specifies the minimum required CMake vers
 
 # ... many other user defined project settings ... #
 
-if (DEFINED GITHUB_PROJECT_NAME)
+if(DEFINED GITHUB_PROJECT_NAME)
   set(PROJECT_NAME "${GITHUB_PROJECT_NAME}")
 else()
   set(PROJECT_NAME "MyProject")
@@ -29,13 +29,13 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
   endif()
 
 find_package(Git REQUIRED)
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+  if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
     message(STATUS "Populating Git submodule.")
     execute_process(COMMAND "${GIT_EXECUTABLE}" submodule update --init --recursive WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}" RESULT_VARIABLE GIT_SUBMOD_RESULT)
     if(NOT GIT_SUBMOD_RESULT EQUAL "0")
         message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}.")
     endif()
-endif()
+  endif()
 
 set(_saved_CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}")
 
@@ -45,13 +45,15 @@ set(CMAKE_C_CLANG_TIDY "clang-tidy")
 
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
+
+message(STATUS "Found include directories: ${INCLUDES}")
+
+target_include_directories("${PROJECT_NAME}" PRIVATE "${INCLUDES}")
+
 file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable("${PROJECT_NAME}" "${SOURCES}") # Creates an executable target named "MyProject" from source files
-
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
-
-include_directories("${INCLUDES}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
@@ -96,8 +98,6 @@ set(CMAKE_C_COMPILER clang) # Sets the C compiler
 set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
-
-# .target_include_directories(${PROJECT_NAME} PUBLIC ${INCLUDES})
 
 # .include_directories(${INCLUDES})
 
