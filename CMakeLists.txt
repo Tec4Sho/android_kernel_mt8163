@@ -45,15 +45,17 @@ set(CMAKE_C_CLANG_TIDY "clang-tidy")
 
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
-file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
-
-message(STATUS "Found include directories: ${INCLUDES}")
-
-target_include_directories("${PROJECT_NAME}" PUBLIC "${INCLUDES}")
-
 file(GLOB_RECURSE SOURCES "*.c")
 
 add_executable("${PROJECT_NAME}" "${SOURCES}") # Creates an executable target named "MyProject" from source files
+
+# .add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}")
+
+file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
+
+message(STATUS "Found include directories: ${INCLUDES}")
+
+target_include_directories("${PROJECT_NAME}" PRIVATE "${INCLUDES}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
