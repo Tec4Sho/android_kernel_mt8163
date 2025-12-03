@@ -59,7 +59,7 @@ else()
   message(STATUS "Cant find source directories in: ${PROJECT_SOURCE_DIR}")
 endif()
 
-target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}/include")
+# .target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}/include")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
