@@ -95,7 +95,7 @@ set(CMAKE_C_STANDARD 99) # Sets the C standard to C90 <C89>
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-set(CMAKE_C_EXTENSIONS OFF) # Enables compiler-specific extensions for C
+set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
 
 set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
@@ -178,7 +178,7 @@ endfunction()
 output_src_dirs()
 
 # .Place build artifacts in ${CMAKE_BINARY_DIR}/{bin,lib}
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
+# .set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
+# .set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
+# .set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 
