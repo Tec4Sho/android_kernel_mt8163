@@ -21,7 +21,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     # Configure clang-tidy to run with all checks and fix errors
     # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=-*,clang-diagnostic*,clang-analyzer-*,modernize-*,clang-analyzer-cplusplus*';-fix;-header-filter=.*")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*,clang-diagnostic*,clang-analyzer-*,modernize-*,clang-analyzer-cplusplus*';-fix;-header-filter=.*")
     # You can also specify specific checks instead of -checks=*
     # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming;-fix")
   else()
@@ -95,7 +95,7 @@ set(CMAKE_C_STANDARD 99) # Sets the C standard to C90 <C89>
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-set(CMAKE_C_EXTENSIONS OFF) # Enables compiler-specific extensions for C
+set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
 
 set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
