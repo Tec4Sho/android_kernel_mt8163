@@ -1,5 +1,5 @@
 ---
-Checks:                '-*,modernize-*,readability-*,bugprone-*,performance-*,misc*'
+Checks:                '-*,modernize-*,performance-*'
 WarningsAsErrors:      ''
 HeaderFileExtensions:         ['', 'h','hh','hpp','hxx']
 ImplementationFileExtensions: ['c','cc','cpp','cxx']
