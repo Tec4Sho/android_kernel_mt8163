@@ -21,7 +21,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     # Configure clang-tidy to run with all checks and fix errors
     # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize,readability-identifier-naming,performance;-fix")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=readability-identifier-naming,performance;-fix")
     # You can also specify specific checks instead of -checks=*
     # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer-cplusplus;-fix")
   else()
@@ -178,7 +178,7 @@ endfunction()
 output_src_dirs()
 
 # .Place build artifacts in ${CMAKE_BINARY_DIR}/{bin,lib}
-# .set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
 # .set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 # .set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 
