@@ -21,7 +21,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     # Configure clang-tidy to run with all checks and fix errors
     # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=readability-identifier-naming,performance;-fix")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,performance;-fix")
     # You can also specify specific checks instead of -checks=*
     # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer-cplusplus;-fix")
   else()
@@ -45,19 +45,18 @@ set(CMAKE_C_CLANG_TIDY "clang-tidy")
 
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
-file(GLOB_RECURSE SOURCES "*.c")
-
-add_executable("${PROJECT_NAME}" "${SOURCES}") # Creates an executable target named "MyProject" from source files
-
 # .add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}")
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-if(DEFINED PROJECT_SRC_DIRS)
-  message(STATUS "Project Sources: ${PROJECT_SRC_DIRS}")
+if(DEFINED PROJECT_SRC_FILES)
+  message(STATUS "Project Source: clang found files")
 else()
-  message(STATUS "Cant find source directories in: ${PROJECT_SOURCE_DIR}")
+  file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
+  message(STATUS "Project Source: cmake found files")
 endif()
+
+add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
 
 # .target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}/include")
 
@@ -65,7 +64,7 @@ endif()
 
 # .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
 
-# .set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror")
 
 # .set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
@@ -165,20 +164,20 @@ execute_process(
 
 function(output_src_dirs)
     set(src_dir_str "")
-    if(DEFINED PROJECT_SRC_DIRS)
-      foreach(DIR "${PROJECT_SRC_DIRS}")
+    if(DEFINED PROJECT_SRC_FILES)
+      foreach(DIR "${PROJECT_SRC_FILES}")
         set(src_dir_str "${DIR}\n")
       endforeach()
-      set(src_file "${CMAKE_BINARY_DIR}/cmake-source-paths.txt")
+      set(src_file "${CMAKE_BINARY_DIR}/cmake-source-files.txt")
       file(WRITE "${src_file}" "${src_dir_str}")
-      message(STATUS "${PROJECT_NAME} source directories written to: ${src_file}")
+      message(STATUS "${PROJECT_NAME} source files written to: ${src_file}")
     endif()
 endfunction()
 
 output_src_dirs()
 
 # .Place build artifacts in ${CMAKE_BINARY_DIR}/{bin,lib}
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
+# .set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
 # .set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 # .set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 
