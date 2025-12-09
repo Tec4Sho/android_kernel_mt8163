@@ -108,7 +108,7 @@ jobs:
       - name: Check File
         uses: Tec4Sho/check-file-action@v2
         with:
-          analysis: 0
+          analysis: 3
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
