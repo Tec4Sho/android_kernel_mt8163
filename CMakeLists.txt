@@ -49,12 +49,13 @@ set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
 
-if(DEFINED PROJECT_SRC_FILES)
-  message(STATUS "Project Source: clang found files")
+if(DEFINED PROJECT_SRC_DIRS)
+  message(STATUS "Project Source: ${PROJECT_SRC_DIRS}")
 else()
-  file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
-  message(STATUS "Project Source: cmake found files")
+  message(STATUS "Project Source: cmake found no directories")
 endif()
+
+file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
 
 add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
 
@@ -164,20 +165,20 @@ execute_process(
 
 function(output_src_dirs)
     set(src_dir_str "")
-    if(DEFINED PROJECT_SRC_FILES)
-      foreach(DIR "${PROJECT_SRC_FILES}")
+    if(DEFINED PROJECT_SRC_DIRS)
+      foreach(DIR "${PROJECT_SRC_DIRS}")
         set(src_dir_str "${DIR}\n")
       endforeach()
-      set(src_file "${CMAKE_BINARY_DIR}/cmake-source-files.txt")
+      set(src_file "${CMAKE_BINARY_DIR}/cmake-source-dirs.txt")
       file(WRITE "${src_file}" "${src_dir_str}")
-      message(STATUS "${PROJECT_NAME} source files written to: ${src_file}")
+      message(STATUS "${PROJECT_NAME} source directories written to: ${src_file}")
     endif()
 endfunction()
 
 output_src_dirs()
 
 # .Place build artifacts in ${CMAKE_BINARY_DIR}/{bin,lib}
-# .set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
 # .set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 # .set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 
