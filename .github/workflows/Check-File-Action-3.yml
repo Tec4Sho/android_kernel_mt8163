@@ -12,11 +12,17 @@ on:
         type: string
         required: false
         default: ''
-      rootdir:
-        description: 'WORKSPACE'
-        type: boolean
+      analysis:
+        description: 'Analyze'
+        type: choice
         required: false
-        default: 'false'
+        default: '1'
+        options:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
       number:
         description: 'FILE COUNT'
         type: number
@@ -108,7 +114,7 @@ jobs:
       - name: Check File
         uses: Tec4Sho/check-file-action@v2
         with:
-          analysis: 3
+          analysis: ${{ inputs.analysis }}
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
