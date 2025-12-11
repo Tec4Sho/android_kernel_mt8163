@@ -123,7 +123,7 @@ jobs:
           dirname: workspace
           content: false
           include: true
-          rootdir: ${{ inputs.rootdir }}
+          rootdir: false
           recheck: false
           repair: ${{ inputs.repair }}
           report: ${{ inputs.report }}
