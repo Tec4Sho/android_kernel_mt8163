@@ -1,5 +1,4 @@
 --fix
 --fix-errors
 --quiet
---extra-arg=-std=c99
-
+--enable-check-profile
