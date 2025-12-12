@@ -1,4 +1,6 @@
 --fix
+--fix-notes
 --fix-errors
 --quiet
---enable-check-profile
+--extra-arg=-std=c90
+
