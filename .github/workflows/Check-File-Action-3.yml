@@ -18,11 +18,11 @@ on:
         required: false
         default: '1'
         options:
+        - 0
         - 1
         - 2
         - 3
         - 4
-        - 5
       number:
         description: 'FILE COUNT'
         type: number
