@@ -21,7 +21,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     # Configure clang-tidy to run with all checks and fix errors
     # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,performance;-fix")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer;-fix")
     # You can also specify specific checks instead of -checks=*
     # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer-cplusplus;-fix")
   else()
@@ -58,6 +58,12 @@ endif()
 file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
 
 add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
+
+if(DEFINED PROJECT_SRC_FILES)
+  message(STATUS "Project Source: cmake found source files")
+else()
+  message(STATUS "Project Source: cmake found no files")
+endif()
 
 # .target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}/include")
 
@@ -169,13 +175,27 @@ function(output_src_dirs)
       foreach(DIR "${PROJECT_SRC_DIRS}")
         set(src_dir_str "${DIR}\n")
       endforeach()
-      set(src_file "${CMAKE_BINARY_DIR}/cmake-source-dirs.txt")
-      file(WRITE "${src_file}" "${src_dir_str}")
-      message(STATUS "${PROJECT_NAME} source directories written to: ${src_file}")
+      set(src_dir "${CMAKE_BINARY_DIR}/cmake-source-dirs.txt")
+      file(WRITE "${src_dir}" "${src_dir_str}")
+      message(STATUS "${PROJECT_NAME} source directories written to: ${src_dir}")
+    endif()
+endfunction()
+
+function(output_src_files)
+    set(src_files_str "")
+    if(DEFINED PROJECT_SRC_FILES)
+      foreach(FILE "${PROJECT_SRC_FILES}")
+        set(src_files_str "${FILE}\n")
+      endforeach()
+      set(src_file "${CMAKE_BINARY_DIR}/cmake-source-files.txt")
+      file(WRITE "${src_file}" "${src_files_str}")
+      message(STATUS "${PROJECT_NAME} source files written to: ${src_file}")
     endif()
 endfunction()
 
 output_src_dirs()
+
+output_src_files()
 
 # .Place build artifacts in ${CMAKE_BINARY_DIR}/{bin,lib}
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
