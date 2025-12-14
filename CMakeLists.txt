@@ -65,7 +65,7 @@ else()
   message(STATUS "Project Source: cmake found no files")
 endif()
 
-# .target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}/include")
+target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
