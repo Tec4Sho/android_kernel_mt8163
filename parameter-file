@@ -3,4 +3,4 @@
 --fix-errors
 --quiet
 --extra-arg=-std=c90
-
+--enable-check-profile
