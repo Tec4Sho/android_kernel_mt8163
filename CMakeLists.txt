@@ -65,13 +65,13 @@ else()
   message(STATUS "Project Source: cmake found no files")
 endif()
 
-target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_SOURCE_DIR}")
+target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
 # .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -std=c90")
 
 # .set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} -O2 -Wall -Werror -pedantic -std=c99")
 
