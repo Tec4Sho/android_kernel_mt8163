@@ -60,12 +60,18 @@ file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
 add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
 
 if(DEFINED PROJECT_SRC_FILES)
-  message(STATUS "Project Source: cmake found source files")
+  message(STATUS "Project Files: cmake added source files")
 else()
-  message(STATUS "Project Source: cmake found no files")
+  message(STATUS "Project Files: cmake added no files")
 endif()
 
-target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}")
+if(DEFINED PROJECT_SRC_INCLUDES)
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
+  message(STATUS "Project Includes: cmake added include directories")
+else()
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}")
+  message(STATUS "Project Includes: cmake added no include directories")
+endif()
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
@@ -77,7 +83,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -Wall -Werror -std=c90")
 
 # .set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O2 -Wall -Werror -pedantic -std=c99")
 
-# .message(STATUS "CMAKE_C_FLAGS=${CMAKE_C_FLAGS}")
+message(STATUS "CMAKE_C_FLAGS=${CMAKE_C_FLAGS}")
 
 # .set(CMAKE_C_FLAGS_DEBUG "put your flags") set(CMAKE_C_FLAGS_MINSIZEREL "put your flags") set(CMAKE_C_FLAGS_RELWITHDEBINFO "put your flags") set(CMAKE_C_FLAGS_RELEASE "put your flags")
 
@@ -169,21 +175,23 @@ execute_process(
         "${CMAKE_SOURCE_DIR}/compile_commands.json"
 )
 
-function(output_src_dirs)
+function(output_src_includes)
     set(src_dir_str "")
-    if(DEFINED PROJECT_SRC_DIRS)
-      foreach(DIR "${PROJECT_SRC_DIRS}")
+    if(DEFINED PROJECT_SRC_INCLUDES)
+      IFS=$';';
+      foreach(DIR "${PROJECT_SRC_INCLUDES}")
         set(src_dir_str "${DIR}\n")
       endforeach()
-      set(src_dir "${CMAKE_BINARY_DIR}/cmake-source-dirs.txt")
+      set(src_dir "${CMAKE_BINARY_DIR}/cmake-include-dirs.txt")
       file(WRITE "${src_dir}" "${src_dir_str}")
-      message(STATUS "${PROJECT_NAME} source directories written to: ${src_dir}")
+      message(STATUS "${PROJECT_NAME} include directories written to: ${src_dir}")
     endif()
 endfunction()
 
 function(output_src_files)
     set(src_files_str "")
     if(DEFINED PROJECT_SRC_FILES)
+      IFS=$';';
       foreach(FILE "${PROJECT_SRC_FILES}")
         set(src_files_str "${FILE}\n")
       endforeach()
@@ -193,7 +201,7 @@ function(output_src_files)
     endif()
 endfunction()
 
-output_src_dirs()
+output_src_includes()
 
 output_src_files()
 
