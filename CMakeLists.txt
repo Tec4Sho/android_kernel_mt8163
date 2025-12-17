@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.19) # Specifies the minimum required CMake version
+cmake_minimum_required(VERSION 3.30) # Specifies the minimum required CMake version
 
 # ... many examples of user defined project settings ... #
 
 if(DEFINED GITHUB_PROJECT_NAME)
   set(PROJECT_NAME "${GITHUB_PROJECT_NAME}")
 else()
-  set(PROJECT_NAME "MyProject")
+  set(PROJECT_NAME "$ENV{GITHUB_REPOSITORY#*/}")
 endif()
 
 project("${PROJECT_NAME}" VERSION 1.0 LANGUAGES C)
@@ -21,7 +21,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     # Configure clang-tidy to run with all checks and fix errors
     # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer;-fix")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=-*,modernize-loop-convert,readability-identifier-naming,clang-analyzer;-fix")
     # You can also specify specific checks instead of -checks=*
     # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer-cplusplus;-fix")
   else()
@@ -47,8 +47,6 @@ set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 # .add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}")
 
-# .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true "include")
-
 if(DEFINED PROJECT_SRC_DIRS)
   message(STATUS "Project Source: ${PROJECT_SRC_DIRS}")
 else()
@@ -69,8 +67,9 @@ if(DEFINED PROJECT_SRC_INCLUDES)
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added include directories")
 else()
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SOURCE_DIR}")
-  message(STATUS "Project Includes: cmake added no include directories")
+  file(GLOB PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "include")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
+  message(STATUS "Project Includes: cmake added one include directory")
 endif()
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
@@ -178,7 +177,6 @@ execute_process(
 function(output_src_includes)
     set(src_dir_str "")
     if(DEFINED PROJECT_SRC_INCLUDES)
-      IFS=$';';
       foreach(DIR "${PROJECT_SRC_INCLUDES}")
         set(src_dir_str "${DIR}\n")
       endforeach()
@@ -191,7 +189,6 @@ endfunction()
 function(output_src_files)
     set(src_files_str "")
     if(DEFINED PROJECT_SRC_FILES)
-      IFS=$';';
       foreach(FILE "${PROJECT_SRC_FILES}")
         set(src_files_str "${FILE}\n")
       endforeach()
