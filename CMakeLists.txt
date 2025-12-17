@@ -178,7 +178,6 @@ execute_process(
 function(output_src_includes)
     set(src_dir_str "")
     if(DEFINED PROJECT_SRC_INCLUDES)
-      IFS=$';';
       foreach(DIR "${PROJECT_SRC_INCLUDES}")
         set(src_dir_str "${DIR}\n")
       endforeach()
@@ -191,7 +190,6 @@ endfunction()
 function(output_src_files)
     set(src_files_str "")
     if(DEFINED PROJECT_SRC_FILES)
-      IFS=$';';
       foreach(FILE "${PROJECT_SRC_FILES}")
         set(src_files_str "${FILE}\n")
       endforeach()
