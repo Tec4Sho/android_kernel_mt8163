@@ -113,7 +113,7 @@ set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 # .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
@@ -178,6 +178,7 @@ execute_process(
 function(output_src_includes)
     set(src_dir_str "")
     if(DEFINED PROJECT_SRC_INCLUDES)
+      IFS=$';';
       foreach(DIR "${PROJECT_SRC_INCLUDES}")
         set(src_dir_str "${DIR}\n")
       endforeach()
@@ -190,6 +191,7 @@ endfunction()
 function(output_src_files)
     set(src_files_str "")
     if(DEFINED PROJECT_SRC_FILES)
+      IFS=$';';
       foreach(FILE "${PROJECT_SRC_FILES}")
         set(src_files_str "${FILE}\n")
       endforeach()
