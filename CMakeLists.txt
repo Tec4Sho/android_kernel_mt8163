@@ -72,6 +72,24 @@ else()
   message(STATUS "Project Includes: cmake added one include directory")
 endif()
 
+# Automatically find all header files recursively
+file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "src/*.h")
+
+# Extract the unique directory paths from the list of header files
+set(PROJECT_INCLUDE_DIRS "")
+  foreach(_headerFile ${ALL_HEADERS})
+    get_filename_component(_dir ${_headerFile} PATH)
+    list(APPEND PROJECT_INCLUDE_DIRS ${_dir})
+  endforeach()
+list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
+
+# Add the unique, collected directories to your target
+target_include_directories("${PROJECT_NAME}"
+  SYSTEM
+  PRIVATE
+  "${PROJECT_INCLUDE_DIRS}"
+)
+
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
 # .set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -Wall -Werror -pedantic")
@@ -176,8 +194,8 @@ execute_process(
 
 function(output_src_includes)
     set(src_dir_str "")
-    if(DEFINED PROJECT_SRC_INCLUDES)
-      foreach(DIR "${PROJECT_SRC_INCLUDES}")
+    if(DEFINED PROJECT_INCLUDE_DIRS)
+      foreach(DIR "${PROJECT_INCLUDE_DIRS}")
         set(src_dir_str "${DIR}\n")
       endforeach()
       set(src_dir "${CMAKE_BINARY_DIR}/cmake-include-dirs.txt")
