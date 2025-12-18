@@ -64,16 +64,16 @@ else()
 endif()
 
 if(DEFINED PROJECT_SRC_INCLUDES)
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
+# .target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added include directories")
 else()
   file(GLOB PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "include")
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
+# .target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added one include directory")
 endif()
 
 # Automatically find all header files recursively
-file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "src/*.h")
+file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 # Extract the unique directory paths from the list of header files
 set(PROJECT_INCLUDE_DIRS "")
@@ -85,8 +85,7 @@ list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
 
 # Add the unique, collected directories to your target
 target_include_directories("${PROJECT_NAME}"
-  SYSTEM
-  PRIVATE
+  PUBLIC
   "${PROJECT_INCLUDE_DIRS}"
 )
 
@@ -124,13 +123,13 @@ set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
+set(CMAKE_C_EXTENSIONS OFF) # Enables compiler-specific extensions for C
 
 set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 # .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
