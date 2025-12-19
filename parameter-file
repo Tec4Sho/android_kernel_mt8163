@@ -1,8 +1,10 @@
---checks='-*,clang-analyzer-*'
+--checks='-*,-clang-analyzer-*'
+--enable-check-profile
+--export-fixes=build/fixes
 --header-filter='.*'
 --system-headers
+--list-checks
 --color
---quiet
 --fix
 --fix-notes
 --fix-errors

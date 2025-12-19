@@ -69,7 +69,7 @@ if(DEFINED PROJECT_SRC_INCLUDES)
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added include directories")
 else()
-  file(GLOB PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "include")
+  file(GLOB_RECURSE PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "/include/")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added one include directory")
 endif()
@@ -106,6 +106,8 @@ message(STATUS "CMAKE_C_FLAGS=${CMAKE_C_FLAGS}")
 
 # .set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # does not produce the json file on wrong cmake version 
 
+set(CLANG_TIDY_ENABLE_STATIC_ANALYZER ON)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "") # works
 
 set(CMAKE_BUILD_TYPE Release)
@@ -122,7 +124,7 @@ set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-set(CMAKE_C_EXTENSIONS OFF) # Enables compiler-specific extensions for C
+set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
 
 set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
