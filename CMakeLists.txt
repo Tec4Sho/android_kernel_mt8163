@@ -126,7 +126,7 @@ set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 # .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF)
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON)
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
 
@@ -196,7 +196,7 @@ function(output_src_includes)
       endforeach()
       set(src_dir "${CMAKE_BINARY_DIR}/cmake-include-dirs.txt")
       file(WRITE "${src_dir}" "${src_dir_str}")
-      message(STATUS "${PROJECT_NAME} include directories written to: ${src_dir}")
+      message(STATUS "${PROJECT_NAME} header file directories written to: ${src_dir}")
     endif()
 endfunction()
 
