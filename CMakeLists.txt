@@ -64,11 +64,11 @@ else()
 endif()
 
 if(DEFINED PROJECT_SRC_INCLUDES)
-# .target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added include directories")
 else()
   file(GLOB PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "include")
-# .target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added one include directory")
 endif()
 
@@ -84,10 +84,7 @@ set(PROJECT_INCLUDE_DIRS "")
 list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
 
 # Add the unique, collected directories to your target
-target_include_directories("${PROJECT_NAME}"
-  PUBLIC
-  "${PROJECT_INCLUDE_DIRS}"
-)
+# .target_include_directories("${PROJECT_NAME}" PUBLIC "${PROJECT_INCLUDE_DIRS}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
