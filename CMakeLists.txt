@@ -55,7 +55,9 @@ endif()
 
 file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
 
-add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
+# .add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
+
+target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}") 
 
 if(DEFINED PROJECT_SRC_FILES)
   message(STATUS "Project Files: cmake added source files")
@@ -84,7 +86,7 @@ set(PROJECT_INCLUDE_DIRS "")
 list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
 
 # Add the unique, collected directories to your target
-# .target_include_directories("${PROJECT_NAME}" PUBLIC "${PROJECT_INCLUDE_DIRS}")
+target_include_directories("${PROJECT_NAME}" SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
