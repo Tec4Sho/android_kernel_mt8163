@@ -55,9 +55,9 @@ endif()
 
 file(GLOB_RECURSE PROJECT_SRC_FILES "*.c")
 
-# .add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
+add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
 
-target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}") 
+target_sources("${PROJECT_NAME}" PUBLIC "${PROJECT_SRC_FILES}") 
 
 if(DEFINED PROJECT_SRC_FILES)
   message(STATUS "Project Files: cmake added source files")
