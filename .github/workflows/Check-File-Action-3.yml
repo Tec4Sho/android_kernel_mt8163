@@ -12,7 +12,7 @@ on:
         type: string
         required: false
         default: ''
-      analysis:
+      analyzer:
         description: 'Analyze'
         type: choice
         required: false
@@ -114,7 +114,7 @@ jobs:
       - name: Check File
         uses: Tec4Sho/check-file-action@v2
         with:
-          analysis: ${{ inputs.analysis }}
+          analyzer: ${{ inputs.analysis }}
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
