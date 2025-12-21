@@ -61,7 +61,7 @@ target_sources("${PROJECT_NAME}" PUBLIC "${PROJECT_SRC_FILES}")
 
 if(DEFINED PROJECT_SRC_FILES)
   message(STATUS "Project Files: cmake added source files")
-elif($ENV{github_source_files})
+elseif($ENV{github_source_files})
   message(STATUS "Project Files: cmake found source files")
 else()
   message(STATUS "Project Files: cmake added no files")
