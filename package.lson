@@ -1,0 +1,9 @@
+{
+  "name": "android_kernel_mt8163",
+  "version": "1.0.0",
+  "dependencies": {
+    "jsdom": "latest",
+    ...
+  },
+  ...
+}
