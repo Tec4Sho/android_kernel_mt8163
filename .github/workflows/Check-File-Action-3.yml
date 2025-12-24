@@ -115,6 +115,7 @@ jobs:
         uses: Tec4Sho/check-file-action@v2
         with:
           analyzer: ${{ inputs.analyzer }}
+          makefile: 'Makefile'
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
@@ -133,6 +134,5 @@ jobs:
           number: ${{ inputs.number }}
           output: 1
           build: 3
-          file: 'Unix Makefile'
         continue-on-error: false
 
