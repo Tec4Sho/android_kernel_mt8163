@@ -115,7 +115,7 @@ jobs:
         uses: Tec4Sho/check-file-action@v2
         with:
           analyzer: ${{ inputs.analyzer }}
-          makefile: 'Makefile'
+          makefile: 'omni_tb8163p3_bsp'
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
