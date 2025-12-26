@@ -133,6 +133,6 @@ jobs:
           stored: true
           number: ${{ inputs.number }}
           output: 1
-          build: 4
+          build: 2
         continue-on-error: false
 
