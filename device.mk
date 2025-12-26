@@ -6,7 +6,7 @@
 #
 
 # Path to build files
-LOCAL_PATH := device/alps/tb8163p3_bsp
+LOCAL_PATH := kernel/alps/tb8163p3_bsp
 
 DEVICE_PATH := $(LOCAL_PATH)
 
