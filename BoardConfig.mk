@@ -8,7 +8,7 @@
 # Custom OFRP 9.0 build for alps tb8163p3_bsp 
 #
 
-DEVICE_PATH := device/alps/tb8163p3_bsp
+DEVICE_PATH := android/kernel/mt8163
 
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
@@ -72,8 +72,8 @@ BOARD_KERNEL_IMAGE_NAME := zImage
 BOARD_KERNEL_SEPARATED_DTBO := true
 TARGET_KERNEL_CONFIG := tb8163p3_bsp_defconfig
 TARGET_KERNEL_SOURCE := kernel/alps/tb8163p3_bsp
-CUSTOM_KERNEL_TOUCHPANEL = gt9xxtb_hotknot
-
+CUSTOM_KERNEL_TOUCHPANEL ?= gt9xxtb_hotknot
+TARGET_FORCE_PREBUILT_KERNEL ?= false
 # Recovery LZMA Compression
 BOARD_RAMDISK_USE_LZMA := true
 LZMA_RAMDISK_TARGETS := recovery boot
@@ -347,7 +347,7 @@ TW_HAS_USB_STORAGE := true
 TW_HAS_DUAL_STORAGE := true
 TW_HAS_REPACK_TOOLS := true
 TW_HAS_BOOT_PARTITION := true
-TW_HAS_RECOVERY_PARTITION := true
+TW_HAS_RECOVERY_PARTITION := false
 TW_ALLOW_PARTITION_SDCARD := true
 BOARD_SUPPRESS_SECURE_ERASE := true
 TWRP_INCLUDE_CRYPTO := false 
