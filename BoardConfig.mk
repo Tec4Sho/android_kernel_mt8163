@@ -8,7 +8,7 @@
 # Custom OFRP 9.0 build for alps tb8163p3_bsp 
 #
 
-DEVICE_PATH := android/kernel/mt8163
+DEVICE_PATH := kernel/alps/tb8163p3_bsp
 
 # For building with minimal manifest
 ALLOW_MISSING_DEPENDENCIES := true
