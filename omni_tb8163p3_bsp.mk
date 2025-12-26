@@ -12,7 +12,7 @@
 $(call inherit-product-if-exists, vendor/omni/config/common.mk)
 
 # Inherit from tb8163p3_bsp device tree
-$(call inherit-product, device/alps/tb8163p3_bsp/device.mk)
+$(call inherit-product, kernel/alps/tb8163p3_bsp/device.mk)
 
 # Inherit from tb8163p3_bsp kernel tree
 ifeq ($(TARGET_FORCE_PREBUILT_KERNEL),false)
