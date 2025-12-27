@@ -90,7 +90,7 @@ set(PROJECT_INCLUDE_DIRS "")
 list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
 
 # Add the unique, collected directories to your target
-target_include_directories("${PROJECT_NAME}" SYSTEM PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
