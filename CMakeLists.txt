@@ -67,12 +67,14 @@ else()
   message(STATUS "Project Files: cmake added no files")
 endif()
 
+target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
 if(DEFINED PROJECT_SRC_INCLUDES)
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_INCLUDES}")
   message(STATUS "Project Includes: cmake added include directories. clang analyzer")
 else()
 # .file(GLOB_RECURSE PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "/include/")
-  target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${target_include_dirs}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
   message(STATUS "Project Includes: cmake added include directories. codechecker analyzer")
 endif()
 
