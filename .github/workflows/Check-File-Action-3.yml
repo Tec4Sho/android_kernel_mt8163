@@ -121,7 +121,7 @@ jobs:
           database: true
           pattern: ${{ inputs.pattern }}
           project: true
-          dirname: workspace
+          dirname: 'kernel/alps/tb8163p3_bsp'
           content: false
           include: true
           rootdir: false
