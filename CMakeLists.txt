@@ -67,24 +67,28 @@ else()
   message(STATUS "Project Files: cmake added no files")
 endif()
 
-if(ENV${github_include_dirs})
-  target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
-  message(STATUS "Project Includes: cmake added include directories. clang analyze multi")
-else()
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-  message(STATUS "Project Includes: cmake added include directories. clang analyze one")
-endif()
-
 # Automatically find all header files recursively
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
-# Extract the unique directory paths from the list of header files
-set(PROJECT_INCLUDE_DIRS "")
+if(DEFINED PROJECT_INCLUDE_DIRS)
+  target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
+  message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
+elseif(ENV${github_include_dirs})
+  target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
+  message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [build]")
+elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list of header files
+  set(PROJECT_INCLUDE_DIRS "")
   foreach(_headerFile ${ALL_HEADERS})
     get_filename_component(_dir ${_headerFile} PATH)
     list(APPEND PROJECT_INCLUDE_DIRS ${_dir})
   endforeach()
-list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
+  list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
+  message(STATUS "Project Includes: cmake added include directories. clang analyzing all headers [check/build]")
+else()
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  message(STATUS "Project Includes: cmake added include directories. clang analyzing include directory [check/build]")
+endif()
 
 # Add the unique, collected directories to your target
 # .target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
