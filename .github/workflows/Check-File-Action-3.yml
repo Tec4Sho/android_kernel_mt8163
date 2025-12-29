@@ -16,7 +16,7 @@ on:
         description: 'ANALYZER'
         type: choice
         required: false
-        default: '1'
+        default: '0'
         options:
         - 0
         - 1
@@ -51,11 +51,17 @@ on:
         description: 'DEVICE TREE BRANCH'
         required: true
         default: 'android-9.0'
-      DEVICE_PATH:
-        description: 'DEVICE PATH'
-        required: true
-        default: 'kernel/alps/tb8163p3_bsp'
-
+      build:
+        description: 'BUILD MODE'
+        required: false
+        type: choice
+        options:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        default: '0'
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -99,8 +105,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: ${{ github.repository }}
-          path: ./workspace/${{ github.event.inputs.DEVICE_PATH }}
-          ref: ${{ github.event.inputs.DEVICE_TREE_BRANCH }}
+          path: 'kernel/alps/tb8163p3_bsp'
+          ref: ${{ github.ref }}
           clean: true
           fetch-depth: 1
           show-progress: false
