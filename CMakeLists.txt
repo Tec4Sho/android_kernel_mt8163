@@ -71,7 +71,7 @@ endif()
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 if(DEFINED PROJECT_INCLUDE_DIRS)
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_INCLUDE_DIRS}")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
 elseif(ENV${github_include_dirs})
   target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
@@ -138,7 +138,7 @@ set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 # .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON) # Useful/Needed for large list of include directories
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF) # Useful/Needed for large list of include directories
 
 # .file(GLOB_RECURSE PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "/include/")
 
