@@ -41,7 +41,7 @@ find_package(Git REQUIRED)
 
 # .set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
 
-set(CMAKE_C_CLANG_TIDY "clang-tidy")
+set(CMAKE_C_CLANG_TIDY "clang-tidy-21")
 
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
