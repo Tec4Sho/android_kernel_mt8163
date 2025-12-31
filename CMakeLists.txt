@@ -70,16 +70,16 @@ endif()
 # Automatically find all header files recursively
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
-# Add the system, include directory to your target
-target_include_directories("${PROJECT_NAME}" SYSTEM PRIVATE "/usr/include")
-
+# Add the system, project include directory to your target
 if(DEFINED PROJECT_INCLUDE_DIRS)
   target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-  include_directories("${PROJECT_INCLUDE_DIRS}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
+  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
 elseif(ENV${github_include_dirs})
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
-  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [build]")
 elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list of header files
   set(PROJECT_INCLUDE_DIRS "")
@@ -88,11 +88,15 @@ elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list o
     list(APPEND PROJECT_INCLUDE_DIRS ${_dir})
   endforeach()
   list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
+  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing all headers [check/build]")
 else()
-  include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/linux")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/asm")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing include directory [check/build]")
 endif()
 
