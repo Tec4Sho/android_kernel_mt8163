@@ -41,7 +41,7 @@ find_package(Git REQUIRED)
 
 # .set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
 
-set(CMAKE_C_CLANG_TIDY "clang-tidy-21")
+set(CMAKE_C_CLANG_TIDY "clang-tidy")
 
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
@@ -72,12 +72,10 @@ file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 # Add the system, project include directory to your target
 if(DEFINED PROJECT_INCLUDE_DIRS)
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
 elseif(ENV${github_include_dirs})
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [build]")
@@ -88,7 +86,6 @@ elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list o
     list(APPEND PROJECT_INCLUDE_DIRS ${_dir})
   endforeach()
   list(REMOVE_DUPLICATES PROJECT_INCLUDE_DIRS)
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing all headers [check/build]")
@@ -99,7 +96,6 @@ else()
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing include directory [check/build]")
 endif()
-
 
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
