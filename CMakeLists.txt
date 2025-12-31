@@ -71,7 +71,7 @@ endif()
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 if(DEFINED PROJECT_INCLUDE_DIRS)
-  target_include_directories("${PROJECT_NAME}" PRIVATE SYSTEM "${PROJECT_INCLUDE_DIRS}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
 elseif(ENV${github_include_dirs})
   target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
@@ -91,7 +91,7 @@ else()
 endif()
 
 # Add the unique, collected directories to your target
-# .target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
+target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
