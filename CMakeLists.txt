@@ -71,9 +71,11 @@ endif()
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 if(DEFINED PROJECT_INCLUDE_DIRS)
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
 elseif(ENV${github_include_dirs})
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_include_directories("${PROJECT_NAME}" PRIVATE "ENV${github_include_dirs}")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [build]")
 elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list of header files
@@ -86,12 +88,13 @@ elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list o
   target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIRS}")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing all headers [check/build]")
 else()
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
   target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing include directory [check/build]")
 endif()
 
 # Add the unique, collected directories to your target
-target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
+target_include_directories("${PROJECT_NAME}" SYSTEM PRIVATE "/usr/include")
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
@@ -132,19 +135,17 @@ set(CMAKE_C_STANDARD 90) # Sets the C standard to C90 <C89>
 
 set(CMAKE_C_STANDARD_REQUIRED ON) # Ensures the specified C standard is strictly enforced
 
-set(CMAKE_C_EXTENSIONS OFF) # Enables compiler-specific extensions for C
+set(CMAKE_C_EXTENSIONS ON) # Enables compiler-specific extensions for C
 
 set(CMAKE_C_COMPILER clang) # Sets the C compiler
 
 # .set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES OFF) 
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF) # Useful/Needed for large list of include directories
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON) # Useful/Needed for large list of include directories
 
 # .file(GLOB_RECURSE PROJECT_SRC_INCLUDES LIST_DIRECTORIES true "/include/")
 
 # .file(GLOB_RECURSE INCLUDES LIST_DIRECTORIES true 'include')
-
-# .include_directories(${INCLUDES})
 
 # .set(CMAKE_MESSAGE_LOG_LEVEL "${_saved_CMAKE_MESSAGE_LOG_LEVEL}")
 
