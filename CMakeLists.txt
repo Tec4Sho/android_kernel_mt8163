@@ -72,10 +72,9 @@ file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 # Add the system, project include directory to your target
 if(DEFINED PROJECT_INCLUDE_DIRS)
-  foreach(PROJECT_INCLUDE_DIR IN LISTS ${PROJECT_INCLUDE_DIRS})
-    set(PROJECT_INCLUDE "${PROJECT_INCLUDE_DIR}")
+  foreach(PROJECT_INCLUDE ${PROJECT_INCLUDE_DIRS})
     target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE}")
-    message(STATUS "Project Include: cmake added a include directory. ${PROJECT_INCLUDE}")
+    message(STATUS "Project Include: cmake added include directory. ${PROJECT_INCLUDE}")
   endforeach()
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/home/runner/.local/lib/python*/site-packages/clang_tidy/data/lib/clang/*/include")
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
