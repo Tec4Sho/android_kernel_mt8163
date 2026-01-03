@@ -128,6 +128,8 @@ jobs:
           stored: true
           number: ${{ inputs.number }}
           output: 1
-          build: 0
+          build: ${{ inputs.build }}
+          clean: true
+          repo: true
         continue-on-error: false
 
