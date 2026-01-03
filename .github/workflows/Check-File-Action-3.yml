@@ -98,18 +98,7 @@ jobs:
      #   uses: rokibhasansagar/slimhub_actions@main
      #  with:
      #     retain: "cmake,clang-tidy-*,clang,gcc,g++,python3,batcat,ansi2txt,git,git-repo,git-core,cppcheck,cppcheck-gui,shellcheck,shellharden,checkmake"
-          # That's it! Now use your normal steps  
-          
-      - name: Clone Recovery Repo
-        if: steps.restore-workspace-cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ github.repository }}
-          path: 'kernel/alps/tb8163p3_bsp'
-          ref: ${{ github.ref }}
-          clean: true
-          fetch-depth: 1
-          show-progress: false
+          # That's it! Now use your normal steps 
           
       - name: Check Workspace
         run: |
