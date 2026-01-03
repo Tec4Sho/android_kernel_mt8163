@@ -127,8 +127,3 @@ jobs:
           clean: true
           repo: true
         continue-on-error: false
-
-      - name: Check Workspace
-        run: |
-          echo '';
-          sudo du . -h -d 1
