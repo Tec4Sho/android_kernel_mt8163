@@ -3,17 +3,22 @@ on:
   workflow_dispatch: # Allows manual triggering from the Actions tab
     inputs:
       filename:
-        description: 'CHECK FILE'
+        description: 'CHECK FILENAME'
         type: string
         required: false
         default: ''
       pattern:
-        description: 'CHECK TEXT'
+        description: 'CHECK TEXT STRING'
         type: string
         required: false
         default: ''
+      dirname:
+        description: 'DEFAULT DIRECTORY'
+        type: string
+        required: true
+        default: ''  
       analyzer:
-        description: 'ANALYZER'
+        description: 'ANALYZER MODE'
         type: choice
         required: false
         default: '0'
@@ -23,45 +28,42 @@ on:
         - 2
         - 3
         - 4
+      build:
+        description: 'BUILD MODE'
+        type: choice
+        required: false
+        default: '0'
+        options:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4  
       number:
-        description: 'FILE COUNT'
+        description: 'FILE COUNT LIMIT'
         type: number
         required: false
         default: '0'
       update:
-        description: 'UPDATE REPO'
+        description: 'UPDATE REPOSITORY'
         type: boolean
         required: false
         default: 'false'
       report:
-        description: 'UPLOAD REPORT'
+        description: 'UPLOAD CHECK REPORT'
         type: boolean
         required: false
         default: 'false'
       repair:
-        description: 'ERROR REPAIR'
+        description: 'FILE ERROR REPAIR'
         type: boolean
         required: false
         default: 'false'
-      DEVICE_TREE:
-        description: 'DEVICE TREE'
+      repo:
+        description: 'CACHE REPOSITORY'
+        type: boolean
         required: true
-        default: 'https://github.com/Tec4Sho/android_kernel_mt8163.git'
-      DEVICE_TREE_BRANCH:
-        description: 'DEVICE TREE BRANCH'
-        required: true
-        default: 'android-9.0'
-      build:
-        description: 'BUILD MODE'
-        required: false
-        type: choice
-        options:
-        - 0
-        - 1
-        - 2
-        - 3
-        - 4
-        default: '0'
+        default: 'false'
         
 jobs:
   build-and-test:
