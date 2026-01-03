@@ -130,6 +130,6 @@ jobs:
 
       - name: Check Workspace
         run: |
-          sudo du / -h -d 2
+          sudo du / -h -d 1 2>/dev/null;
           echo
-          du . -h -d 4
+          du . -h -d 2
