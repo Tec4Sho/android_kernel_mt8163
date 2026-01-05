@@ -1,1 +1,8 @@
--style=LLVM
+--- # We'll use defaults from the Google style, but with 4 columns indentation.
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+---
+Language: C # Force pointers to the type for C.
+PointerAlignment: Left
+
