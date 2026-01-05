@@ -15,8 +15,8 @@ on:
       dirname:
         description: 'DEFAULT DIRECTORY'
         type: string
-        required: true
-        default: 'kernel/alps/tb8163p3_bsp'  
+        required: false
+        default: ''  
       analyzer:
         description: 'ANALYZER MODE'
         type: choice
@@ -75,9 +75,6 @@ jobs:
     steps:      
       - name: Create Workspace
         run: |
-          mkdir -p ${GITHUB_WORKSPACE}/workspace
-          set -o allexport
-          export GIT_DISCOVERY_ACROSS_FILESYSTEM=1
           if [[ `which git` ]]; then
           echo -e "\n`git --version`\n";
             git config --global core.longpaths true
@@ -94,7 +91,6 @@ jobs:
             git config --global http.lowSpeedLimit 0      # Disable low speed limit
             git config --global http.lowSpeedTime 999999  # Increase low speed time threshold
           fi;
-          set +e
         continue-on-error: true
 
      # - name: Cleanup Environment
@@ -113,7 +109,7 @@ jobs:
           database: true
           pattern: ${{ inputs.pattern }}
           project: true
-          dirname: 'kernel/alps/tb8163p3_bsp'
+          dirname: ${{ inputs.dirname }}
           content: false
           include: true
           rootdir: false
