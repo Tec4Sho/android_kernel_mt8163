@@ -112,7 +112,7 @@ jobs:
           dirname: ${{ inputs.dirname }}
           content: false
           include: true
-          rootdir: false
+          rootdir: true
           recheck: false
           repair: ${{ inputs.repair }}
           report: ${{ inputs.report }}
