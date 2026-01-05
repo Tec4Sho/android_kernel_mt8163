@@ -59,7 +59,7 @@ on:
         type: boolean
         required: false
         default: 'false'
-      repo:
+      cache:
         description: 'CACHE REPOSITORY'
         type: boolean
         required: false
@@ -123,5 +123,5 @@ jobs:
           output: 1
           build: ${{ inputs.build }}
           clean: true
-          repo: ${{ inputs.repo }}
+          cache: ${{ inputs.cache }}
         continue-on-error: false
