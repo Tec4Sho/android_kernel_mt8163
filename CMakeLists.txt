@@ -21,7 +21,7 @@ find_program(CLANG_TIDY_EXE "clang-tidy")
     message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
     # Configure clang-tidy to run with all checks and fix errors
     # .set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=*;-header-filter=.;-fix")
-    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=-*,modernize-loop-convert,readability-identifier-naming,clang-analyzer-*;-fix")
+    set(CMAKE_C_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=-*,clang-analyzer-*;-header-filter=.*;-fix;-fix-errors;-fix-notes")
     # You can also specify specific checks instead of -checks=*
     # .set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE};-checks=modernize-loop-convert,readability-identifier-naming,clang-analyzer-cplusplus;-fix")
   else()
@@ -40,8 +40,6 @@ find_package(Git REQUIRED)
 # .set(_saved_CMAKE_MESSAGE_LOG_LEVEL "${CMAKE_MESSAGE_LOG_LEVEL}")
 
 # .set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
-
-set(CMAKE_C_CLANG_TIDY "clang-tidy;-header-filter=.*")
 
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
@@ -72,12 +70,12 @@ file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
 # Add the system, project include directory to your target
 if(DEFINED PROJECT_INCLUDE_DIRS)
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/*/")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
   foreach(PROJECT_INCLUDE_DIR ${PROJECT_INCLUDE_DIRS})
     target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIR}")
   endforeach()
-  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/home/runner/.local/lib/python*/site-packages/clang_tidy/data/lib/clang/*/include")
-  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
+  target_include_directories("${PROJECT_NAME}" SYSTEM INTERFACE "/home/runner/.local/lib/python*/site-packages/clang_tidy/data/lib/clang/*/include")
+  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include/*")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check]")
 elseif(ENV${github_include_dirs})
   target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/linux")
