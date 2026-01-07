@@ -107,12 +107,12 @@ jobs:
           filename: ${{ inputs.filename }}
           filetype: c
           database: true
+          absolute: true
           pattern: ${{ inputs.pattern }}
           project: true
           dirname: ${{ inputs.dirname }}
           content: false
           include: true
-          rootdir: true
           recheck: false
           repair: ${{ inputs.repair }}
           report: ${{ inputs.report }}
