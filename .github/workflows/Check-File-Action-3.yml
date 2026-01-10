@@ -111,7 +111,7 @@ jobs:
           pattern: ${{ inputs.pattern }}
           project: true
           dirname: ${{ inputs.dirname }}
-          content: false
+          content: true
           include: true
           recheck: false
           repair: ${{ inputs.repair }}
