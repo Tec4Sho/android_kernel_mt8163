@@ -68,8 +68,17 @@ endif()
 # Automatically find all header files recursively
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 
+set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
+
 # Add the system, project include directory to your target
-if(DEFINED PROJECT_INCLUDE_DIRS)
+if(DEFINED CHECK_FILE_SOURCES)
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
+  file(STRINGS "${CHECK_FILE_SOURCES}" FILE_PATHS)
+  foreach(INCLUDE_PATH IN LISTS FILE_PATHS)
+    message(STATUS "Processing include source paths: Active")
+    target_include_directories("${PROJECT_NAME}" PRIVATE "${INCLUDE_PATH}")
+  endforeach()
+elseif(DEFINED PROJECT_INCLUDE_DIRS)
   target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
   foreach(PROJECT_INCLUDE_DIR ${PROJECT_INCLUDE_DIRS})
     target_include_directories("${PROJECT_NAME}" PRIVATE "${PROJECT_INCLUDE_DIR}")
