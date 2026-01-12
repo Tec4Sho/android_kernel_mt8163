@@ -71,11 +71,11 @@ file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 
 # Add the system, project include directory to your target
-if(DEFINED CHECK_FILE_SOURCES)
+if(DEFINED CHECK_FILE_SOURCES AND ENV${source_include})
   target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/*")
   file(STRINGS "${CHECK_FILE_SOURCES}" FILE_PATHS)
+  message(STATUS "Processing auto include source paths: ENV${include_count}")
   foreach(INCLUDE_PATH IN LISTS FILE_PATHS)
-    message(STATUS "Processing include source paths: Active")
     target_include_directories("${PROJECT_NAME}" PRIVATE "${INCLUDE_PATH}")
   endforeach()
 elseif(DEFINED PROJECT_INCLUDE_DIRS)
