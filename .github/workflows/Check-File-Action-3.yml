@@ -118,6 +118,7 @@ jobs:
           report: ${{ inputs.report }}
           update: ${{ inputs.update }}
           upload: true
+          source: 1
           stored: true
           number: ${{ inputs.number }}
           output: 1
