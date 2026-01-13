@@ -48,22 +48,28 @@ on:
         description: 'UPDATE REPOSITORY'
         type: boolean
         required: false
-        default: 'false'
+        default: false
       report:
         description: 'UPLOAD CHECK REPORT'
         type: boolean
         required: false
-        default: 'false'
-      repair:
-        description: 'FILE ERROR REPAIR'
-        type: boolean
+        default: false
+      source:
+        description: 'SOURCE MODE'
+        type: choice
         required: false
-        default: 'false'
+        default: '0'
+        options:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
       cache:
         description: 'CACHE REPOSITORY'
         type: boolean
         required: false
-        default: 'false'
+        default: false
         
 jobs:
   build-and-test:
@@ -114,11 +120,11 @@ jobs:
           content: true
           include: true
           recheck: false
-          repair: ${{ inputs.repair }}
+          repair: false
           report: ${{ inputs.report }}
           update: ${{ inputs.update }}
           upload: true
-          source: 1
+          source: ${{ inputs.source }}
           stored: true
           number: ${{ inputs.number }}
           output: 1
