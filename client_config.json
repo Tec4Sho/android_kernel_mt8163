@@ -10,6 +10,6 @@
     "--report-hash", 
     "context-free-v2",
     "--verbose=debug",
-    "--clean",
+    "--clean"
   ]
 }
