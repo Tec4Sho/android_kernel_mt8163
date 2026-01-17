@@ -1,10 +1,26 @@
+# codechecker.yaml
+analyze:
+  # Enable specific clang-tidy checks
+  enable:
+    - clang-tidy:readability-function-size
+    - clang-tidy:modernize-use-nullptr
+
+  # Configure options for these checks
+  checker_config:
+    - clang-tidy:readability-function-size.StatementThreshold=100
+    - clang-tidy:modernize-use-nullptr.CheckMacros=false
+
+  # (Optional) Tell clang-tidy to look for .clang-tidy files too
+  analyzer_config:
+    - clang-tidy:take-config-from-directory=true
+
 analyzer:
   # Enable/disable checkers.
   - --enable=core.DivideZero
   - --enable=core.CallAndMessage
   # Analyzer configurations.
   - --analyzer-config=clangsa:unroll-loops=true
-  - --checker-config=clang-tidy:google-readability-function-size.StatementThreshold=100
+  - --checker-config=clang-tidy:take-config-from-directory=true
   # Optional options.
   - --no-missing-checker-error
   - --report-hash=context-free-v2
