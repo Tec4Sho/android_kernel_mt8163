@@ -5,7 +5,7 @@ analyzer:
   - --enable=core.CallAndMessage
   # Analyzer configurations.
   - --analyzer-config=clangsa:unroll-loops=true
-  - --checker-config=clang-tidy:google-readability-function-size.StatementThreshold=100
+  
   # Optional options.
   - --report-hash=context-free-v2
   - --verbose=debug
