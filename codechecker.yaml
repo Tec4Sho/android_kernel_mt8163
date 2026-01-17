@@ -7,6 +7,7 @@ analyzer:
   - --analyzer-config=clangsa:unroll-loops=true
   - --checker-config=clang-tidy:take-config-from-directory=true
   # Optional options.
+  - --keep-gcc-include-fixed
   - --no-missing-checker-error
   - --report-hash=context-free-v2
   - --verbose=debug
