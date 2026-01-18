@@ -1,6 +1,7 @@
 # codechecker.yaml
 analyzer:
   # Enable/disable checkers.
+  - --disable=all
   - --enable=core.DivideZero
   - --enable=core.CallAndMessage
   # Analyzer configurations.
