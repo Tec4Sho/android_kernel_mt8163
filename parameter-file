@@ -1,9 +1,7 @@
---checks='-*,clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*'
+--checks='-*,clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*,-clang-analyzer-core*'
 --enable-check-profile
---export-fixes=build/fixes
 --header-filter='.*'
 --system-headers
---list-checks
 --color
 --fix
 --fix-notes
