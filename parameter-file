@@ -2,8 +2,10 @@
 --enable-check-profile
 --header-filter='.*'
 --system-headers
---color
+--use-color
 --fix
 --fix-notes
 --fix-errors
 --extra-arg=-std=c90
+--
+.
