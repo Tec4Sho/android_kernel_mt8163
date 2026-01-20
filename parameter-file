@@ -1,6 +1,8 @@
 --checks='-*,clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*,-clang-analyzer-core*'
 --header-filter='.*'
+--system-headers
 --fix-errors
 --fix-notes
 --fix
+--extra-arg=-std=c90
 --extra-arg=-ferror-limit=100
