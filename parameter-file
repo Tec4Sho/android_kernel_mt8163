@@ -1,3 +1,4 @@
+-p=build/
 --checks='-*,clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*,-clang-analyzer-core*'
 --enable-check-profile
 --header-filter='.*'
@@ -7,4 +8,4 @@
 --fix-notes
 --fix-errors
 --extra-arg=-std=c90
--p=build
+--extra-arg=-ferror-limit=0
