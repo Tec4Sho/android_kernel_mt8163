@@ -1,5 +1,4 @@
 --checks='-*,clang-analyzer-*,-clang-analyzer-cplusplus*,-clang-analyzer-osx*,-clang-analyzer-core*'
---enable-check-profile
 --header-filter='.*'
 --fix
 --fix-notes
