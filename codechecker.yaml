@@ -1,5 +1,5 @@
 analyzer:
-  - --disable=all
+  - --disable-all
   - --enable=core.DivideZero
   - --enable=core.CallAndMessage
   - --analyzers=clangsa
