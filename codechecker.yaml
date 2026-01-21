@@ -6,7 +6,6 @@ analyze:
   - --report-hash=diagnostic-message
   - --verbose=info
   - --clean
-  - --stats
 
 parse:
   - --trim-path-prefix=$HOME/workspace
