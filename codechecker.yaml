@@ -1,22 +1,10 @@
 analyzer:
   - --disable-all
-  - --enable=core.DivideZero
-  - --enable=core.CallAndMessage
-  - --analyzers=clangsa
-  - --analyzer-config=clangsa:mode=shallow
+  - --analyzers=clang-tidy
+  - --analyzer-config=clang-tidy
+  - --analyzer-config=clang-tidy:mode=shallow
+  - --analyzer-config=clang-tidy:take-config-from-directory=true
   - --no-missing-checker-error
   - --report-hash=context-free-v2
   - --verbose=info
   - --clean
-
-parse:
-  - --trim-path-prefix=$HOME/workspace
-
-server:
-  - --workspace=$HOME/workspace
-  - --port=9090
-
-store:
-  - --name=run_name
-  - --tag=my_tag
-  - --url=http://codechecker.my:9090/MyProduct
