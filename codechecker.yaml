@@ -2,11 +2,11 @@ analyze:
   - --disable-all
   - --analyzers=clang-tidy
   - --analyzer-config=clang-tidy:take-config-from-directory=true
-  - --analyzer-config=clang-tidy:details
   - --no-missing-checker-error
-  - --report-hash=context-free-v2
+  - --report-hash=diagnostic-message
   - --verbose=info
   - --clean
+  - --stats
 
 parse:
   - --trim-path-prefix=$HOME/workspace
