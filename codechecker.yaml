@@ -1,6 +1,7 @@
 analyze:
   - --disable-all
   - --analyzers=clang-tidy
+  - --analyzer-config=clang-tidy:google-readability-function-size.StatementThreshold=100
   - --analyzer-config=clang-tidy:take-config-from-directory=true
   - --no-missing-checker-error
   - --report-hash=diagnostic-message
