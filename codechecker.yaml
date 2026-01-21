@@ -10,3 +10,4 @@ analyzer:
 
 parse:
   - --trim-path-prefix=$HOME/workspace
+  - --print-steps
