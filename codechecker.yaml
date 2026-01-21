@@ -7,3 +7,6 @@ analyzer:
   - --report-hash=context-free-v2
   - --verbose=info
   - --clean
+
+parse:
+  - --trim-path-prefix=$HOME/workspace
