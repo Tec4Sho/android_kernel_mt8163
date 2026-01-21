@@ -4,7 +4,6 @@ analyzer:
   - --analyzer-config=clang-tidy:mode=shallow
   - --analyzer-config=clang-tidy:take-config-from-directory=true
   - --analyzer-config=clang-tidy:google-readability-function-size.StatementThreshold=100
-  - --keep-gcc-include-fixed
   - --no-missing-checker-error
   - --report-hash=context-free-v2
   - --verbose=info
