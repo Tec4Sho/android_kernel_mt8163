@@ -1,10 +1,9 @@
 analyzer:
   - --disable=all
-  - --enable=core.DivideZero
-  - --enable=core.CallAndMessage
-  - --analyzers=clangsa
-  - --analyzer-config=clangsa:mode=shallow
-  - --analyzer-config=clangsa:unroll-loops=true
+  - --analyzers=clang-tidy
+  - --analyzer-config=clang-tidy:mode=shallow
+  - --analyzer-config=clang-tidy:take-config-from-directory=true
+  - --analyzer-config=clang-tidy:google-readability-function-size.StatementThreshold=100
   - --keep-gcc-include-fixed
   - --no-missing-checker-error
   - --report-hash=context-free-v2
