@@ -1,8 +1,8 @@
-analyzer:
+analyze:
   - --disable-all
   - --analyzers=clang-tidy
   - --analyzer-config=clang-tidy:take-config-from-directory=true
-  - --details
+  - --analyzer-config=clang-tidy:details
   - --no-missing-checker-error
   - --report-hash=context-free-v2
   - --verbose=info
