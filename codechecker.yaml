@@ -1,5 +1,7 @@
 analyze:
   - --disable-all
+  - --enable=core.DivideZero
+  - --enable=core.CallAndMessage
   - --analyzers=clang-tidy
   - --analyzer-config=clang-tidy:take-config-from-directory=true
   - --no-missing-checker-error
@@ -10,3 +12,7 @@ analyze:
 parse:
   - --trim-path-prefix=$HOME/workspace
   - --print-steps
+
+server:
+  - --workspace=$HOME/workspace
+  - --port=9090
