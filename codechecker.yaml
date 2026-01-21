@@ -1,9 +1,9 @@
 analyzer:
   - --disable=all
-  - --analyzers=clang-tidy
-  - --analyzer-config=clang-tidy
-  - --analyzer-config=clang-tidy:mode=shallow
-  - --analyzer-config=clang-tidy:take-config-from-directory=true
+  - --enable=core.DivideZero
+  - --enable=core.CallAndMessage
+  - --analyzers=clangsa
+  - --analyzer-config=clangsa:mode=shallow
   - --no-missing-checker-error
   - --report-hash=context-free-v2
   - --verbose=info
