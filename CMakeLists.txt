@@ -125,13 +125,18 @@ elseif(DEFINED ALL_HEADERS) # Extract the unique directory paths from the list o
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing all headers [check 4]")
 else()
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/linux")
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/*/")
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  # Find all subdirectories that contain at least one header file
+  file(GLOB_RECURSE include_files LIST_DIRECTORIES true "include/*.h")
+  set(include_dirs "")
+  foreach(file_path ${include_files})
+    get_filename_component(dir_path ${file_path} DIRECTORY)
+    list(APPEND include_dirs ${dir_path})
+  endforeach()
+  list(REMOVE_DUPLICATES include_dirs)
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${include_dirs}")
   target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added include directories. clang analyzing include directory [check 5]")
 endif()
-
 
 # .set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 
