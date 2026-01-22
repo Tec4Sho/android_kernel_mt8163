@@ -1,0 +1,22 @@
+analyze:
+  - --analyzers=clangsa
+  - --disable-all
+  - --enable=core.DivideZero
+  - --enable=core.CallAndMessage
+  - --no-missing-checker-error
+  - --report-hash=diagnostic-message
+  - --verbose=info
+  - --clean
+
+parse:
+  - --trim-path-prefix=$HOME/workspace
+  - --print-steps
+
+server:
+  - --workspace=$HOME/workspace
+  - --port=9090
+
+store:
+  - --name=run_name
+  - --tag=my_tag
+  - --url=http://codechecker.my:9090/MyProduct
