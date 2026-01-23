@@ -8,11 +8,11 @@ analyze:
   - --clean
 
 parse:
-  - --trim-path-prefix=$HOME/workspace
+  - --trim-path-prefix=$GITHUB_WORKSPACE/reports
   - --print-steps
 
 server:
-  - --workspace=$HOME/workspace
+  - --workspace=$GITHUB_WORKSPACE/reports
   - --port=9090
 
 store:
