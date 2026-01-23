@@ -5,6 +5,7 @@ analyze:
   - --no-missing-checker-error
   - --keep-gcc-include-fixed=false
   - --report-hash=diagnostic-message
+  - --ignore=skip.txt
   - --verbose=info
   - --clean
 
