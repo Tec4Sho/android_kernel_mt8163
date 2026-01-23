@@ -91,7 +91,7 @@ file(GLOB_RECURSE include_files LIST_DIRECTORIES true "include/*.h")
 set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 
 # Add the system, project include directory to your target. Comment to disable an add your custom target_include_directories
-set(PROJECT_AUTO_INCLUDE "true")
+# .set(PROJECT_AUTO_INCLUDE "true")
 
 if(DEFINED PROJECT_AUTO_INCLUDE)
   if(EXISTS "${CHECK_FILE_SOURCES}" AND INCLUDE_SRC)
