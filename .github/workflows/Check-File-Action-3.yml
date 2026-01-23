@@ -55,8 +55,8 @@ on:
         type: number
         required: false
         default: '0'
-      update:
-        description: 'UPDATE REPOSITORY'
+      include:
+        description: 'INCLUDE SOURCES'
         type: boolean
         required: false
         default: false
@@ -118,11 +118,11 @@ jobs:
           project: true
           dirname: ${{ inputs.dirname }}
           content: true
-          include: true
+          include: ${{ inputs.include }}
           recheck: false
           repair: false
           report: ${{ inputs.report }}
-          update: ${{ inputs.update }}
+          update: false
           upload: true
           source: ${{ inputs.source }}
           stored: true
