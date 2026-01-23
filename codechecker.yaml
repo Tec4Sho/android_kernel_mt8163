@@ -4,6 +4,7 @@ analyze:
   - --enable=sensitive
   - --no-missing-checker-error
   - --report-hash=diagnostic-message
+  - --drop-reports-from-skipped-files
   - --ignore=skip.txt
   - --verbose=info
   - --clean
