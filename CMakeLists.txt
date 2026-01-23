@@ -143,7 +143,7 @@ if(DEFINED PROJECT_AUTO_INCLUDE)
   endif()
 else
 # Add your custom includes here after commenting # set(PROJECT_AUTO_INCLUDE "true") above
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include/**/**/")
   message(STATUS "Project Includes: cmake added user defined include directories. clang analyzing includes added [check 6 custom]")
 endif()
 
