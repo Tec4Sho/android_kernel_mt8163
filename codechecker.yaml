@@ -3,16 +3,17 @@ analyze:
   - --disable-all
   - --enable=sensitive
   - --no-missing-checker-error
+  - --keep-gcc-include-fixed=false
   - --report-hash=diagnostic-message
   - --verbose=info
   - --clean
 
 parse:
-  - --trim-path-prefix=$GITHUB_WORKSPACE/reports
+  - --trim-path-prefix=${GITHUB_WORKSPACE}/reports
   - --print-steps
 
 server:
-  - --workspace=$GITHUB_WORKSPACE/reports
+  - --workspace=${GITHUB_WORKSPACE}/reports
   - --port=9090
 
 store:
