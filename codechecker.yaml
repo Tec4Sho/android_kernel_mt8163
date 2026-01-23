@@ -3,7 +3,6 @@ analyze:
   - --disable-all
   - --enable=sensitive
   - --no-missing-checker-error
-  - --keep-gcc-include-fixed=false
   - --report-hash=diagnostic-message
   - --ignore=skip.txt
   - --verbose=info
@@ -20,4 +19,4 @@ server:
 store:
   - --name=run_name
   - --tag=my_tag
-  - --url=http://codechecker.my:9090/MyProduct
+  - --url=http://codechecker.my:9090/MyProject
