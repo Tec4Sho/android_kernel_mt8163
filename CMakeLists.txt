@@ -144,7 +144,7 @@ if(DEFINED PROJECT_AUTO_INCLUDE)
   endif()
 else()
 # Add your custom includes here after commenting # set(PROJECT_AUTO_INCLUDE "true") above
-  foreach(FILE "${PROJECT_SRC_FILES}")
+  foreach(FILE ${PROJECT_SRC_FILES})
     file(READ "${FILE}" FILE_CONTENTS)
     string(REGEX MATCHALL "#include[ \t]+[<\"]([^>\"]+)[>\"]" MATCHES "${FILE_CONTENTS}")
     set(HEADER_LIST "")
