@@ -65,6 +65,10 @@ endif()
 
 list(SORT PROJECT_SRC_FILES)
 
+list(LENGTH PROJECT_SRC_FILES SOURCE_COUNT)
+
+message(STATUS "Source file count: ${SOURCE_COUNT}")
+
 add_executable("${PROJECT_NAME}") # Creates an executable target named "MyProject" from source files
 
 if(DEFINED PROJECT_SRC_FILES)
@@ -95,7 +99,7 @@ file(GLOB_RECURSE include_files LIST_DIRECTORIES true "include/*.h")
 set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 
 # Add the system, project include directory to your target. Comment to disable an add your custom target_include_directories
-set(PROJECT_AUTO_INCLUDE "true")
+# .set(PROJECT_AUTO_INCLUDE "true")
 
 if(DEFINED PROJECT_AUTO_INCLUDE)
   target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}")
@@ -145,7 +149,10 @@ if(DEFINED PROJECT_AUTO_INCLUDE)
   endif()
 else()
 # Add your custom includes here after commenting # set(PROJECT_AUTO_INCLUDE "true") above
+  set(FILE_COUNT 0)
   foreach(FILE ${PROJECT_SRC_FILES})
+    math(EXPR FILE_COUNT "${FILE_COUNT} + 1")
+    set(FILE_CONTENTS "")
     file(READ "${FILE}" FILE_CONTENTS)
     string(REGEX MATCHALL "#include[ \t]+[<\"]([^>\"]+)[>\"]" MATCHES "${FILE_CONTENTS}")
     set(HEADER_LIST "")
@@ -160,7 +167,8 @@ else()
     endforeach()
     list(REMOVE_DUPLICATES include_dirs)
     target_sources("${PROJECT_NAME}" PRIVATE "${FILE}")
-    target_include_directories("${PROJECT_NAME}" PRIVATE "${include_dirs}")  
+    target_include_directories("${PROJECT_NAME}" PRIVATE "${include_dirs}")
+    message(STATUS "Source File: ${FILE_COUNT}") 
   endforeach()
   message(STATUS "Project Includes: cmake added user defined include directories. clang analyzing includes added [check 6 custom]")
 endif()
