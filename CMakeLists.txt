@@ -145,13 +145,14 @@ if(DEFINED PROJECT_AUTO_INCLUDE)
 else()
 # Add your custom includes here after commenting # set(PROJECT_AUTO_INCLUDE "true") above
   foreach(FILE "${PROJECT_SRC_FILES}")
-    execute_process(
-      COMMAND grep -oE '#include[[:space:]]+[< ].*[> ]' "${FILE}" 2>/dev/null
-      COMMAND awk "{print $2}"
-      COMMAND tr -d '<">'
-      COMMAND sort -u
-      OUTPUT_VARIABLE HEADER_LIST
-    )
+    file(READ "${FILE}" FILE_CONTENTS)
+    string(REGEX MATCHALL "#include[ \t]+[<\"]([^>\"]+)[>\"]" MATCHES "${FILE_CONTENTS}")
+    set(HEADER_LIST "")
+    foreach(MATCH ${MATCHES})
+      string(REGEX REPLACE "#include[ \t]+[<\"]([^>\"]+)[>\"]" "\\1" HEADER_NAME "${MATCH}")
+      list(APPEND HEADER_LIST "${HEADER_NAME}")
+    endforeach()
+    list(REMOVE_DUPLICATES HEADER_LIST)
     foreach(file_path ${HEADER_LIST})
       file(GLOB_RECURSE PROJECT_INCLUDES RELATIVE LIST_DIRECTORIES true "${file_path}")
       list(APPEND include_dirs ${PROJECT_INCLUDES})
