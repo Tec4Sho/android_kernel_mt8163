@@ -65,7 +65,7 @@ endif()
 
 list(SORT PROJECT_SRC_FILES)
 
-add_executable("${PROJECT_NAME}" "${PROJECT_SRC_FILES}") # Creates an executable target named "MyProject" from source files
+add_executable("${PROJECT_NAME}") # Creates an executable target named "MyProject" from source files
 
 if(DEFINED PROJECT_SRC_FILES)
   message(STATUS "Project Files: cmake added source files")
@@ -158,8 +158,9 @@ else()
       list(APPEND include_dirs ${PROJECT_INCLUDES})
     endforeach()
     list(REMOVE_DUPLICATES include_dirs)
-    add_executable("${PROJECT_NAME}" "${FILE}")
-    target_include_directories("${PROJECT_NAME}" PRIVATE "${include_dirs}")  
+    target_link_libraries("${PROJECT_NAME}" PRIVATE MyLibrary)
+    add_library(MyLibrary STATIC "${FILE}")
+    target_include_directories(MyLibrary PRIVATE "${include_dirs}")  
   endforeach()
   message(STATUS "Project Includes: cmake added user defined include directories. clang analyzing includes added [check 6 custom]")
 endif()
