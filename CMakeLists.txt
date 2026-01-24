@@ -41,6 +41,10 @@ find_package(Git REQUIRED)
 
 # .set(CMAKE_MESSAGE_LOG_LEVEL WARNING)
 
+if(MINGW)
+  SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff -DwxUSE_DPI_AWARE_MANIFEST=2 -I \"${CMAKE_CURRENT_SOURCE_DIR}/include\" -i <SOURCE> -o <OBJECT>")
+endif(MINGW)
+
 set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 # .add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}")
@@ -91,7 +95,7 @@ file(GLOB_RECURSE include_files LIST_DIRECTORIES true "include/*.h")
 set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 
 # Add the system, project include directory to your target. Comment to disable an add your custom target_include_directories
-set(PROJECT_AUTO_INCLUDE "true")
+# .set(PROJECT_AUTO_INCLUDE "true")
 
 if(DEFINED PROJECT_AUTO_INCLUDE)
   if(EXISTS "${CHECK_FILE_SOURCES}" AND INCLUDE_SRC)
@@ -140,15 +144,22 @@ if(DEFINED PROJECT_AUTO_INCLUDE)
   endif()
 else()
 # Add your custom includes here after commenting # set(PROJECT_AUTO_INCLUDE "true") above
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/drivers")
-  set(include_dirs "")
-  foreach(file_path ${include_files})
-    get_filename_component(dir_path ${file_path} DIRECTORY)
-    list(APPEND include_dirs ${dir_path})
+  foreach(FILE "${PROJECT_SRC_FILES}")
+    execute_process(
+      COMMAND grep -oE '#include[[:space:]]+[< ].*[> ]' "${FILE}" 2>/dev/null
+      COMMAND awk "{print $2}"
+      COMMAND tr -d '<">'
+      COMMAND sort -u
+      OUTPUT_VARIABLE HEADER_LIST
+    )
+    foreach(file_path ${HEADER_LIST})
+      file(GLOB_RECURSE PROJECT_INCLUDES RELATIVE LIST_DIRECTORIES true "${file_path}")
+      list(APPEND include_dirs ${PROJECT_INCLUDES})
+    endforeach()
+    list(REMOVE_DUPLICATES include_dirs)
+    add_executable("${PROJECT_NAME}" "${FILE}")
+    target_include_directories("${PROJECT_NAME}" PRIVATE "${include_dirs}")  
   endforeach()
-  list(REMOVE_DUPLICATES include_dirs)
-  target_include_directories("${PROJECT_NAME}" PRIVATE "${include_dirs}")
-  target_include_directories("${PROJECT_NAME}" SYSTEM PUBLIC "/usr/include")
   message(STATUS "Project Includes: cmake added user defined include directories. clang analyzing includes added [check 6 custom]")
 endif()
 
@@ -295,4 +306,3 @@ output_src_files()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin CACHE PATH "")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib CACHE PATH "")
-
