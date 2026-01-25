@@ -74,5 +74,5 @@ jobs:
           
       - name: Delete all
         run: |
-          gh run list --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q .[].databaseId | xargs -IID gh run delete --repo ${{ github.repository }} ID || gh run list --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
+          gh run list --accept application/vnd.github+json --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q .[].databaseId | xargs -IID gh run delete --repo ${{ github.repository }} ID || gh run list --accept application/vnd.github+json --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
         continue-on-error: true
