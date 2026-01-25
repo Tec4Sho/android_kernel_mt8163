@@ -19,7 +19,7 @@ on:
         default: "ALL"
         type: choice
         options:
-          - "ALL"
+          - ALL
           - active
           - deleted
           - disabled_inactivity
@@ -30,8 +30,8 @@ on:
         default: "ALL"
         type: choice
         options:
-          - "ALL"
-          - "Unsuccessful: action_required,cancelled,failure,skipped"
+          - ALL
+          - 'Unsuccessful: action_required,cancelled,failure,skipped'
           - action_required
           - cancelled
           - failure
@@ -64,3 +64,8 @@ jobs:
               || github.event.inputs.delete_run_by_conclusion_pattern
             }}
           dry_run: ${{ github.event.inputs.dry_run }}
+          
+      - name: Delete all
+        run: |
+          gh run list --limit 25 --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
+        continue-on-error: true
