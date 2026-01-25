@@ -1,0 +1,2777 @@
+name: Check File Action
+description: 'Check file - Add filename to check for errors or text Word to search for within workspace files'
+inputs:
+  repository:
+    description: 'Auto clone user remote repo locally for checks'
+    type: boolean
+    required: false
+    default: 'true'
+  absolute:
+    description: 'Search will use absolute over relative path from github workspace'
+    type: boolean
+    required: false
+    default: 'true'
+  analyzer:
+    description: 'Analyze all project files using options 1 - 2 - 3 - 4'
+    required: false
+    default: 0
+    type: choice
+    options:
+    - 0 # disable project analyzer
+    - 1 # run-clang-tidy.py - fastest for large project file checks. fix-its
+    - 2 # clang-tidy - faster for small an large project file checks. fix-its
+    - 3 # clangd-tidy - fast large project file checks.
+    - 4 # codechecker - compiler project file check reports.
+  makefile:
+    description: 'Make filename for building project source'
+    type: string
+    required: false
+    default: 'build/CMakeFiles/Makefile2'
+  filename:
+    description: 'Check for filename or search for text word matches'
+    type: string
+    required: false
+    default: ''
+  filetype:
+    description: 'Check only these file extension types when searching for text word matches'
+    type: string
+    required: false
+    default: 'none'
+  database:
+    description: 'Use file database over find commands slower performance for searches'
+    type: boolean 
+    required: false
+    default: 'false'
+  dirname:
+    description: 'Directory to check files or if using project option the dir to include for header checks & builds'
+    type: string
+    required: false
+    default: ''
+  pattern:
+    description: 'Search for pattern matches in filetypes or all files'
+    type: string
+    required: false
+    default: ''
+  project:
+    description: 'Fix Errors found while building project or check build only'
+    type: boolean
+    required: false
+    default: 'false'
+  recheck:
+    description: 'Recheck files repaired by check-file'
+    type: boolean
+    required: false
+    default: 'false'
+  repair:
+    description: 'Check file and fix if able when searching for errors'
+    type: boolean
+    required: false
+    default: 'false'
+  report:
+    description: 'Errors found will be logged and sent to repository releases'
+    type: boolean
+    required: false
+    default: 'false'
+  compiler:
+    description: 'Clang compiler used for project building only'
+    type: string
+    required: false
+    default: 'clang-latest'
+  content:
+    description: 'Search will list dir contents of found filename'
+    type: boolean
+    required: false
+    default: 'false'
+  include:
+    description: 'Check include file when checking source C/C++ filename'
+    type: boolean
+    required: false
+    default: 'true'
+  source:
+    description: 'Check all soucre files for include directories to auto add for clang/cmake'
+    required: false
+    default: 2
+    type: choice
+    options:
+    - 1 # Locate all includes in sources and display all content found about files.
+    - 2 # Locate all includes in sources and display more content found about files.
+    - 3 # Locate all includes in sources and display less content found about files.
+    - 4 # Locate all includes in sources and create object dependencies displaying content found about files.
+  number:
+    description: 'Number of files to check before stopping action'
+    type: number
+    required: false
+    default: 0
+  stored:
+    description: 'Checked files with errors repaired are skipped if ran again'
+    type: boolean
+    required: false
+    default: 'false'
+  update:
+    description: 'Errors repaired with check-file will push changes to remote repository'
+    type: boolean
+    required: false
+    default: 'false'
+  upload:
+    description: 'Upload build files for compile_commands.json'
+    type: boolean
+    required: false
+    default: 'false'
+  output:
+    description: 'Output log stdout type 1,2 or 3'
+    required: false
+    default: 1
+    type: choice
+    options:
+    - 1 # Output to terminal log and error/project file.
+    - 2 # Output to error/project file only.
+    - 3 # Output to terminal log only.
+    - 4 # Disable most output.
+  build:
+    description: 'Fix Errors found while building repository project'
+    type: choice
+    required: false
+    default: '0'
+    options:
+    - 0 # Disable building projects.
+    - 1 # Build & check project. [CodeChecker Dry-Run Multiple-Files]
+    - 2 # Build new compile_commands_json & check project. [CodeChecker Build Multiple-Files]
+    - 3 # Build check includes & check project. [Deheader Dry-Run Multiple-Files]
+    - 4 # Build fix includes & check project. [Deheader Build Single-Files]
+  clean:
+    description: 'Clean workflow on checkout'
+    type: boolean
+    required: false
+    default: 'true'
+  cache:
+    description: 'Cache Needed Project Files'
+    type: boolean
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Linux Distro Check
+      run: |
+        echo '';
+        echo 'export ANSIBLE_FORCE_COLOR=true' | sudo tee -a ~/.bashrc >/dev/null;
+        echo -e "####################\n\033[31mCheck-File-Action-Pro version 2.0.0 [Beta Stable]\033[0m\n####################\n";
+        echo -e "Check-File Started: ${{ github.event.repository.updated_at }}\n";
+        if [[ -r '/etc/os-release' ]]; then
+          . /etc/os-release
+          if [[ "${ID}" == 'ubuntu' ]]; then
+            echo "Name: ${NAME}"
+            echo "Version: ${VERSION}"
+            echo "ID: ${ID}"
+            echo "ID Like: ${ID_LIKE}"
+            echo "Pretty Name: ${PRETTY_NAME}"
+            echo "Version ID: ${VERSION_ID}"
+          else
+            echo "Not running an Ubuntu distribution. ID=${ID}, VERSION=${VERSION}"
+          fi;
+        else
+          echo "Not running a distribution with /etc/os-release available"
+        fi;
+        echo '';
+      shell: bash
+      continue-on-error: true
+
+    - name: Clone Recovery Repo
+      if: inputs.repository == 'true'
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ github.repository }}
+        ref: ${{ github.ref }}
+        clean: ${{ inputs.clean }}
+        fetch-depth: 1
+        show-progress: false
+      continue-on-error: false
+
+    - name: Restore Project
+      if: inputs.cache == 'true' && ( inputs.stored == 'true' || inputs.source == 'true' )
+      id: restore
+      uses: actions/cache/restore@v5
+      env:
+        cache-name: check-file-action
+      with:
+        path: |
+          ./build
+          compile_commands.json
+          check-file-sources.txt
+          check-file-includes.txt
+          check-file-repaired.txt
+        key: ${{ runner.os }}-${{ env.cache-name }}
+        restore-keys: |
+          ${{ runner.os }}
+        enableCrossOsArchive: true
+      continue-on-error: true
+
+    - name: Access repo info and branch
+      run: |
+        echo '';
+        if ${{ steps.restore.outputs.cache-hit == 'true' }}; then
+          echo -e "####################\n\033[32mCheck-File Restored Project Configuration From Cache!\033[0m\n####################\n";
+        fi;
+        echo "Repository Owner and Name: ${GITHUB_REPOSITORY}";
+        echo "Branch Name: ${{ github.ref_name }}";
+        echo "GitHub URL: ${{ github.server_url }}";
+        echo "Repository URL via context: ${{ github.server_url }}/${{ github.repository }}";
+        echo -e "Ref (branch/tag) via context: ${{ github.ref }}\n";
+      shell: bash
+      continue-on-error: true
+
+    - name: Set up Go 1.25.3
+      if: inputs.filename != ''
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.25.3'
+      continue-on-error: true
+
+    - name: Setup Clang Compiler
+      if: inputs.project == 'true'
+      uses: rlalik/setup-cpp-compiler@master
+      with:
+        compiler: ${{ inputs.compiler }}
+      continue-on-error: true
+
+    - name: Installing Dependencies
+      if: inputs.pattern != '' || inputs.filename != '' || inputs.project != 'false'
+      run: |
+        echo '';
+        echo 'export ALLOW_MISSING_DEPENDENCIES=true' | sudo tee -a ~/.bashrc >/dev/null;
+        echo 'export GIT_DISCOVERY_ACROSS_FILESYSTEM=1' | sudo tee -a ~/.bashrc >/dev/null;
+        echo 'export DEBIAN_FRONTEND=noninteractive' | sudo tee -a ~/.bashrc >/dev/null;
+        echo 'export LLVM_ENABLE_THREADS=ON' | sudo tee -a ~/.bashrc >/dev/null;
+        echo 'export WITH_TIDY=1' | sudo tee -a ~/.bashrc >/dev/null;
+        echo 'export LC_ALL=C' | sudo tee -a ~/.bashrc >/dev/null;
+        echo 'deb [trusted=yes] https://apt.gabe565.com /' | sudo tee -a /etc/apt/sources.list.d/gabe565.list >/dev/null;
+        sudo add-apt-repository universe >/dev/null;
+        sudo apt-get update -yq 2>&1 >/dev/null | sed '/Running/,/host./d';
+        cmake_version=$(cmake --version 2>/dev/null | grep version | awk '{print $3}');
+        required_version="4.2.1";
+        linux_distro1="24.04";
+        linux_distro2="22.04";
+        linux_distro3="20.04";
+        linux_verison=$(lsb_release -r | awk '{print $2}');
+        if ${{ inputs.project }}; then
+          if [[ "${cmake_version}" < "${required_version}" ]] && ${{ inputs.project }}; then
+            echo -e "Current CMake version (${cmake_version}) is older than ${required_version}. Updating...";
+            sudo apt-get remove --purge -yq cmake 2>&1 >/dev/null | sed '/Running/,/host./d'
+            sudo apt-get install -yq ca-certificates gpg wget 2>&1 >/dev/null | sed '/Running/,/host./d'
+            [[ ! $(which make) ]] && sudo apt-get install -yq make >/dev/null && echo -e "####################\nmake dependencies already installed\n####################\n";
+            sudo bash -c "$(sudo wget -qO - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | sudo tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null)";
+            if [[ "${linux_verison}" == "${linux_distro1}" ]]; then
+              echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee -a /etc/apt/sources.list.d/kitware.list >/dev/null;
+            elif [[ "${linux_verison}" == "${linux_distro2}" ]]; then
+              echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ jammy main' | sudo tee -a /etc/apt/sources.list.d/kitware.list >/dev/null;
+            elif [[ "${linux_verison}" == "${linux_distro3}" ]]; then
+              echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | sudo tee -a /etc/apt/sources.list.d/kitware.list >/dev/null;
+            else
+              echo -e "\nKitWare Keyring: Noble ${linux_verison}\n";
+              echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | sudo tee -a /etc/apt/sources.list.d/kitware.list >/dev/null;
+            fi;
+          fi;
+        fi;
+        text0="####################\ngit dependencies installed\n####################";
+        text1="####################\nripgrep dependencies installed\n####################";
+        text2="####################\nansi2txt dependencies installed\n####################";
+        text3="####################\nca-certificates dependencies installed\n####################";
+        text4="####################\ncppcheck dependencies installed\n####################";
+        text5="####################\nclang-tools dependencies installed\n####################";
+        text6="####################\nshellharden dependencies installed\n####################";
+        text7="####################\nshellcheck dependencies installed\n####################";
+        text8="####################\ncheckmake dependencies installed\n####################";
+        text9="####################\nbatcat dependencies installed\n####################";
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        github=${GITHUB_WORKSPACE};
+        if [[ ! $(which python3) ]]; then
+          sudo apt-get -yq install python3 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\npython3 dependencies installed\n####################" || echo -e '::error::No python3 installed for project checks';
+          [[ ! $(which python3) ]] && exit 1
+        fi;
+        if ${{ inputs.project }} && [[ "${cmake_version}" < "${required_version}" ]]; then
+          python3 -m pip install --upgrade pip >/dev/null && echo -e "\n####################\npip dependencies installed\n####################" || echo -e '::warning::pip not updated for project checks';
+          echo -e "\nCMake version $cmake_version upgrading to latest python cmake";
+          sudo rm -f "$(which cmake)";
+          sudo mkdir -p '/usr/local/bin';
+          echo "/usr/local/bin" >> "${GITHUB_PATH}";
+          python3 -m pip install --upgrade cmake >/dev/null && echo -e "\n####################\ncmake pip dependencies installed\n####################\n" || echo -e '::error::No cmake pip installed for project checks';
+          sudo cp -pf "${HOME}/.local/bin/cmake" '/usr/local/bin/';
+        fi;
+        if ${{ inputs.project }}; then
+          go build ${{ github.action_path }}/scripts/cmakebar.go && echo -e "####################\ncmakebar dependencies installed\n####################" || echo -e '::error::No cmakebar installed for project checks';
+          [[ -e "cmakebar" ]] && sudo cp -vf 'cmakebar' '/usr/local/bin/'
+        fi;
+        if ${{ inputs.project }} && [[ ! $(which cmake) ]]; then
+          sudo apt-get -yq install cmake make 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\ncmake dependencies installed\n####################" || echo -e '::error::No cmake installed for project build';        
+          [[ ! $(which cmake) ]] && exit 1
+        fi;
+        if ${{ inputs.project }} && [[ ! $(apt list linux-headers-generic >/dev/null 2>&1) ]]; then
+          sudo apt-get -yq install linux-headers-generic 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\nDependencies $(apt list linux-headers-generic 2>/dev/null)\n####################" || echo -e "::warning::No linux-headers-generic installed for project build";
+        fi;
+        if ${{ inputs.project }} && [[ ! $(apt list linux-modules-$(uname -r) >/dev/null 2>&1) ]]; then
+          sudo apt-get -yq install linux-modules-$(uname -r) 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\nDependencies $(apt list linux-modules-$(uname -r) 2>/dev/null)\n####################" || echo -e "::warning::No linux-modules-$(uname -r) installed for project build"; 
+        fi;
+        if [[ ! $(which git) ]]; then
+          sudo apt-get -yq install git git-core 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text0}" || echo -e '::error::No git installed for repo updates';
+          [[ ! $(which git) ]] && exit 1
+        fi;
+        if [[ ! $(which fdfind) ]] && (${{ inputs.project }} || ${{ inputs.source > '0' }}); then
+          sudo apt-get -yq install fd-find 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\nfd dependencies install\n####################" || echo -e '::error::No fdfind installed for file searches';
+          [[ ! $(which fdfind) ]] && echo -e '::error::[No fdfind found]\n';
+        fi;
+        if [[ ! $(which gcc) ]] || [[ ! $(which g++) ]] && ${{ inputs.repair }} && ${{ inputs.filename != '' }}; then
+          sudo apt-get -yq install gcc g++ 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\ngcc g++ dependencies installed\n####################" || echo -e '::error::No gcc or g++ installed for repo updates';
+          [[ ! $(which gcc) ]] || [[ ! $(which g++) ]] && exit 1
+        fi;
+        if ${{ inputs.project }} && [[ ! $(llvm-config --version 2>/dev/null) ]]; then
+          sudo bash -c "$(sudo wget -qO - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add - >/dev/null 2>&1)"
+          sudo bash -c "$(sudo wget -qO - https://apt.llvm.org/llvm.sh | sudo bash -s -- 21 >/dev/null 2>&1)"
+          sudo add-apt-repository "deb http://apt.llvm.org/$(lsb_release -cs)/ llvm-toolchain-$(lsb_release -cs) main" >/dev/null;
+          sudo apt-get -yq install lld llvm llvm-dev liblldb-dev libclang-dev 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\nllvm tools dependencies installed\n####################\n" || echo -e '::error::No llvm tools installed for project build';
+          [[ $(which clang-tidy) ]] && sudo rm -vf "$(which clang-tidy)";
+          sudo apt-get -yq install clang-tools clang-tidy 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text5}" || echo -e '::error::No clang-tools installed';
+          [[ ! $(llvm-config --version 2>/dev/null) ]] && exit 1
+        fi;
+        if (${{ inputs.project }} || [[ "${file_type}" == [cth]* ]]) && [[ ! $(which clang-tidy) ]]; then
+          python3 -m pip install clang-tools >/dev/null && clang-tools --install latest --directory /usr/bin >/dev/null && echo -e "\n####################\nclang tools pip dependencies installed\n####################\n" || echo -e '::error::No clang tools installed for project check'; # Adjust directory as needed
+          [[ ! -e '/usr/bin/clang-tidy' ]] && [[ -e "${HOME}/.local/bin/clang-tidy" ]] && sudo mv -vf "${HOME}/.local/bin/clang-tidy" '/usr/bin/clang-tidy'
+          [[ -e "${HOME}/.local/bin/run-clang-tidy" ]] && sudo mv -vf "${HOME}/.local/bin/run-clang-tidy" '/usr/bin/run-clang-tidy'
+          [[ ! $(which clang-tidy) ]] && exit 1
+        fi;
+        if ${{ inputs.analyzer == '1' }} && ${{ inputs.project }} && [[ $(which run-clang-tidy) ]]; then
+          echo -e "\n[clang-tools] $(whereis -b run-clang-tidy)";
+          [[ $(whereis clang-format) ]] && echo -e "\n[clang-tools]: $(whereis -b clang-format)";
+          [[ $(whereis clang-apply-replacements) ]] && echo -e "\n[clang-tools]: $(whereis -b clang-apply-replacements)";
+          echo 'run_clang_tidy=run-clang-tidy' >> "${GITHUB_ENV}";
+        elif ${{ inputs.analyzer == '1' }} && ${{ inputs.project }}; then
+          echo -e "\n[clang-tools] run-clang-tidy: /scripts/tools/run-clang-tidy.py";
+          [[ $(whereis clang-format) ]] && echo -e "\n[clang-tools]: $(whereis -b clang-format)";
+          [[ $(whereis clang-apply-replacements) ]] && echo -e "\n[clang-tools]: $(whereis -b clang-apply-replacements)";
+          echo "run_clang_tidy=${{ github.action_path }}/scripts/tools/run-clang-tidy.py" >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.project }} && ${{ inputs.analyzer == '3' }} && [[ ! $(which clangd-tidy) ]]; then
+          python3 -m pip install --upgrade clangd-tidy >/dev/null && echo -e "\n####################\nclangd-tidy dependencies installed\n####################" || echo -e '::error::No clangd-tidy installed for project checks';
+          sudo apt-get -yq install clangd 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "\n####################\nclangd pip dependencies installed\n####################" || echo -e '::error::No clangd pip installed for project checks';
+          if [[ $(which clangd-tidy) ]]; then
+            echo -e "\nclangd-tidy path: $(which clangd-tidy)\n";
+          else
+            exit 1
+          fi;
+        fi;
+        if (${{ inputs.analyzer == '4' }} || ${{ inputs.build == '1' }} || ${{ inputs.build == '2' }}) && [[ ! $(which CodeChecker) ]]; then
+          sudo apt-get -yq install python3-pip python3-venv 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "\n####################\npython3-pip dependencies installed\n####################" || echo -e '::error::No python3-pip installed for project checks';
+          python3 -m pip install --upgrade codechecker >/dev/null && echo -e "\n####################\ncodechecker dependencies installed\n####################" || echo -e '::error::No codechecker installed for project checks';
+          sudo mkdir -p "/home/runner/codechecker/venv/include";
+          sudo mkdir -p "/home/runner/codechecker/venv/bin";
+          sudo chown -R "${USER}:${USER}" /home/runner/codechecker/
+          cd "/home/runner/codechecker/venv";
+          python3 -m venv .
+          cd "${github}";
+          if [[ $(which CodeChecker) ]]; then
+            echo -e "\nCodeChecker path: $(which CodeChecker)";
+          else
+            exit 1
+          fi;
+        fi;
+        if ${{ inputs.project }} && ${{ inputs.build > '2' }} && [[ ! $(which deheader) ]]; then
+          sudo apt-get -yq install deheader 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\ndeheader dependencies installed\n####################" || echo -e '::error::No deheader installed for project includes check';
+          [[ ! $(which deheader) ]] && exit 1
+        fi;
+        if ${{ inputs.project }} && [[ ! $(dpkg -s build-essential 2>/dev/null) ]]; then
+          sudo apt-get -yq install build-essential device-tree-compiler 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "####################\nbuild-essential dependencies installed\n####################" || echo -e '::error::No build-essential installed for project build';
+        fi;
+        if ${{ inputs.project }} && ${{ inputs.analyzer == 3 }} && [[ ! $(which tqdm) ]]; then
+          python3 -m pip install tqdm >/dev/null && echo -e "\n####################\ntqdm dependencies installed\n####################\n" || echo -e '::warning::No tpdm installed for project progress checks';
+          [[ ! $(which tqdm) ]] && exit 1
+        fi;
+        if (${{ inputs.pattern != '' }} || ${{ inputs.database }} || ${{ inputs.source > '0' }}) && [[ ! $(which rg) ]]; then
+          sudo apt-get -yq install ripgrep 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text1}" || echo -e '::error::No ripgrep installed for pattern matching';
+          [[ ! $(which rg) ]] && exit 1
+        fi;
+        if ${{ inputs.report }} && [[ ! $(which ansi2txt) ]]; then
+          sudo apt-get -yq install ansi2txt 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text2}" || echo -e '::error::No ansi2txt installed for cleaning log report';
+        fi;
+        if ${{ inputs.project }} && [[ ! $(which update-ca-certificates) ]]; then
+          sudo apt-get -yq install ca-certificates 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text3}" || echo 'No ca-certificates installed effects can vary';
+        fi;
+        if [[ "${file_type}" == [cth]* ]] && [[ ! $(which cppcheck) ]]; then
+          sudo apt-get -yq install cppcheck 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text4}" || echo -e '::error::No cppcheck installed Exiting';
+          [[ ! $(which cppcheck) ]] && exit 1
+        fi;
+        if [[ "${file_type}" == [sh] ]] && ${{ inputs.repair }} && [[ ! $(which shellharden) ]]; then
+          sudo wget -qO 'shellharden.tar.gz' 'https://github.com/anordal/shellharden/releases/latest/download/shellharden-x86_64-unknown-linux-gnu.tar.gz' >/dev/null;
+          sudo tar xf 'shellharden.tar.gz' -C '/usr/local/bin' 'shellharden' && rm -vrf 'shellharden.tar.gz' && echo -e "${text6}" || echo -e '::error::No shellharden installed Exiting';
+          [[ ! $(which shellharden) ]] && exit 1
+        fi;
+        if [[ "${file_type}" == [sh] ]] && [[ ! $(which shellcheck) ]]; then
+          sudo apt-get -yq install shellcheck 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text7}" || echo -e '::error::No shellcheck installed Exiting';
+          [[ ! $(which shellcheck) ]] && exit 1
+        fi;
+        checkmake_src='checkmake.ini';
+        checkmake_des="${HOME}/checkmake.ini";
+        if [[ "${checkmake_src}" ]] && [[ -n $(echo "${file_type}" | LC_ALL=C grep -E "^mk$|.*Makefile$") ]] && [[ $(which checkmake) ]]; then
+          sudo cp -vf "${checkmake_src}" "${checkmake_des}" 2>/dev/null;
+        elif [[ -n $(echo "${file_type}" | LC_ALL=C grep -E "^mk$|.*Makefile$") ]] && [[ $(which checkmake) ]]; then
+          echo -e '\ncheckmake.ini file missing, needed for checkmake to function properly\n';
+        fi;
+        if [[ "${checkmake_src}" ]] && [[ -n $(echo "${file_type}" | LC_ALL=C egrep -i "^mk$|.*Makefile$") ]] && [[ ! $(which checkmake) ]]; then
+          go install "github.com/checkmake/checkmake/cmd/checkmake@latest" >/dev/null && echo -e "\n${text8}\n" || echo -e '::error::No checkmake installed Exiting';
+          sudo cp -vf "${checkmake_src}" "${checkmake_des}" 2>/dev/null;
+          [[ ! $(which checkmake) ]] && exit 1
+        fi;
+        if ${{ inputs.filename != '' }} || ${{ inputs.pattern != '' }}; then
+          if [[ $(which bat) ]] && [[ ! $(which batcat) ]]; then
+            sudo ln -sf "$(which bat)" /usr/bin/batcat >/dev/null || echo -e '::error::No batcat installed Exiting';
+            [[ ! $(which batcat) ]] && exit 1
+            echo -e "\nalias batcat='bat'" | sudo tee -a ~/.bashrc >/dev/null;
+            echo 'export BAT_THEME=ansi' | sudo tee -a ~/.bashrc >/dev/null;
+          elif [[ ! $(which batcat) ]]; then
+            sudo apt-get -yq install bat 2>&1 >/dev/null | sed '/Running/,/host./d' && echo -e "${text9}" || echo -e '::error::No batcat installed Exiting';
+            [[ ! $(which batcat) ]] && exit 1
+            echo 'export BAT_THEME=ansi' | sudo tee -a ~/.bashrc >/dev/null;
+          fi;
+        fi;
+        echo "update=${{ inputs.update }}" >> "${GITHUB_ENV}";
+        if [[ -d '/usr/local/bin' ]]; then
+          echo '/usr/local/bin' >> "${GITHUB_PATH}";
+        fi;
+        if [[ -d "${HOME}/.local/bin" ]]; then
+          echo "${HOME}/.local/bin" >> "${GITHUB_PATH}";
+        fi;
+        if [[ -d "${HOME}/codechecker/build/CodeChecker/bin" ]]; then
+          echo "${HOME}/codechecker/build/CodeChecker/bin" >> "${GITHUB_PATH}";
+        fi;
+        if ${{ inputs.build > '0' }}; then
+          echo 'github_build_project=true' >> "${GITHUB_ENV}";
+        else
+          echo 'github_build_project=false' >> "${GITHUB_ENV}";
+        fi;
+        sudo apt-get --fix-broken install -yq 2>&1 >/dev/null | sed '/Running/,/host./d';
+        echo '';
+      shell: bash
+      continue-on-error: false
+      
+    - name: Set Directory Base
+      if: inputs.pattern != '' || inputs.filename != '' || inputs.project == 'true'
+      run: |
+        echo '';
+        repair_file='check-file-repaired.txt';
+        repo=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        echo 'database=database' >> "${GITHUB_ENV}";
+        text1a="####################";
+        text1b="DEFAULT DIRECTORY (GITHUB ROOT)";
+        text1c="####################";
+        text2a="####################";
+        text2b="DEFAULT DIRECTORY (GITHUB WORKSPACE)";
+        text2c="####################";
+        text3a="####################";
+        text3b="Store repaired files Enabled";
+        text3c="####################";
+        text4="Creating ${repair_file} for checked files";
+        text5a="####################";
+        text5b="Database Performance Mode Enabled";
+        text5c="####################";
+        text6="::error::Database not found exiting";
+        text7a="####################";
+        text7b="Searching directories for ${{ inputs.filename }}) file(s)";
+        text7c="####################";
+        text8a="####################";
+        text8b="Searching ${{ inputs.filetype }} files for ${{ inputs.pattern }} match(s)";
+        text8c="####################";
+        text9a="####################";
+        text9b="Searching all files for ${{ inputs.pattern }} match(s)";
+        text9c="####################";
+        text10a="#####################";
+        text10b="#\033[1m\033[32m CHECK FILE ACTION \033[0m#";
+        text10c="#####################";
+        chmod -R 0755 "${{ github.action_path }}/scripts";
+        text() {
+          local text="$1";
+          echo -e "${text}";
+        }
+        if ${{ inputs.absolute }}; then
+          text "${text1a}";
+          text "${text1b}";
+          text "${text1c}";
+          echo -e '\nAbsolute Path Mode';
+          echo "base=${GITHUB_WORKSPACE}" >> "${GITHUB_ENV}";
+          echo 'github_absolute_path=true' >> "${GITHUB_ENV}";
+          base="${GITHUB_WORKSPACE}";
+        else
+          text "${text2a}";
+          text "${text2b}";
+          text "${text2c}";
+          echo -e "\nRelative Path Mode";
+          echo 'base=.' >> "${GITHUB_ENV}";
+          echo 'github_absolute_path=false' >> "${GITHUB_ENV}";
+          base='.'
+        fi;
+        if (${{ inputs.stored }} || ${{ env.update }}) && [[ -f "${repair_file}" ]]; then
+          repaired="${repair_file}";
+          if [[ -f ${repaired} ]]; then
+            text "\n${text3a}";
+            text "${text3b}";
+            text "${text3c}";
+          else
+            text "\n${text4a}";
+            text "${text4b}";
+            text "${text4c}";
+            date '+%Y%m%d' > "${repaired}" || echo -e "::warning::${repaired} backup file not found";
+          fi;
+        fi;
+        if ${{ inputs.database }}; then
+          sudo find "${base}" -not \( -path "*/build/*" -prune -o -path "*/.git/*" -prune \) -type f -print | sort -t/ -k1.2 > 'database';
+          if [[ -s 'database' ]]; then
+            text "\n${text5a}";
+            text "${text5b}";
+            text "${text5c}";
+            echo 'database=database' >> "${GITHUB_ENV}";
+          else
+            text "\n${text5a}";
+            text "${text6}";
+            text "${text5c}";
+          fi;
+        fi;
+        if ${{ inputs.filename != '' }}; then
+          text "\n${text7a}";
+          text "${text7b}";
+          text "${text7c}";
+        fi;
+        if ${{ inputs.pattern != '' }} && ${{ inputs.filetype != '' }}; then
+          text "\n${text8a}";
+          text "${text8b}";
+          text "${text8c}";
+        elif ${{ inputs.pattern != '' }}; then
+          text "\n${text9a}";
+          text "${text9b}";
+          text "${text9c}";
+        fi;
+        dirname=${{ inputs.dirname }};
+        echo "dirname=${dirname}" >> "${GITHUB_ENV}";
+        if ${{ inputs.project }} && ${{ inputs.filename != '' }} && ${{ inputs.analyzer > '0' }}; then
+          text "::warning:: project:true and filename:set both enabled auto sets analyzer:0 to disable\nTo remove this warning use ( analyzer: 0 )\n";
+          echo "analyzer=0" >> "${GITHUB_ENV}";
+        else
+          echo "analyzer=${{ inputs.analyzer }}" >> "${GITHUB_ENV}";
+        fi;
+        src=$(ls);
+        type_count=0
+        total_files=$(find -type f | grep -v '\.git/.' | wc -l);
+        file_type0=$(find -type f -name "*.${{ inputs.filetype }}" | grep -v '\.git/.' | wc -l);
+        file_type1=$(find -type f \( -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.c++' -o -name '*.tpp' \) | grep -v '\.git/.' | wc -l);
+        file_type2=$(find -type f \( -name '*.h' -o -name '*.hh' -o -name '*.hpp' -o -name '*.h++' \) | grep -v '\.git/.' | wc -l);
+        percentage0=$(echo "scale=2; (${file_type0:-0} / ${total_files:-0}) * 100" | bc);
+        percentage1=$(echo "scale=2; (${file_type1:-0} / ${total_files:-0}) * 100" | bc);
+        percentage2=$(echo "scale=2; (${file_type2:-0} / ${total_files:-0}) * 100" | bc);
+        include_dirs=$(find -type d -name 'include' -print | awk '{ print length($0), $0 }' | sort -n | cut -d' ' -f 2- 2>/dev/null | wc -l);
+        file_count() {
+          find -type f | grep -iEo '\_[[:alnum:]]+$|\-[[:alnum:]]+$|\.[[:alnum:]]+$|[[:alnum:]]+$' | tr -d '_\-\.' | sort | uniq -c | sed 's/^ *//' | while IFS= read -r file; do
+            echo "${file} files"
+          done;
+        }
+        directory() {
+          for dir in ${src[@]}; do
+            if [ -d "${dir}" ]; then
+              count=$(find "${dir}" -type f | wc -l);
+              echo "${dir}: ${count} files";
+             fi;
+          done;
+        }
+        file_types() {
+          type_count=0
+          while IFS= read -r file; do
+            type_count=$(expr ${type_count} + 1);
+          done < <(file_count);
+          echo "${type_count}";
+        }
+        if ${{ inputs.content }}; then
+          if [[ "$(directory)" ]]; then
+            echo -e "\n#####################\nProject Source Directories:\n#####################\n\n$(directory)";
+          fi;
+          if [[ "$(file_count)" ]]; then
+            echo -e "\n#####################\nProject File Types:\n#####################\n\n$(file_count)";
+          fi;
+          if [[ "$(file_types)" ]]; then
+            echo -e "\n#####################\nDifferent File Types: \033[1m$(file_types)\033[0m\n#####################";
+          fi;
+          if [[ "${include_dirs}" ]]; then
+            echo -e "\n#####################\nTotal Include Directories: \033[1m${include_dirs}\033[0m\n#####################";
+          fi;
+          if [[ "${total_files:-0}" > '0' ]] && ${{ inputs.filetype != '' }}; then
+            echo -e "\nThe total percentage of ${{ inputs.filetype }} files is: \033[1m${percentage0:-0}%\033[0m";
+            echo -e "\nThe total percentage of header files is: \033[1m${percentage2:-0}%\033[0m";
+            echo -e "\n#####################\nRepository: \033[1m${repo}\033[0m\n#####################\n\nProject has \033[1m${total_files}\033[0m files total";
+          elif [[ "${total_files:-0}" > '0' ]]; then
+            echo -e "\nThe total percentage of c/c++ files is: \033[1m${percentage1:-0}%\033[0m";
+            echo -e "\nThe total percentage of header files is: \033[1m${percentage2:-0}%\033[0m";
+            echo -e "\n#####################\nRepository: \033[1m${repo}\033[0m\n#####################\n\nProject has \033[1m${total_files}\033[0m files total";
+          else
+            echo -e "\n#####################\n::error::Repository: ${repo} files missing? Exiting....\n#####################\n";
+          fi;
+        fi;
+        text "\n${text10a}" 2>/dev/null;
+        text "${text10b}" 2>/dev/null;
+        text "${text10c}\n" 2>/dev/null;
+        echo "github_repository=${repo}" >> "${GITHUB_ENV}";
+        echo 'file_fixed=0' >> "${GITHUB_ENV}";
+        echo 'file_found=0' >> "${GITHUB_ENV}";
+        echo 'file_error=0' >> "${GITHUB_ENV}";
+        echo 'file1_parted=0' >> "${GITHUB_ENV}";
+        echo 'file2_parted=0' >> "${GITHUB_ENV}";
+        echo 'build_cache=false' >> "${GITHUB_ENV}";
+        echo 'check_build=false' >> "${GITHUB_ENV}";
+      shell: bash
+      continue-on-error: false
+
+    - name: Source Includes Fixer A
+      if: inputs.source == '1' || inputs.source == '2'
+      run: |
+        echo '';
+        set +e
+        start_time="${SECONDS}";
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        project_log="${repository}_project.log";
+        export LC_ALL=C
+        export LS_COLORS
+        SAVEIFS="${IFS}";
+        include_missing=1
+        include_count=1
+        include_total=1
+        include_dirs=1
+        file_count=1
+        count1=0
+        count2=0
+        count3=0
+        count4=0
+        count5=0
+        checked=false
+        source_include=false
+        includes_found=false
+        include1='include-file1.txt';
+        include2='include-file2.txt';
+        include3='include-file3.txt';
+        include_list='check-file-sources.txt';
+        name_count_file='name-count-file.txt';
+        include_count_file='include-count-file.txt';
+        github="${GITHUB_WORKSPACE}";
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ inputs.absolute }}; then
+          abs='-a';
+        else
+          abs='';
+        fi;
+        echo -e "####################\n\t\033[33mPROGRESSIVE SCAN MODE\033[0m\n####################" | process_input;
+        include_files1=$(fdfind -p -c auto "${abs}" -e "${{ inputs.filetype }}" "${{ env.base }}" | awk -F'/' '{print $NF, $0}' | sort -k1,1 | cut -d' ' -f2-);
+        include_files2=$(fdfind -p -c auto "${abs}" -e "${{ inputs.filetype }}" "${{ env.base }}" | LC_ALL=C xargs -r rg --sort=path --trim -H -o '^#include[[:space:]]+[<"].*[>"]' | tr -d '<">' | awk '{ print $NF, $0 }' | sort -k1,1 -us | cut -d' ' -f2-);
+        [[ -f "${include_list}" ]] && mv -f "${include_list}" "${include_list}.old";
+        [[ -f "${include1}" ]] && rm -f "include-file*.txt";
+        [[ -f "${name_count_file}" ]] && rm -f "${name_count_file}";
+        [[ -f "${include_count_file}" ]] && rm -f "${include_count_file}";
+        if [[ "${{ inputs.filetype }}" == [c]* ]] && ${{ inputs.source == '1' }} && [[ "${include_files1}" ]]; then
+          declare -A processed
+          declare -A missing
+          echo -e "\n\033[32mCheck-File discovered include objectives running full scan now: \033[0m\033[1mContent Display\033[0m  [\033[1m verbose \033[0m]" | process_input;
+          echo -e "\n####################\nCheck-File Auto Fix Sources Include [ Status: \033[32mAnalzying\033[0m ]\n####################" | process_input;
+          while IFS= read -r file; do
+            include_count=0
+            count1=$((file_count++));
+            echo -e "\n####################\n\t\033[33mSOURCE FILE\033[0m ( ${count1} )\n####################" | process_input;
+            echo -e "\nSource File Location: ${file}" | process_input;
+            echo -e "\nAnalyzing Includes Source File ${count1}: ${file##*/}" | process_input;
+            if ${{ inputs.include }}; then
+              includes_found=false
+              include_source=$( { rg --sort=path --trim -o '^#include[[:space:]]+[<"].*[>"]' "${file}" 2>/dev/null || true; } | awk '{print $2}' | tr -d '<">' | sort -u);
+              if [[ "${include_source}" ]]; then
+                echo -e "\n\tinclude file objectives:\n\n${include_source}" | process_input;
+                while IFS= read -r include; do
+                  if [[ "${include}" == *.[ch]* ]] && [[ ! "${processed[$include]}" ]]; then
+                    processed["$include"]=1
+                    path1="${include##+(*./)}";
+                    path2="${path1##[:]*}";
+                    path3="${path2%'\n'}";
+                    path4="${path3%\\}";
+                    clean_path="${path4%/*}";
+                    file1="${include##+(*./)}";
+                    file2="${file1##[:]*}";
+                    file3="${file2%'\n'}";
+                    file4="${file3%\\}";
+                    clean_file="${file4##*/}";
+                    if [[ ${include} == *"/"* ]]; then
+                      shopt -s extglob
+                      header=$(fdfind -c auto -a -p -t f -g "**/${path4##+(*./)}" "${{ env.base }}");
+                      shopt -u extglob
+                    else
+                      header=$(fdfind -c auto -a -p -t f "${clean_file##+(*./)}" "${{ env.base }}");
+                    fi;
+                    if [[ -n "${header}" ]]; then
+                      while IFS= read -r includes; do
+                        count2=$((include_count++));
+                        count3=$((include_total++));
+                        echo "${includes%/*}" >> "${include1}";
+                        echo -e "\n\033[33mSource file #include \033[0m\033[1m( ${includes##*/} )\033[0m\033[33m is located!\033[0m  [ ✅ ]\n\n\033[32mREAL FILE LOCATION:\033[0m ${includes}" | process_input;
+                      done <<< "${header[@]}";
+                      includes_found=true
+                    elif [[ -n "${missing[$include]}" ]]; then
+                      echo -e "\n\033[33mSource file #include \033[0m( ${include} )\033[33m already listed missing!\033[0m  [\033[1m skipped \033[0m]" | process_input;
+                      includes_found=false      
+                    else
+                      includes_found=false
+                      missing["${include}"]=1
+                      count5=$((include_missing++));
+                      echo -e "\n::notice::\033[31mSource file #include \033[0m( ${file4##+(*./)} )\033[31m is missing!?\033[0m  [ ❌ ]" | process_input;
+                    fi;
+                  elif [[ -n "${processed[$include]}" ]]; then
+                    echo -e "\n\033[34mSource file #include \033[0m( ${include} )\033[34m already added to includes list!\033[0m  [\033[1m skipped \033[0m]" | process_input;  
+                  fi;
+                done <<< "${include_source[@]}";
+              fi;
+              if [[ "${includes_found}" ]]; then
+                echo -e "\n${count2}\033[32m include file objectives confirmed added after scanning file: \033[0m\033[1m${file##*/}\033[0m  [ ✅ ]" | process_input;
+              elif [[ -z "${include_source}" ]]; then
+                echo -e "\n\033[33mNo include file objectives confirmed after scanning file: \033[0m\033[1m${file##*/}\033[0m  [ 🚫 ]" | process_input;
+              else
+                echo -e "\n${count5}\033[33m include file objectives confirmed missing after scanning file: \033[0m\033[1m${file##*/}\033[0m  [ ❌ ]" | process_input;
+              fi;  
+            fi;
+          done <<< "${include_files1[@]}";
+          if [[ -s "${include1}" ]]; then
+            awk '!seen[$0]++' "${include1}" > "${include_list}";
+          fi;
+          if [[ -s "${include_list}" ]]; then
+            count4=$(awk 'NF > 0 { count++ } END { print count }' "${include_list}");
+          fi;
+          echo -e "\n::notice::\033[32mTotal source file checked during scan\033[0m\033[1m ${count1}\033[0m" | process_input;
+          if [[ "${includes_found}" ]]; then
+            echo 'check_build=true' >> "${GITHUB_ENV}";
+            echo -e "\n::notice::\033[34mTotal include source file added during scan\033[0m\033[1m ${count3}\033[0m\n[Hint] \033[1m${count4}\033[0m included directories added after duplicate cleaning!!!\033[0m\nSet option (\033[1m cache: true \033[0m) to use this list for source include checks without manually downloading an adding the file to your repo\n With cache you should set (\033[1m source: 0 \033[0m)running sources again each check!" | process_input;
+          else
+            echo -e '\n::notice::\033[31mNo include objectives discovered or check-file encountered an issue!!!\033[0m' | process_input;
+          fi;
+          if [[ "${count5}" > '0' ]]; then
+            echo -e "\n::notice::\033[34m⚠️ Total include source files missing during scan\033[0m\033[1m ${count5}\033[0m\n[Hint] Many source files may call these \033[31mmissing include files.\nYou may need to remove the missing include file objectives or added the file before compiling!!!" | process_input;
+          fi;
+          unset processed;
+          unset missing;
+          [[ -s "${include_list}" ]] && mkdir -p build && echo -e "\nSaving list to build: $(cp -vf ${include_list} build/)" | process_input;
+          seconds=$((SECONDS - start_time));
+          m=$((seconds / 60));
+          s=$((seconds % 60));
+          printf "Project Auto Include Runtime: %d minutes and %d seconds\n" "$m" "$s" | process_input;
+        elif [[ "${{ inputs.filetype }}" == [c]* ]] && ${{ inputs.source == '2' }} && [[ "${include_files2}" ]]; then
+          echo -e "\n\033[32mCheck-File discovered include objectives running full scan now: \033[0m\033[1mContent Display\033[0m  [\033[33m medium \033[0m]" | process_input;
+          echo -e "\n####################\nCheck-File Auto Fix Sources Include [ Status: \033[32mAnalzying\033[0m ]\n####################" | process_input;
+          echo > "${name_count_file}";
+          declare -A processed
+          while IFS= read -r file; do         
+            name="${file%%:*}";
+            name_count="${name##*/}";
+            if [[ $(LC_ALL=C grep -s "${name_count}" "${name_count_file}") ]]; then
+              echo -e "\nAnalyzing Source File: ${name##*/}" | process_input;
+            else
+              count1=$((file_count++));
+              echo "${name_count}" >> "${name_count_file}";
+              echo -e "\n####################\n\t\033[33mSOURCE FILE\033[0m ( ${count1} )\n####################" | process_input;
+              echo -e "\nSource File Location: ${file%%:*}" | process_input;
+              echo -e "\nChecking include objective in source file: ${name##*/}  [ \033[1m${count1}\033[0m ]" | process_input;
+            fi;
+            includes_found=false
+            include_source=$(echo "${file}" | awk '{print $2}');
+            if [[ "${include_source}" ]]; then
+              includes_found=true
+              echo -e "\n\tinclude source: ${include_source}" | process_input;
+              if [[ "${include_source}" == *.[h]* ]]; then
+                path1="${include_source##+(*./)}";
+                path2="${path1##[:]*}";
+                path3="${path2%'\n'}";
+                path4="${path3%\\}";
+                clean_path="${path4%/*}";
+                file1="${include_source##+(*./)}";
+                file2="${file1##[:]*}";
+                file3="${file2%'\n'}";
+                file4="${file3%\\}";
+                clean_file="${file4##*/}";
+                if [[ ${include_source} == *"/"* ]]; then
+                  shopt -s extglob
+                  header=$(fdfind -c auto "${abs}" -p -t f -g "**/${path4##+(*./)}" "${{ env.base }}");
+                  shopt -u extglob
+                 else
+                   header=$(fdfind -c auto "${abs}" -p -t f "${clean_file##+(*./)}" "${{ env.base }}");
+                fi;
+                includes_missing=false
+                if [[ -n "${header}" ]]; then
+                  while IFS= read -r includes; do
+                    count2=$((include_count++));
+                    count3=$((include_total++));
+                    echo "${includes%/*}" >> "${include1}";
+                    echo -e "\n\033[33mSource file include \033[0m\033[1m( ${includes##*/} )\033[0m\033[33m is located!\033[0m  [ ✅ ]\n\n\033[32mREAL FILE LOCATION:\033[0m ${includes}" | process_input;
+                  done <<< "${header[@]}";
+                elif [[ -n "${processed[$include_source]}" ]]; then
+                  echo -e "\n\033[33mSource file #include \033[0m( ${include_source} )\033[33m already listed missing!\033[0m  [\033[1m skipped \033[0m]" | process_input;        
+                else
+                  includes_missing=true
+                  processed["${include_source}"]=1
+                  count5=$((include_missing++));
+                  echo -e "\n::notice::\033[31mSource file include \033[0m( ${file4##+(*./)} )\033[31m is missing!?\033[0m  [ ❌ ]" | process_input;
+                fi;
+              fi;                     
+            fi;
+            if [[ "${includes_found}" == 'true' ]]; then
+              echo -e "\n${count2}\033[32m includes successfully added after scanning file: \033[0m\033[1m${name##*/}\033[0m  [ ✅ ]" | process_input;
+              source_include=true
+            elif [[ "${includes_missing}" == 'true' ]]; then
+              echo -e "\n\033[32mCheck-File discovered missing include objective after scanning file: \033[0m\033[1m${name##*/}\033[0m  [ ❌ ]" | process_input;
+            elif [[ -z "${include_source}" ]]; then
+              echo -e "\n\033[32mCheck-File discovered no include objective after scanning file: \033[0m\033[1m${name##*/}\033[0m  [ 🚫 ]" | process_input;
+            fi;
+          done <<< "${include_files2[@]}";
+          if [[ -s "${include1}" ]]; then
+            awk '!seen[$0]++' "${include1}" > "${include_list}";
+          fi;
+          if [[ -s "${include_list}" ]]; then
+            count4=$(awk 'NF > 0 { count++ } END { print count }' "${include_list}");
+          fi;
+          echo -e "\n::notice::\033[32mTotal source files checked during scan\033[0m\033[1m ${count1}\033[0m" | process_input;
+          if [[ "${includes_found}" ]]; then
+            echo 'check_build=true' >> "${GITHUB_ENV}";
+            echo -e "\n::notice::\033[34mTotal include source file added during scan\033[0m\033[1m ${count3}\033[0m\n[Hint] \033[1m${count4}\033[0m included directories added after duplicate cleaning!!!\033[0m\nSet option (\033[1m cache: true \033[0m) to use this list for source include checks without manually downloading an adding the file to your repository\nWith caching you should then set (\033[1m source: 0 \033[0m) before checking sources again!" | process_input;
+          else
+            echo -e '\n::notice::\033[31mNo include objectives discovered or check-file encountered an issue!!!\033[0m' | process_input;
+          fi;
+          if [[ "${count5}" > '0' ]]; then
+            echo -e "\n::notice::\033[34m⚠️ Total include source files missing during scan\033[0m\033[1m ${count5}\033[0m\n[Hint] Many source files may call these \033[31mmissing include files.\nYou may need to remove the missing include file objectives or added the file before compiling!!!" | process_input;
+          fi;
+          unset processed;
+          [[ -s "${include_list}" ]] && mkdir -p build && echo -e "\nSaving list to build: $(cp -vf ${include_list} build/)" | process_input;
+          seconds=$((SECONDS - start_time));
+          m=$((seconds / 60));
+          s=$((seconds % 60));
+          printf "Project Auto Include Runtime: %d minutes and %d seconds\n" "$m" "$s" | process_input;
+        fi;
+        if [[ "${source_include}" == 'true' ]]; then
+          echo "include_count=${count4}" >> "${GITHUB_ENV}";
+        else
+          echo 'include_count=0' >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.number > '0' }}; then
+          echo 'include_source=false' >> "${GITHUB_ENV}";
+        elif [[ "${count4}" > '2000' ]]; then
+          echo 'include_source=true' >> "${GITHUB_ENV}";
+        else
+          echo 'include_source=false' >> "${GITHUB_ENV}";
+        fi;
+        echo '';
+      shell: bash
+      continue-on-error: true  
+
+    - name: Source Includes Fixer B
+      if: inputs.source == '3' || inputs.source == '4'
+      run: |
+        echo '';
+        set +e
+        start_time="${SECONDS}";
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        project_log="${repository}_project.log";
+        export LC_ALL=C
+        export LS_COLORS
+        SAVEIFS="${IFS}";
+        include_missing=1
+        include_count=1
+        include_total=1
+        include_dirs=1
+        file_count=1
+        count1=0
+        count2=0
+        count3=0
+        count4=0
+        count5=0
+        checked=false
+        source_include=false
+        includes_found=false
+        include1='include-file1.txt';
+        include2='include-file2.txt';
+        include3='include-file3.txt';
+        include_list='check-file-sources.txt';
+        name_count_file='name-count-file.txt';
+        include_count_file='include-count-file.txt';
+        github="${GITHUB_WORKSPACE}";
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ inputs.absolute }}; then
+          abs='-a';
+        else
+          abs='';
+        fi;
+        echo -e "####################\n\t\033[33mPROGRESSIVE SCAN MODE\033[0m\n####################" | process_input;
+        include_files3=$(fdfind -p -c auto "${abs}" -e "${{ inputs.filetype }}" "${{ env.base }}" | LC_ALL=C xargs -r rg --sort=path --trim -o '^#include[[:space:]]+[<"].*[>"]' | awk '{print $2}' | tr -d '<">' | sort -u);
+        include_files4=$(fdfind -p -c auto "${abs}" -e "${{ inputs.filetype }}" "${{ env.base }}" | awk -F'/' '{print $NF, $0}' | sort -k1,1 | cut -d' ' -f2-);
+        [[ -f "${include_list}" ]] && mv -f "${include_list}" "${include_list}.old";
+        [[ -f "${include1}" ]] && rm -f "include-file*.txt";
+        [[ -f "${name_count_file}" ]] && rm -f "${name_count_file}";
+        [[ -f "${include_count_file}" ]] && rm -f "${include_count_file}";
+        if [[ "${{ inputs.filetype }}" == [c]* ]] && ${{ inputs.source == '3' }} && [[ "${include_files3}" ]]; then
+          echo -e "\n\033[32mCheck-File discovered include objectives running full scan now: \033[0m\033[1mContent Display\033[0m  [\033[35m low \033[0m]" | process_input;
+          echo -e "\n####################\nCheck-File Auto Fix Sources Include [ Status: \033[32mAnalzying\033[0m ]\n####################" | process_input;
+          declare -A processed
+          while IFS= read -r include; do
+            if [[ "${include}" == *.[h]* ]]; then
+              path1="${include##+(*./)}";
+              path2="${path1##[:]*}";
+              path3="${path2%'\n'}";
+              path4="${path3%\\}";
+              clean_path="${path4%/*}";
+              file1="${include##+(*./)}";
+              file2="${file1##[:]*}";
+              file3="${file2%'\n'}";
+              file4="${file3%\\}";
+              clean_file="${file4##*/}";
+              if [[ ${include} == *"/"* ]]; then
+                shopt -s extglob
+                header=$(fdfind -p -c auto "${abs}" -t f -g "**/${path4##+(*./)}" "${{ env.base }}");
+                shopt -u extglob
+              else
+                header=$(fdfind -p -c auto "${abs}" -t f "${clean_file##+(*./)}" "${{ env.base }}");
+              fi;
+              if [[ "${header}" ]]; then            
+                while IFS= read -r includes; do
+                  count2=$((include_count++));
+                  echo "${includes%/*}" >> "${include1}";
+                done <<< "${header[@]}";
+                includes_found=true
+              elif [[ -n "${processed[$include]}" ]]; then
+                includes_found=false
+                echo -e "\n\033[33mSource file #include \033[0m( ${include} )\033[33m already listed missing!\033[0m  [\033[1m skipped \033[0m]" | process_input;
+              else
+                includes_found=false
+                processed["$include"]=1
+                count5=$((include_missing++));
+                echo -e "\n::notice::\033[31mSource file #include \033[0m( ${include} )\033[31m is missing!?\033[0m  [ ❌ ]" | process_input;
+              fi;
+            fi;
+          done <<< "${include_files3[@]}";
+          if [[ -s "${include1}" ]]; then
+            awk '!seen[$0]++' "${include1}" > "${include_list}";
+          fi;
+          if [[ -s "${include_list}" ]]; then
+            count4=$(awk 'NF > 0 { count++ } END { print count }' "${include_list}");
+          fi;
+          if [[ "${includes_found}" == 'true' ]]; then
+            source_include=true
+            echo 'check_build=true' >> "${GITHUB_ENV}";
+            echo -e "\n::notice::\033[34mTotal include source file added during scan\033[0m\033[1m ${count3}\033[0m\n[Hint] \033[1m${count4}\033[0m included directories added after duplicate cleaning!!!\033[0m\nSet option (\033[1m cache: true \033[0m) to use this list for source include checks without manually downloading an adding the file to your repo\n With cache you should set (\033[1m source: 0 \033[0m)running sources again each check!" | process_input;
+          else
+            echo -e '\n::notice::\033[31mNo include objectives discovered or check-file encountered an issue!!!\033[0m' | process_input;
+          fi;
+          if [[ "${count5}" > '0' ]]; then
+            echo -e "\n::notice::\033[34m⚠️ Total include source files missing during scan\033[0m\033[1m ${count5}\033[0m\n[Hint] Many source files may call these \033[31mmissing include files.\nYou may need to remove the missing include file objectives or added the file before compiling!!!" | process_input;
+          fi;
+          unset processed;
+          [[ -s "${include_list}" ]] && mkdir -p build && echo -e "\nSaving list to build: $(cp -vf ${include_list} build/)" | process_input;
+          seconds=$((SECONDS - start_time));
+          m=$((seconds / 60));
+          s=$((seconds % 60));
+          printf "Project Auto Include Runtime:\033[1m %d minutes and %d seconds\033[0m\n" "$m" "$s" | process_input;
+        elif [[ "${{ inputs.filetype }}" == [c]* ]] && ${{ inputs.source == '4' }} && [[ "${include_files4}" ]]; then
+          echo -e "\n\033[32mCheck-File gcc include objectives running full scan now: \033[0m\033[1mContent Display\033[0m  [\033[1m high \033[0m]" | process_input;
+          echo -e "\n####################\nCheck-File Auto Fix Sources Include Status: [ \033[32mAnalzying\033[0m ]\n####################" | process_input;
+          if [[ "${{ inputs.filetype }}" == [c] ]] && [[ "$(which gcc)" ]]; then
+            echo -e '\n[\033[1mgcc mode\033[0m]\n';
+            while IFS= read -r file; do
+              count1=$((file_count++));
+              gcc -MM -MP "${file}" 2>&1 | process_input
+            done <<< "${include_files4[@]}";
+          echo 'check_build=true' >> "${GITHUB_ENV}";
+          elif [[ "${{ inputs.filetype }}" == [c]* ]] && [[ "$(which g++)" ]]; then
+            echo -e '\n[\033[1mg++ mode\033[0m]\n';
+            while IFS= read -r file; do
+              count1=$((file_count++));
+              g++ -MM -MP "${file}" 2>&1 | process_input
+            done <<< "${include_files4[@]}";
+          echo 'check_build=true' >> "${GITHUB_ENV}";
+          fi;
+          if [[ -s "${project_log}" ]]; then
+            LC_ALL=C grep -E '^[^/].*\.(h|hpp)$' "${project_log}" | grep -v '.o:' | awk '{print $1}' > 'input_file.txt' && sed -E 's|/[^/]*$||' 'input_file.txt' > 'output_file.txt';
+            if [[ -s 'output_file.txt' ]]; then
+              while IFS= read -r path; do
+                count4=$((include_dirs++));
+                echo "${path%/..}" >> 'output.txt';
+              done < 'output_file.txt';
+            fi;
+            [[ -s 'output.txt' ]] && cat 'output.txt' | sort -u > "${include_list}" && rm output.txt input_file.txt output_file.txt 2>/dev/null;
+            if [[ -s "${include_list}" ]]; then
+              count4=$(awk 'NF > 0 { count++ } END { print count }' "${include_list}");
+              mkdir -p build && echo -e "\nSaving list to build: $(cp -vf ${include_list} build/)" | process_input;
+            fi;
+            clang_files_missing=$(LC_ALL=C grep -sFc 'No such file or directory' "${project_log}");
+            clang_missing_count=$(LC_ALL=C grep -sF 'No such file or directory' "${project_log}" | awk '{print $4}' | tr -d ': ' | sort -u | wc -l);
+            clang_file_errors=$(LC_ALL=C grep -sFc 'error:' "${project_log}");
+            echo -e "\n::notice::\033[34mTotal source files scanned:\033[0m \033[1m${count1}\033[0m. Their were \033[1m${count4}\033[0m include directories added,\n[Hint] You can \033[31mlimit\033[0m include directories added using (\033[1m number: # \033[0m) option.\nDefault limit is set at \033[31m500\033[0m" | process_input;
+            if [[ "${clang_file_errors}" > '0' ]]; then
+              echo -e "\n::notice::\033[34m⚠️ Total include source file errors during scan\033[0m\033[1m ${clang_file_errors}\033[0m\n[Hint] Many source files may report these \033[31mfatal file errors.\033[0m\n\033[1mCheck-file notice file issues that needs repair before a build!!!\033[0m" | process_input;
+            fi;
+            if [[ "${clang_files_missing}" > '0' ]]; then
+              echo -e "\n::notice::\033[34m⚠️ Total include source file missing calls during scan\033[0m\033[1m ${clang_files_missing}\033[0m\n[Hint] Many source files may call these \033[31mmissing include files.\033[0m\nYou may need to remove the missing include file objectives or added the files before compiling!!!" | process_input;
+              echo -e "\n::notice::\033[31m⚠️ Total include source files actually missing after scan\033[0m\033[1m ${clang_missing_count:-0}\033[0m\n";
+            fi;
+            includes_found=true
+          fi;
+          seconds=$((SECONDS - start_time));
+          m=$((seconds / 60));
+          s=$((seconds % 60));
+          printf "Project Auto Include Runtime:\033[1m %d minutes and %d seconds\033[0m\n" "$m" "$s" | process_input;
+        fi;
+        if [[ "${source_include}" == 'true' ]]; then
+          echo "include_count=${count4}" >> "${GITHUB_ENV}";
+        else
+          echo 'include_count=0' >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.number > '0' }}; then
+          echo 'include_source=false' >> "${GITHUB_ENV}";
+        elif [[ "${count4}" > '2000' ]]; then
+          echo 'include_source=true' >> "${GITHUB_ENV}";
+        else
+          echo 'include_source=false' >> "${GITHUB_ENV}";
+        fi;
+        echo '';
+      shell: bash
+      continue-on-error: true
+
+    - name: Source Includes Fixer A
+      if: inputs.source == '5'
+      run: |
+        echo '';
+        set +e
+        start_time="${SECONDS}";
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        project_log="${repository}_project.log";
+        export LC_ALL=C
+        export LS_COLORS
+        SAVEIFS="${IFS}";
+        include_missing=1
+        include_count=1
+        include_total=1
+        include_dirs=1
+        file_count=1
+        count1=0
+        count2=0
+        count3=0
+        count4=0
+        count5=0
+        checked=false
+        source_include=false
+        includes_found=false
+        include1='include-file1.txt';
+        include2='include-file2.txt';
+        include3='include-file3.txt';
+        include_list='check-file-sources.txt';
+        name_count_file='name-count-file.txt';
+        include_count_file='include-count-file.txt';
+        github="${GITHUB_WORKSPACE}";
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ inputs.absolute }}; then
+          abs='-a';
+        else
+          abs='';
+        fi;
+        echo -e "####################\n\t\033[33mPROGRESSIVE SCAN MODE\033[0m\n####################" | process_input;
+        include_files1=$(fdfind -p -c auto "${abs}" -e "${{ inputs.filetype }}" "${{ env.base }}" | awk -F'/' '{print $NF, $0}' | sort -k1,1 | cut -d' ' -f2-);
+        [[ -f "${include_list}" ]] && mv -f "${include_list}" "${include_list}.old";
+        [[ -f "${include1}" ]] && rm -f "include-file*.txt";
+        [[ -f "${name_count_file}" ]] && rm -f "${name_count_file}";
+        [[ -f "${include_count_file}" ]] && rm -f "${include_count_file}";
+        if [[ "${{ inputs.filetype }}" == [c]* ]] && ${{ inputs.source == '1' }} && [[ "${include_files1}" ]]; then
+          declare -A processed
+          declare -A missing
+          echo -e "\n\033[32mCheck-File discovered include objectives running full scan now: \033[0m\033[1mContent Display\033[0m  [\033[1m verbose \033[0m]" | process_input;
+          echo -e "\n####################\nCheck-File Auto Fix Sources Include [ Status: \033[32mAnalzying\033[0m ]\n####################" | process_input;
+          while IFS= read -r file; do
+            include_count=0
+            count1=$((file_count++));
+            echo -e "\n####################\n\t\033[33mSOURCE FILE\033[0m ( ${count1} )\n####################" | process_input;
+            echo -e "\nSource File Location: ${file}" | process_input;
+            echo -e "\nAnalyzing Includes Source File ${count1}: ${file##*/}" | process_input;
+            echo -en "${file};" >> "${include1}";
+            if ${{ inputs.include }}; then
+              includes_found=false
+              include_source=$( { rg --sort=path --trim -o '^#include[[:space:]]+[<"].*[>"]' "${file}" 2>/dev/null || true; } | awk '{print $2}' | tr -d '<">' | sort -u);
+              if [[ "${include_source}" ]]; then
+                echo -e "\n\tinclude file objectives: \033[1mLocated\033[0m [ ✅ ]" | process_input;
+                while IFS= read -r include; do
+                  if [[ "${include}" == *.[ch]* ]]; then
+                    path1="${include##+(*./)}";
+                    path2="${path1##[:]*}";
+                    path3="${path2%'\n'}";
+                    path4="${path3%\\}";
+                    clean_path="${path4%/*}";
+                    file1="${include##+(*./)}";
+                    file2="${file1##[:]*}";
+                    file3="${file2%'\n'}";
+                    file4="${file3%\\}";
+                    clean_file="${file4##*/}";
+                    if [[ ${include} == *"/"* ]]; then
+                      shopt -s extglob
+                      header=$(fdfind -c auto -a -p -t f -g "**/${path4##+(*./)}" "${{ env.base }}");
+                      shopt -u extglob
+                    else
+                      header=$(fdfind -c auto -a -p -t f "${clean_file##+(*./)}" "${{ env.base }}");
+                    fi;
+                    if [[ -n "${header}" ]]; then
+                      while IFS= read -r includes; do
+                        count2=$((include_count++));
+                        count3=$((include_total++));
+                        checkfile="${includes%/*}";
+                        if [[ ! "${processed[$checkfile]}" ]]; then
+                          processed["$checkfile"]=1
+                          echo -en "${checkfile};" >> "${include1}";
+                        elif [[ -n "${processed[$checkfile]}" ]]; then
+                          echo -e "\n\033[34mSource file #include \033[0m( ${includes##*/} )\033[34m already added to includes list!\033[0m  [\033[1m skipped \033[0m]" | process_input;  
+                        fi;
+                        # echo -e "\n\033[33mSource file #include \033[0m\033[1m( ${includes##*/} )\033[0m\033[33m is located!\033[0m  [ ✅ ]\n\n\033[32mREAL FILE LOCATION:\033[0m ${includes}" | process_input;
+                      done <<< "${header[@]}";
+                      includes_found=true
+                    elif [[ -n "${missing[$include]}" ]]; then
+                      echo -e "\n\033[33mSource file #include \033[0m( ${include} )\033[33m already listed missing!\033[0m  [\033[1m skipped \033[0m]" | process_input;
+                      includes_found=false      
+                    else
+                      includes_found=false
+                      missing["${include}"]=1
+                      count5=$((include_missing++));
+                      echo -e "\n::notice::\033[31mSource file #include \033[0m( ${file4##+(*./)} )\033[31m is missing!?\033[0m  [ ❌ ]" | process_input;
+                    fi;
+                  fi;
+                  echo -e "" >> "${include1}";
+                done <<< "${include_source[@]}";
+              fi;
+              if [[ "${includes_found}" ]]; then
+                echo -e "\n${count2}\033[32m include file objectives confirmed added after scanning file: \033[0m\033[1m${file##*/}\033[0m  [ ✅ ]" | process_input;
+              elif [[ -z "${include_source}" ]]; then
+                echo -e "\n\033[33mNo include file objectives confirmed after scanning file: \033[0m\033[1m${file##*/}\033[0m  [ 🚫 ]" | process_input;
+              else
+                echo -e "\n${count5}\033[33m include file objectives confirmed missing after scanning file: \033[0m\033[1m${file##*/}\033[0m  [ ❌ ]" | process_input;
+              fi;  
+            fi;
+          done <<< "${include_files1[@]}";
+          if [[ -s "${include1}" ]]; then
+            awk '!seen[$0]++' "${include1}" > "${include_list}";
+          fi;
+          if [[ -s "${include_list}" ]]; then
+            count4=$(awk 'NF > 0 { count++ } END { print count }' "${include_list}");
+          fi;
+          echo -e "\n::notice::\033[32mTotal source file checked during scan\033[0m\033[1m ${count1}\033[0m" | process_input;
+          if [[ "${includes_found}" ]]; then
+            echo 'check_build=true' >> "${GITHUB_ENV}";
+            echo -e "\n::notice::\033[34mTotal include source file added during scan\033[0m\033[1m ${count3}\033[0m\n[Hint] \033[1m${count4}\033[0m included directories added after duplicate cleaning!!!\033[0m\nSet option (\033[1m cache: true \033[0m) to use this list for source include checks without manually downloading an adding the file to your repo\n With cache you should set (\033[1m source: 0 \033[0m)running sources again each check!" | process_input;
+          else
+            echo -e '\n::notice::\033[31mNo include objectives discovered or check-file encountered an issue!!!\033[0m' | process_input;
+          fi;
+          if [[ "${count5}" > '0' ]]; then
+            echo -e "\n::notice::\033[34m⚠️ Total include source files missing during scan\033[0m\033[1m ${count5}\033[0m\n[Hint] Many source files may call these \033[31mmissing include files.\nYou may need to remove the missing include file objectives or added the file before compiling!!!" | process_input;
+          fi;
+          unset processed;
+          unset missing;
+          [[ -s "${include_list}" ]] && mkdir -p build && echo -e "\nSaving list to build: $(cp -vf ${include_list} build/)" | process_input;
+          seconds=$((SECONDS - start_time));
+          m=$((seconds / 60));
+          s=$((seconds % 60));
+          printf "Project Auto Include Runtime: %d minutes and %d seconds\n" "$m" "$s" | process_input;
+        fi;
+        if [[ "${source_include}" == 'true' ]]; then
+          echo "include_count=${count4}" >> "${GITHUB_ENV}";
+        else
+          echo 'include_count=0' >> "${GITHUB_ENV}";
+        fi;
+        echo 'sources=true' >> "${GITHUB_ENV}";
+        if ${{ inputs.number > '0' }}; then
+          echo 'include_source=false' >> "${GITHUB_ENV}";
+        elif [[ "${count4}" > '2000' ]]; then
+          echo 'include_source=true' >> "${GITHUB_ENV}";
+        else
+          echo 'include_source=false' >> "${GITHUB_ENV}";
+        fi;
+        echo '';
+      shell: bash
+      continue-on-error: true
+
+    - name: Project Compile Commands Json
+      if: inputs.project == 'true'
+      run: |
+        echo '';
+        set +e
+        start_time="${SECONDS}";
+        export CMAKE_EXPORT_COMPILE_COMMANDS=ON
+        export CMAKE_BUILD_PARALLEL_LEVEL=4
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        github=${GITHUB_WORKSPACE};
+        project_log="${github}/${repository}_project.log";
+        clang_sources='check-file-sources.txt';
+        codechecker='codechecker.yaml';
+        user_compile_json=false
+        count1='count1.txt';
+        count2='count2.txt';
+        count3='count3.txt';
+        check_build=false
+        include_source=false
+        file_type='c';
+        update=true
+        fixed=false;
+        if ${{ inputs.repository == 'false' }} && [[ -d "${{ env.dirname }}" ]]; then
+          cd "${{ env.dirname }}";
+        fi;
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ env.check_build == 'false' }}; then
+          echo 'check_build=false' >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.update == 'false' }}; then
+          echo 'update=false' >> "${GITHUB_ENV}";
+          update=false
+        fi;
+        if ${{ inputs.filetype != '' }}; then
+          file_type="${{ inputs.filetype }}";
+        fi;
+        echo "filetype=${file_type}" >> "${GITHUB_ENV}";
+        if [[ "${file_type}" == [cth]* ]]; then
+          clang_tidy_version=$(clang-tidy --version);
+          clang_version=$(clang --version);
+          verify_config=$(clang-tidy --verify-config);
+          cmake_version=$(cmake --version);
+          if [[ -f 'compile_commands.json' ]]; then
+             user_compile_json=true
+             compile_json='compile_commands.json';
+             mkdir build && cp -vf ${compile_json} build/
+          elif [[ -f 'build/compile_commands.json' ]]; then
+             compile_json='build/compile_commands.json';
+          else
+             compile_json='build/compile_commands.json';
+          fi;
+          if ${{ inputs.absolute }}; then
+            abs='-a';
+          else
+            abs='';
+          fi;
+          clang_checks=$(clang-tidy --list-checks);
+          gcc_version=$(gcc --version);
+          gpp_version=$(g++ --version);
+          cmake_list='CMakeLists.txt';
+          clang_file='parameter-file';
+          clang_tidy='.clang-tidy';
+          clangd_tidy='/home/runner/.local/bin/clangd-tidy';
+          clang_includes='check-file-includes.txt';
+          [[ ! -f "${cmake_list}" ]] && cmake_list="${{ github.action_path }}/${cmake_list}";
+          if ${{ env.dirname != '' }}; then
+            echo -e "####################\nWorkspace Folder: ${{ env.dirname }}\n####################" | process_input;
+          else
+            echo -e "####################\nWorkspace Folder: ${repository}\n####################" | process_input;
+          fi;
+          echo -e "\n####################\nProject Build:\033[32m ${{ github.repository }}\033[0m\n####################" | process_input;
+          echo -e "\n####################\nCompiler: ${gcc_version}\n####################" | process_input;
+          echo -e "\n####################\nCompiler: ${gpp_version}\n####################" | process_input;
+          echo -e "\n####################\nCompiler: ${clang_version}\n####################" | process_input;
+          echo -e "\n####################\nBuilder: ${cmake_version}\n####################" | process_input;
+          if ${{ inputs.build == '1' }} || ${{ inputs.build == '2' }} || ${{ inputs.analyzer == '4' }}; then
+            codechecker_version=$(CodeChecker version);
+            echo -e "\n####################\nCodeChecker: ${codechecker_version}\n####################" | process_input;
+          fi;
+          if ${{ inputs.build == '3' }} || ${{ inputs.build == '4' }}; then
+            deheader_version=$(deheader --version);
+            echo -e "\n####################\nDeheader: ${deheader_version}\n####################" | process_input;
+          fi;
+          if ${{ inputs.analyzer == 3 }}; then
+            clangd_version=$(clangd-tidy --version);
+            echo -e "\n####################\nClangd-Tidy: ${clangd_version}\n####################" | process_input;
+          fi;
+          echo -e "\n####################\nClang-Tidy: ${clang_tidy_version}\n####################" | process_input;
+          echo -e "\n####################\nCLANG TIDY: ${verify_config}\n####################" | process_input;
+          if ${{ inputs.content }} && ${{ inputs.build == '1' }} || ${{ inputs.build == '2' }} || ${{ inputs.analyzer == '4' }}; then
+            codechecker_analyzer1=$(CodeChecker checkers --analyzers clangsa | awk '/Status: enabled/{print prev}{prev=$0}' | awk '{printf "    %s\n", $0}');
+            [[ -n "${codechecker_analyzer1}" ]] && echo -e "\n####################\n\tCODECHECKER OPTIONS\n####################\nEnabled analyzer checks:\n${codechecker_analyzer1}" | process_input;
+            codechecker_analyzer2=$(CodeChecker checkers --profile sensitive | awk '/Status: enabled/{print prev}{prev=$0}' | awk '{printf "    %s\n", $0}');
+            [[ -n "${codechecker_analyzer2}" ]] && echo -e "\n####################\n\tCODECHECKER OPTIONS\n####################\nEnabled profile checks:\n${codechecker_analyzer2}" | process_input;
+          fi;
+          ${{ inputs.content }} && echo -e "\n####################\n\tCLANG OPTIONS\n####################\n\n${clang_checks}" | process_input;
+          echo -e "\n####################\nChecking Repository:\033[32m ${{ env.base }}\033[0m\n####################" | process_input;
+          echo -e "\n####################\nChecking for ${file_type} files\n####################" | process_input;
+          source_dirs() {
+            find -not \( -path '*/.github' -prune -o -path '*/.git' -prune \) -type d -maxdepth 1 -print | awk '{ print length($0), $0 }' | sort -n | cut -d' ' -f 2- 2>/dev/null | while IFS= read -r dir; do
+              if [[ "${dir}" != '.' ]]; then
+                echo -n "${dir#./} ";
+              fi;
+            done;
+          }
+          cmake_includes() {
+            include_source_count=0
+            include_count_extra=0
+            include_count=0
+            if ${{ inputs.number > '0' }}; then
+              file_count=${{ inputs.number }};
+              echo "include_source=false" >> "${GITHUB_ENV}";
+              include_source=false
+            elif ${{ env.include_count > '2000' }}; then
+              file_count=${{ env.include_count }};
+              echo "include_source=true" >> "${GITHUB_ENV}";
+              include_source=true
+            else
+              file_count='500';
+              echo "include_source=false" >> "${GITHUB_ENV}";
+              include_source=false
+            fi;            
+            if [[ -s "${clang_sources}" ]] && ${{ inputs.include }}; then
+              if [[ "${file_count}" < '2000' ]]; then
+                while IFS= read -r include; do
+                  include_source_count=$((include_source_count + 1));      
+                  echo "${include_source_count}" > "${count3}";
+                  echo -e "-I${include}" >> 'compile_flags.txt';
+                  echo -n "${include#./};";
+                  if [[ "${include_source_count}" -eq "${file_count}" ]]; then
+                    break;
+                  fi;              
+                done < "${clang_sources}";
+              fi;
+            else
+              header_source=$(find "${{ env.base }}" -not \( -path '*/CMakeFiles' -prune -o -path '*/build' -prune -o -path '*/.github' -prune -o -path '*/.git' -prune \) -type d \( -name 'acpi' -o -name 'api' -o -name 'asm' -o -name 'core' -o -name 'drivers' -o -name 'fs' -o -name 'generated' -o -name 'gpu' -o -name 'include' -o -name 'linux' -o -name 'mtk' -o -name 'mt-plat' -o -name 'subcmd' -o -name 'subdev' -o -name 'sysdep' -o -name 'util' \) -print | awk '{ print length($0), $0 }' | sort -n | cut -d' ' -f 2- 2>/dev/null);
+              while IFS= read -r dir; do
+                if [[ -d "${dir}" ]]; then
+                  include_count=$((include_count + 1));
+                  echo "${include_count}" > "${count1}";
+                  echo -e "-I${dir}" >> 'compile_flags.txt';
+                  echo -n "${dir};";
+                fi;
+              done <<< "${header_source}";
+              if [[ -s "${clang_includes}" ]] && ${{ inputs.include }}; then
+                while IFS= read -r include; do
+                  include_count_extra=$((include_count_extra + 1));
+                  echo "${include_count_extra}" > "${count2}";
+                  echo -e "-I${include}" >> 'compile_flags.txt';
+                  echo -n "${include#./};";
+                done < "${clang_includes}";
+              fi;
+            fi;
+          }
+          clang_includes() {
+            find "${{ env.base }}" -not \( -path '*/CMakeFiles' -prune -o -path '*/build' -prune -o -path '*/.github' -prune -o -path '*/.git' -prune \) -type d -name 'include' -print | awk '{ print length($0), $0 }' | sort -n | cut -d' ' -f 2- 2>/dev/null | while IFS= read -r include; do
+              if [[ -d "${include}" ]]; then
+                echo -e "--extra-arg=-I${include#./}";
+              fi;
+            done;
+          }
+          source_files() {
+            find "${{ env.base }}" -not \( -path '*/CMakeFiles' -prune -o -path '*/build' -prune -o -path '*/.git' -prune -o -path '*/.github' -prune \) -type f -name "*.${file_type}" -print | awk '{ print length($0), $0 }' | sort -n | cut -d' ' -f 2- 2>/dev/null | while IFS= read -r file; do
+              echo -e "${file#./}";
+            done;
+          }
+          mkdir -p build/bin
+          echo 'build_error=false' >> "${GITHUB_ENV}";
+          echo 'github_source_files=false' >> "${GITHUB_ENV}";
+          echo 'github_include_dirs=false' >> "${GITHUB_ENV}";
+          echo 'github_source_dirs=false' >> "${GITHUB_ENV}";
+          if [[ "$(source_files)" ]]; then
+            echo 'github_source_files=true' >> "${GITHUB_ENV}";
+          fi;
+          if [[ "$(cmake_includes)" ]]; then
+            echo "github_include_dirs=$(cmake_includes)" >> "${GITHUB_ENV}";
+           if [[ -f "${count3}" ]]; then
+              echo -e "\n####################\n\tcheck-file added \033[1m$(cat ${count3})\033[0m source include directories [source:\033[32m auto mode\033[0m]\n\tcmake additional header objectives updated successfully!\n####################" | process_input;
+            elif [[ -f "${count2}" ]]; then
+              echo -e "\n####################\n\tcheck-file added $(cat ${count1}) header include directories\n\tcheck-file updated $(cat ${count2}) additional header directories\n####################" | process_input;
+            else
+              echo -e "\n####################\n\tcheck-file added $(cat ${count1}) header include directories\n####################" | process_input;
+            fi;
+          elif ${{ env.include_count > '2000' }}; then
+              echo -e "\n####################\n\tcheck-file added \033[1m${{ env.include_count }}\033[0m source include directories [source:\033[32m auto mode\033[0m]\n\tcmake max additional header objectives updated successfully!\n####################" | process_input;
+          fi;
+          if [[ -f "${clang_tidy}" ]]; then
+            echo -e '\n####################\n\t.clang-tidy found continuing...\n####################' | process_input;
+          fi;
+          if [[ -f "${cmake_list}" ]]; then
+            echo -e '\n####################\n\tCMakeLists.txt found continuing...\n####################' | process_input;
+          fi;
+          if [[ -d 'build' ]]; then
+            echo -e '\n####################\n\tbuild directory created continuing...\n####################\n' | process_input;
+            if ([[ "$(source_dirs)" ]] || [[ "$(cmake_includes)" ]]) && [[ ! -f "${compile_json}" ]]; then
+              echo "github_source_dirs=$(source_dirs)" >> "${GITHUB_ENV}";
+              cmake -S . -DCMAKE_BUILD_PARALLEL_LEVEL=4 -DPROJECT_INCLUDE_SRC="${include_source}" -DPROJECT_INCLUDE_DIRS="$(cmake_includes)" -DPROJECT_SRC_DIRS="$(source_dirs)" -DGITHUB_PROJECT_NAME="${repository}" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON build | process_input | cmakebar --replay || echo "::warning::( $? ) cmake missing or malformed CMakeList.txt (?)" | process_input;
+            elif [[ ! -f "${compile_json}" ]]; then
+              cmake -S . -DCMAKE_BUILD_PARALLEL_LEVEL=4 -DPROJECT_INCLUDE_SRC="${include_source}" -DGITHUB_PROJECT_NAME="${repository}" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON build | process_input | cmakebar --replay || echo "::warning::( $? ) cmake missing or malformed CMakeList.txt (?)" | process_input;
+            fi;
+            if [[ "${PIPESTATUS[0]}" == '0' ]]; then
+              if ${{ inputs.upload }}; then
+                echo 'build_files=1' >> "${GITHUB_ENV}";
+              fi;
+            fi;
+          fi;
+          if [[ "${user_compile_json}" == 'true' ]]; then
+            echo -e "\n####################\n\t${compile_json} was found successfully...\n####################" | process_input;
+          elif [[ -e "${compile_json}" ]]; then
+            echo -e "\n####################\n\t${compile_json} was created successfully...\n####################" | process_input;
+          fi;
+        fi;
+        echo '';
+        seconds="$((SECONDS - start_time))";
+        echo "seconds=${seconds}" >> "${GITHUB_ENV}";
+      shell: bash
+      continue-on-error: true
+
+    - name: Project Analyze
+      if: inputs.project == 'true' && inputs.analyzer > '0'
+      run: |        
+        echo '';
+        set +e
+        start_time="${{ env.seconds }}";
+        export CMAKE_EXPORT_COMPILE_COMMANDS=ON
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        github=${GITHUB_WORKSPACE};
+        project_log="${github}/${repository}_project.log";
+        clang_sources='check-file-sources.txt';
+        codechecker='codechecker.yaml';
+        user_compile_json=false
+        count1='count1.txt';
+        count2='count2.txt';
+        count3='count3.txt';
+        check_build=false
+        include_source=false
+        file_type='c';
+        update=true
+        fixed=false;
+        if ${{ inputs.repository == 'false' }} && [[ -d "${{ env.dirname }}" ]]; then
+          cd "${{ env.dirname }}";
+        fi;
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ env.check_build == 'false' }}; then
+          echo 'check_build=false' >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.update == 'false' }}; then
+          echo 'update=false' >> "${GITHUB_ENV}";
+          update=false
+        fi;
+        if ${{ inputs.filetype != '' }}; then
+          file_type="${{ inputs.filetype }}";
+        fi;
+        echo "filetype=${file_type}" >> "${GITHUB_ENV}";
+        if [[ "${file_type}" == [cth]* ]]; then
+          clang_tidy_version=$(clang-tidy --version);
+          clang_version=$(clang --version);
+          verify_config=$(clang-tidy --verify-config);
+          cmake_version=$(cmake --version);
+          if [[ -f 'compile_commands.json' ]]; then
+             user_compile_json=true
+             compile_json='compile_commands.json';
+             mkdir build && cp -vf ${compile_json} build/
+          elif [[ -f 'build/compile_commands.json' ]]; then
+             compile_json='build/compile_commands.json';
+          else
+             compile_json='build/compile_commands.json';
+          fi;
+          if ${{ inputs.absolute }}; then
+            abs='-a';
+          else
+            abs='';
+          fi;
+          clang_checks=$(clang-tidy --list-checks);
+          gcc_version=$(gcc --version);
+          gpp_version=$(g++ --version);
+          cmake_list='CMakeLists.txt';
+          clang_file='parameter-file';
+          clang_tidy='.clang-tidy';
+          clangd_tidy='/home/runner/.local/bin/clangd-tidy';
+          clang_includes='check-file-includes.txt';
+          [[ ! -f "${cmake_list}" ]] && cmake_list="${{ github.action_path }}/${cmake_list}"; 
+          if [[ "${{ env.run_clang_tidy }}" ]] && ${{ env.analyzer == '1' }} && [[ -e "${compile_json}" ]]; then
+            echo -e '\n####################\nRUN-CLANG-TIDY ANALYZING FILES\n####################\n' | process_input;
+            [[ $(whereis clang-format) ]] && [[ ! -f '.clang-format' ]] && echo -e '[check-file] creating new ,clang-format file as none was found\n' | process_input && clang-format -style=LLVM -dump-config > .clang-format || echo -e "\n::notice::clang-format exit-code ($?)" | process_input;
+            "${{ env.run_clang_tidy }}" -j $(nproc --all) -p build -config-file "${clang_tidy}" -export-fixes build/fixes.yaml -fix -format -style 'file' 2>&1 | process_input || echo -e "\n::notice::run-clang-tidy exit-code ($?)" | process_input;
+            if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+              echo 'check_build=false' >> "${GITHUB_ENV}";
+            elif [[ -s "${project_log}" ]] && [[ $(grep -sE 'error:|Error:|Error while processing|ERROR:' "${project_log}") ]]; then
+              echo -e "\n::notice::Errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && echo 'build_error=true' >> "${GITHUB_ENV}" && check_build=true;
+            elif [[ -s "${project_log}" ]]; then
+              echo -e "\n::notice::No errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+            fi;
+          elif [[ ! "${{ env.run_clang_tidy }}" ]] && ${{ env.analyzer == '1' }} && [[ -e "${compile_json}" ]]; then
+            echo -e "\n####################\n\t::error:: run-clang-tidy missing in repo Exiting...\n####################\n" | process_input;
+          fi;
+          if [[ -f "${clang_file}" ]] && ${{ env.analyzer == '2' }} && [[ -e "${compile_json}" ]]; then
+            files_list=false
+            if [[ "$(clang_includes)" ]] && [[ "$(source_files)" ]] ; then
+              echo -e "\n####################\n\t${file_type} file(s) & include objectives found continuing...\n####################" | process_input;
+              clang_includes >> "${clang_file}" && source_files >> "${clang_file}" && files_list=true
+            elif [[ "$(source_files)" ]]; then
+              echo -e "\n####################\n\t${file_type} file(s) found continuing...\n####################" | process_input;
+              source_files >> "${clang_file}" && files_list=true
+            else	
+              echo -e "\n::error::No ${file_type} files found searching repository\nExiting...\n" | process_input;
+            fi;
+            echo -e "\n####################\n\t${clang_file} found continuing...\n####################" | process_input;
+            echo -e '\n####################\nCLANG-TIDY CONFIG CHECKED\n####################\n' | process_input;
+            if [[ "${files_list}" ]]; then
+              cp -vf "${clang_file}" 'build/parameter-source.txt' 2>/dev/null;
+              echo -e '\n####################\nCLANG-TIDY ANALYZING FILES\n####################\n' | process_input;
+              clang-tidy @parameter-file 2>&1 | process_input || echo -e "\n::notice::clang-tidy exit-code ($?)" | process_input;
+              if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+                echo 'check_build=false' >> "${GITHUB_ENV}";
+              elif [[ -s "${project_log}" ]] && [[ $(grep -sE 'error:|Error:|Error while processing|ERROR:' "${project_log}") ]]; then
+                echo -e "\n::notice::Errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && echo 'build_error=true' >> "${GITHUB_ENV}" && check_build=true;
+              elif [[ -s "${project_log}" ]]; then
+                echo -e "\n::notice::No errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+              fi;
+            fi;
+          elif [[ ! -e "${clang_file}" ]] && ${{ env.analyzer == '2' }} && [[ -e "${compile_json}" ]]; then
+            echo -e "\n####################\n\t::error:: parameter-file missing in repo Exiting...\n####################\n" | process_input;
+          fi;
+          if [[ -f "${clangd_tidy}" ]] && ${{ env.analyzer == '3' }} && [[ -e "${compile_json}" ]]; then
+            echo -e '\n####################\nCLANGD-TIDY ANALYZING FILES\n####################\n' | process_input;
+            fdfind -p -c auto "${abs}" -e "${{ inputs.filetype }}" "${{ env.base }}" -x clangd-tidy -p build -j "$(nproc --all)" --color always --tqdm 2>&1 | process_input || echo -e "\n::notice::clangd-tidy exit-code ($?)" | process_input;
+            if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+              echo 'check_build=false' >> "${GITHUB_ENV}";
+            elif [[ -s "${project_log}" ]] && [[ $(grep -sE 'error:|Error:|Error while processing|ERROR:' "${project_log}") ]]; then
+              echo -e "\n::notice::Errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && echo 'build_error=true' >> "${GITHUB_ENV}" && check_build=true;
+            elif [[ -s "${project_log}" ]]; then
+              echo -e "\n::notice::No errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+            fi;
+          elif [[ ! -e "${clangd_tidy}" ]] && ${{ env.analyzer == '3' }} && [[ -e "${compile_json}" ]]; then
+            echo -e "\n####################\n\t::error::${clangd_tidy##/*} file missing in repo Exiting...\n####################\n" | process_input;
+          fi;
+          if [[ $(which CodeChecker) ]] && ${{ env.analyzer == '4' }} && [[ -e "${compile_json}" ]]; then
+            echo -e '\n####################\n\tCODECHECKER ANALYZING FILES...\n####################\n' | process_input;
+            sudo bash -c 'source ~/.bashrc';
+            export TERM=dumb; export CC_LOGGER_GCC_LIKE="gcc:g++:clang:clang++:/cc:c++";
+            if [[ -e "/home/runner/codechecker/venv/bin/activate" ]]; then
+              sudo bash -c 'source /home/runner/codechecker/venv/bin/activate'
+            else
+              echo -e "\nUnable to source ( /home/runner/codechecker/venv/bin/activate ) file\n" | process_input;
+            fi;
+            [[ ! -s 'skip.txt' ]] && echo -e '# Skip all system includes\n-*/usr/include/*\n-*/usr/local/include/*\n-*/site-packages/*' > 'skip.txt';
+            if ${{ inputs.repair }}; then
+              echo -e "\nRepair mode continuing without config file continuing...\n" | process_input;
+              CodeChecker analyze "${compile_json}" --jobs "$(nproc --all)" --output ./reports 2>&1 | process_input || echo -e "\nCodeChecker analyzer exit-code ($?)" | process_input;
+              CodeChecker fixit --checker-name bugprone-suspicious-string-compare --jobs "$(nproc --all)" --apply ./reports 2>&1 | process_input || echo -e "\nCodeChecker fixit exit-code ($?)" | process_input;
+              CodeChecker parse ./reports 2>&1 | process_input || echo -e "\nCodeChecker parse exit-code ($?)" | process_input;
+            else
+              [[ -e "${codechecker}" ]] && echo -e "\n${codechecker} file was found continuing...\n" | process_input || echo -e "\n::warning::${codechecker} file was not found continuing...\n" | process_input;
+              CodeChecker check --logfile "${compile_json}" --config "${codechecker}" --jobs "$(nproc --all)" 2>&1 | process_input || echo -e "\nCodeChecker check exit-code ($?)" | process_input;
+            fi;
+            if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+              echo 'check_build=false' >> "${GITHUB_ENV}";
+            elif [[ -s "${project_log}" ]] && [[ $(grep -siE 'error:|Error while processing' "${project_log}") ]]; then
+              echo -e "\n::notice::Errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && echo 'build_error=true' >> "${GITHUB_ENV}" && check_build=true;
+            elif [[ -s "${project_log}" ]]; then
+              echo -e "\n::notice::No errors found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+            fi;
+          elif [[ ! $(which CodeChecker) ]] && ${{ env.analyzer == '4' }} && [[ -e 'compile_commands.json' ]]; then
+            echo -e "\n####################\n\t::error::CodeChecker not installed Exiting...\n####################\n" | process_input;
+          fi;
+          [[ -f 'compile_flags.txt' ]] && mv -f 'compile_flags.txt' 'build/';
+        fi;
+        echo '';
+        seconds="$((SECONDS + start_time))";
+        echo "seconds=${seconds}" >> "${GITHUB_ENV}";
+      shell: bash
+      continue-on-error: true
+      
+    - name: Build Project
+      if: inputs.project == 'true' && inputs.build > '0'
+      run: |
+        echo -n '';
+        set +e
+        start_time="${{ env.seconds }}";
+        export CMAKE_EXPORT_COMPILE_COMMANDS=ON
+        export CMAKE_BUILD_PARALLEL_LEVEL=4
+        export CC_LOGGER_GCC_LIKE="gcc:g++:clang:clang++:/cc:c++";
+        codechecker='codechecker.yaml';
+        compiler_list=$(dpkg --list | grep compiler | tr -d 'ii');
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        github=${GITHUB_WORKSPACE};
+        project_log="${github}/${repository}_project.log";
+        build_fixes='build/fixes.yaml';
+        check_build=false
+        file_type='c';
+        update=true
+        fixed=false
+        count=1
+        if ${{ inputs.repository == 'false' }} && [[ -d "${{ env.dirname }}" ]]; then
+          cd "${{ env.dirname }}";
+        fi;
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if [[ -f 'compile_commands.json' ]]; then
+          compile_json='compile_commands.json';
+        elif [[ -f 'build/compile_commands.json' ]]; then
+          compile_json='build/compile_commands.json';
+        else
+          compile_json='build/compile_commands.json';
+        fi;
+        if ${{ inputs.absolute }}; then
+          abs='-a';
+        else
+          abs='';
+        fi;
+        if ${{ env.check_build == 'false' }}; then
+          echo 'check_build=false' >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.update == 'false' }}; then
+          echo 'update=false' >> "${GITHUB_ENV}";
+          update=false
+        fi;
+        if ${{ inputs.filetype != 'none' }}; then
+          file_type="${{ inputs.filetype }}";
+        fi;
+        echo "filetype=${file_type}" >> "${GITHUB_ENV}";
+        if ${{ env.build_files == '1' }} && ${{ inputs.build == '1' }} && ${{ env.build_error == 'false' }}; then
+          echo -e '\n####################\n\tCodeChecker building project from sources...(test-run -1)\n####################\n' | process_input;
+          sudo bash -c 'source ~/.bashrc';
+          export TERM=dumb
+          if [[ -e "/home/runner/codechecker/venv/bin/activate" ]]; then
+            sudo bash -c 'source /home/runner/codechecker/venv/bin/activate'
+          else
+            echo -e "\nUnable to source ( /home/runner/codechecker/venv/bin/activate ) file\n" | process_input;
+          fi;
+          [[ -e 'build/envsetup.sh' ]] && source build/envsetup.sh
+          if [[ -e "${codechecker}" ]]; then
+            echo -e "\n${codechecker} file was found continuing...\n" | process_input;
+            CodeChecker check -b "make -j$(nproc --all)" --config "${codechecker}" --jobs "$(nproc --all)" --print-steps 2>&1 | process_input || echo -e "\n::notice::CodeChecker check exit-code ($?)" | process_input;
+          else
+            echo -e "\n${codechecker} file was not found continuing without...\n" | process_input;
+            CodeChecker check -b "make" --jobs "$(nproc --all)" --print-steps 2>&1 | process_input || echo -e "\n::notice::CodeChecker check exit-code ($?)" | process_input;
+          fi;
+          if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+            echo 'check_build=false' >> "${GITHUB_ENV}";
+          elif [[ -s "${project_log}" ]] && [[ $(grep -sE 'error:|Error:|Error while processing|ERROR:' "${project_log}") ]]; then
+            echo -e "\n::notice::Errors found building project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && echo 'build_error=true' >> "${GITHUB_ENV}" && check_build=true;
+          elif [[ -s "${project_log}" ]]; then
+            echo -e "\n::notice::No errors found building project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+          fi;
+          if ${{ inputs.upload }}; then
+            echo 'build_files=1' >> "${GITHUB_ENV}";
+          fi;
+        elif ${{ env.build_files == '1' }} && ${{ inputs.build == '1' }}; then
+          echo -e "\n####################\n\t::error:: build directory missing in repo Exiting...\n####################\n" | process_input;
+        fi;
+        if ${{ env.build_files == '1' }} && ${{ inputs.build == '2' }} && ${{ env.build_error == 'false' }}; then
+          echo -e '\n####################\n\tCodeChecker building compile_commands.json from project sources...(json-run -2)\n####################\n' | process_input;
+          sudo bash -c 'source ~/.bashrc';
+          export TERM=dumb
+          if [[ -e "/home/runner/codechecker/venv/bin/activate" ]]; then
+            sudo bash -c 'source /home/runner/codechecker/venv/bin/activate';
+          else
+            echo -e "\nUnable to source ( /home/runner/codechecker/venv/bin/activate ) file\n" | process_input;
+          fi;
+          [[ -e "${compile_json}" ]] && rm -vf "${compile_json}" | process_input;
+          CodeChecker log --build "make -j$(nproc --all)" --output "${compile_json}" 2>&1 | process_input || echo -e "\n::notice::CodeChecker log exit-code ($?)" | process_input;
+          if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+            echo 'check_build=false' >> "${GITHUB_ENV}";
+          elif [[ -s "${project_log}" ]] && [[ $(grep -sE 'error:|Error:|Error while processing|ERROR:' "${project_log}") ]]; then
+            echo -e "\n::notice::Errors found building commands JSON file" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && echo 'build_error=true' >> "${GITHUB_ENV}" && check_build=true;
+          elif [[ -s "${project_log}" ]]; then
+            echo -e "\n::notice::No errors found building commands JSON file" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+          fi;
+          if ${{ inputs.upload }}; then
+            echo 'build_files=1' >> "${GITHUB_ENV}";     
+          fi;
+        elif ${{ env.build_files == '1' }} && ${{ inputs.build == '2' }}; then
+          echo -e "\n####################\n\t::error:: build directory missing in repo Exiting...\n####################" | process_input;
+        fi;
+        if ${{ env.build_files == '1' }} && ${{ inputs.build == '3' }} && ${{ env.build_error == 'false' }}; then
+          echo -e '\n####################\n\tDeheader analyze sources includes on build...(dry-run -3)\n####################\n' | process_input;
+          sudo bash -c 'source ~/.bashrc'
+          deheader -v -r -m "make -n -j$(nproc --all)" | process_input || echo -e "\n::notice::deheader check exit-code ($?)" | process_input;
+          if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+            echo 'check_build=false' >> "${GITHUB_ENV}";
+          elif [[ -s "${project_log}" ]] && [[ $(grep -sE ' duplicates|inclusion' "${project_log}") ]]; then
+            echo -e "\n::notice::duplicate includes found building project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+          elif [[ -s "${project_log}" ]]; then
+            echo -e "\n::notice::No duplicate includes found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+          fi;
+          if ${{ inputs.upload }}; then
+            echo 'build_files=1' >> "${GITHUB_ENV}";
+          fi;
+        elif ${{ env.build_files == '1' }} && ${{ inputs.build == '3' }}; then
+          echo -e "\n####################\n\t::error:: build directory missing in repo Exiting...\n####################" | process_input;
+        fi;
+        if ${{ env.build_files == '1' }} && ${{ inputs.build == '4' }} && ${{ env.build_error == 'false' }}; then
+          echo -e '\n####################\n\tDeheader analyze & repair sources includes on build...(test-run -4)\n####################\n' | process_input;
+          sudo bash -c 'source ~/.bashrc'
+          [[ -e 'build/envsetup.sh' ]] && source build/envsetup.sh
+          deheader -v -r -m "lunch ${{ inputs.makefile }} && make clean && make ${{ inputs.filename }} -j$(nproc --all) -k" | process_input || echo -e "\n::notice::deheader build exit-code ($?)" | process_input;
+          if [[ -s "${project_log}" ]] && [[ $(grep -siF 'Process completed with exit code' "${project_log}") ]]; then
+            echo 'check_build=false' >> "${GITHUB_ENV}";
+          elif [[ -s "${project_log}" ]] && [[ $(grep -sE ' duplicates|inclusion' "${project_log}") ]]; then
+            echo -e "\n::notice::duplicate includes found building project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+          elif [[ -s "${project_log}" ]]; then
+            echo -e "\n::notice::No duplicate includes found checking project files" | process_input && echo 'check_build=true' >> "${GITHUB_ENV}" && check_build=true;
+          fi;
+          if ${{ inputs.upload }}; then
+            echo 'build_files=1' >> "${GITHUB_ENV}";
+          fi;
+        elif ${{ env.build_files == '1' }} && ${{ inputs.build == '4' }}; then
+          echo -e "\n####################\n\t::error:: build directory missing in repo Exiting...\n####################\n" | process_input;
+        fi;
+        echo '';
+        seconds="$((SECONDS + start_time))";
+        echo "seconds=${seconds}" >> "${GITHUB_ENV}";
+      shell: bash
+      continue-on-error: true
+
+    - name: Build Project
+      if: inputs.project == 'true'
+      run: |
+        echo -n '';
+        set +e
+        start_time="${{ env.seconds }}";
+        codechecker='codechecker.yaml';
+        compiler_list=$(dpkg --list | grep compiler | tr -d 'ii');
+        repository=$(echo ${{ github.repository }} | cut -d'/' -f 2-);
+        github=${GITHUB_WORKSPACE};
+        project_log="${github}/${repository}_project.log";
+        build_fixes='build/fixes.yaml';
+        check_build=false
+        file_type='c';
+        update=true
+        fixed=false
+        count=1
+        if ${{ inputs.repository == 'false' }} && [[ -d "${{ env.dirname }}" ]]; then
+          cd "${{ env.dirname }}";
+        fi;
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${project_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${project_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ inputs.absolute }}; then
+          abs='-a';
+        else
+          abs='';
+        fi;
+        if ${{ env.check_build == 'false' }}; then
+          echo 'check_build=false' >> "${GITHUB_ENV}";
+        fi;
+        if ${{ inputs.update == 'false' }}; then
+          echo 'update=false' >> "${GITHUB_ENV}";
+          update=false
+        fi;
+        if ${{ inputs.filetype != 'none' }}; then
+          file_type="${{ inputs.filetype }}";
+        fi;
+        echo "filetype=${file_type}" >> "${GITHUB_ENV}";
+        if [[ -s "${project_log}" ]] && (${{ env.check_build == 'true' }} || [[ "${check_build}" == 'true' ]]); then
+          echo -e "\n####################\n\t${project_log##*/} file found checking stats...\n####################" | process_input;
+          deheader_duplicates=$(grep -sFc 'duplicates' "${project_log}");
+          deheader_inclusion=$(grep -sFc 'inclusion' "${project_log}");
+          deheader_removed=$(grep -sFc 'remove' "${project_log}");
+          codechecker_defects=$(grep -so 'Found [1-9] defect' "${project_log}" | cut -d ' ' -f2 | awk '{sum += $1} END {print sum}');
+          codechecker_no_defects=$(grep -sFoc 'Found no defects' "${project_log}");
+          codechecker_success=$(grep -sFc 'successfully' "${project_log}");
+          codechecker_errors=$(grep -sFc 'Error while processing' "${project_log}");
+          clang_replacements=$(grep -sF 'Replacements:' "${build_fixes}" | grep -vc '[\[\]]');
+          clang_information=$(grep -siFc 'information:' "${project_log}");
+          clang_files_missing=$(grep -sFc 'file not found' "${project_log}");
+          clang_files_list=$(grep -sEo '#include[[:space:]]+[<"].*[>"]' "${project_log}" | awk '{print $2}' | tr -d '<">' | sort -u);
+          clang_warnings=$(grep -sEo '[1-9] warnings generated|1 warning generated' "${project_log}" | cut -d ' ' -f1 | awk '{sum += $1} END {print sum}');
+          clang_errors=$(grep -sEo '[1-9] errors generated|1 error generated' "${project_log}" | cut -d ' ' -f1 | awk '{sum += $1} END {print sum}');
+          clang_fixit1=$(grep -siEc 'fixit|fix-its' "${project_log}");
+          clang_fixit2=$(grep -siF 'clang-tidy applied' "${project_log}");
+          clang_notes=$(grep -siFc 'note:' "${project_log}");
+          located_count=0
+          missing_count=0
+          file_count=0
+          if [[ -n "${clang_information}" ]] && [[ "${clang_information:-0}" > '0' ]] && ${{ inputs.analyzer == '3' }}; then
+            echo -e "\n####################\n::notice::⚠️ check-file added ${clang_information}️ information notes on ${file_type} file(s) checked. [Hints] Information addresses key issues that may have error fixes available.\n####################" | process_input;
+          fi;
+          if [[ -n "${clang_warnings}" ]] && [[ "${clang_warnings:-0}" > '0' ]]; then
+            echo -e "\n####################\n::notice::⚠️ check-file found ${clang_warnings}️ warnings in ${file_type} file(s) checked. [Hints] Try using ( warnings-as-errors ) for possible errors.\n####################" | process_input;
+          fi;
+          if [[ -n "${codechecker_defects}" ]] && [[ "${codechecker_defects:-0}" > '0' ]] && (${{ inputs.analyzer == '4' }} || ${{ inputs.build == '1' }} || ${{ inputs.build == '2' }}); then
+            echo -e "\n####################\n::notice::⚠️ check-file checked ${codechecker_defects} ${file_type} file(s) with defects. [Hints] Check require for those files.\n####################" | process_input;
+          fi;
+          if [[ -n "${codechecker_no_defects}" ]] && [[ "${codechecker_no_defects:-0}" > '0' ]] && (${{ inputs.analyzer == '4' }} || ${{ inputs.build == '1' }} || ${{ inputs.build == '2' }}); then
+            echo -e "\n####################\n::notice::✅ check-file checked ${codechecker_no_defects} ${file_type} file(s) without defects. [Hints] No check require for those files.\n####################" | process_input;
+          fi;
+          if [[ -n "${codechecker_success}" ]] && [[ "${codechecker_success:-0}" > '0' ]] && (${{ inputs.analyzer == '4' }} || ${{ inputs.build == '1' }} || ${{ inputs.build == '2' }}); then
+            echo -e "\n####################\n::notice::✅ check-file checked ${codechecker_success} ${file_type} file(s) successfully without issues. [Hints] No check require for those files.\n####################" | process_input;
+          fi;
+          if [[ -n "${clang_errors}" ]] && [[ "${clang_errors:-0}" > '0' ]]; then
+            echo -e "\n####################\n::notice::🚫 check-file found ${clang_errors} errors in ${file_type} file(s) checked. [Hints] Try using different (analyzer: 1, 2, or 4) for possible error fixes.\n####################" | process_input;
+          fi;
+          if [[ -n "${clang_fixit1}" ]] && [[ "${clang_fixit1:-0}" > '0' ]] && ${{ inputs.analyzer > '0' }}; then
+            echo -e "\n####################\n::notice::✅ check-file applied ${clang_fixit1} fix-its to ${file_type} file(s) checked. [Hints] Try using (update: true) for updating your remote repository with the fixes.\n####################" | process_input;
+            fixed=true
+          fi;
+          if [[ -n "${clang_fixit2}" ]] && [[ "${clang_fixit2:-0}" > '0' ]] && ${{ inputs.analyzer > '0' }}; then
+            echo -e "\n####################\n::notice::✅ ${clang_fixit2} To ${file_type} file(s) checked. [Hints] Try using (update: true) for updating your remote repository with any fixed files.\n####################" | process_input;
+            fixed=true
+          fi;
+          if [[ -n "${clang_notes}" ]] && [[ "${clang_notes:-0}" > '0' ]]; then
+            echo -e "\n####################\n::notice::⚠️ check-file added ${clang_notes} notes on ${file_type} file(s) checked. [Hints] Notes are fix suggestions for files that should be addressed before compiling.\n####################" | process_input;
+          fi;
+          if [[ -f "${build_fixes}" ]] && [[ "${clang_replacements:-0}" > '0' ]]; then
+            echo -e "\n####################\n::notice::✅ check-file applied ${clang_replacements} clang replacement fixes for ${file_type} file(s) checked. [Hints] Clang export fixes are stored in build/fixes.yaml for download. Try using different (analyzer: 1, 2, or 4) for more possible error fixes.\n####################" | process_input;
+          fi;
+          if [[ -n "${deheader_removed}" ]] && [[ "${deheader_removed:-0}" > '0' ]] && ${{ inputs.build == '3' }} || ${{ inputs.build == '4' }}; then
+            echo -e "\n####################\n::notice::✅ check-file removed ${deheader_removed} extra inclusions in ${file_type} file(s) checked. [Hints] Try manually removing any extra includes in files before compiling.\n####################" | process_input;
+            fixed=true
+          fi;
+          if [[ -n "${deheader_duplicates}" ]] && [[ "${deheader_duplicates:-0}" > '0' ]] && (${{ inputs.build == '3' }} || ${{ inputs.build == '4' }}); then
+            echo -e "\n####################\n::notice::🚫 check-file found ${deheader_duplicates} duplicates or colliding inclusions in ${file_type} file(s) checked. [Hints] Try using (analyzer: 1, 2, or 4) for possible error fixes.\n####################" | process_input;
+          elif [[ -n "${deheader_inclusion}" ]] && [[ "${deheader_inclusion:-0}" > '0' ]] && (${{ inputs.build == '3' }} || ${{ inputs.build == '4' }}); then
+            echo -e "\n####################\n::notice::🚫 check-file found ${deheader_inclusion} extra inclusions in ${file_type} file(s) checked. [Hints] Try using (update: true) if headers were fixed to update remote repository.\n####################" | process_input;
+          fi;
+          if [[ -n "${clang_files_missing}" ]] && [[ "${clang_files_missing:-0}" > '0' ]]; then
+            echo -e "\n####################\n::notice::❌ check-file discovered ${clang_files_missing} calls to missing include files in all ${file_type} file(s) checked. [Hints] Files may be there yet not included an/or duplicate missing files. Check missing files list for exact files!!!\n####################" | process_input;
+            echo -e "\n####################\nMISSING FILES LIST:\n####################\n\n${clang_files_list}" | process_input;
+            echo -e "\n####################\nCHECK-FILE AUTO LOCATE FILES IN: ${{ env.base }}\n####################\n" | process_input;
+            declare -A missing
+            found=false
+            while IFS= read -r missing_file; do
+              if [[ "${missing_file}" == *.[h]* ]] || [[ "${missing_file}" == *.[c]* ]]; then
+                file_count=$((file_count + 1));
+                echo "Locating missing ${missing_file} file ...." | process_input;
+                path1="${missing_file//\'/}";
+                path2="${path1##[:]*}";
+                path3="${path2%'\n'}";
+                path4="${path3%\\}";
+                clean_path="${path4##+(*./)}";
+                file1="${missing_file//\'/}";
+                file2="${file1##[:]*}";
+                file3="${file2%'\n'}";
+                file4="${file3%\\}";
+                clean_file="${clean_file##*/}";
+                shopt -s extglob
+                if [[ ${missing_file} == *"/"* ]]; then          
+                  locate=$(fdfind -p -c auto "${abs}" -t f -g "**/${clean_path##+(*./)}" "${{ env.base }}");
+                else
+                  locate=$(fdfind -p -c auto "${abs}" -t f "${clean_file##+(*./)}" "${{ env.base }}");
+                fi;
+                if [[ "${locate}" ]]; then            
+                  while IFS= read -r includes; do
+                    located_count=$((located_count + 1));
+                    echo -e "\n\033[32mSource Location:\033[0m ${includes}  [ ✅ ]" | process_input;
+                    echo "${includes%/*}" >> 'check-file-includes.txt';
+                  done <<< "${locate[@]}";
+                  includes_found=true
+                elif [[ -n "${missing[$missing_file]}" ]]; then
+                  includes_found=false
+                  echo -e "\n\033[33mSource file #include \033[0m( ${missing_file} )\033[33m already listed missing!\033[0m  [\033[1m skipped \033[0m]" | process_input;
+                else
+                  includes_found=false
+                  missing["$missing_file"]=1
+                  missing_count=$((missing_count + 1));
+                  echo -e "\n\033[31mCannot locate missing file\033[0m ${missing_file}  [ ❌ ]" | process_input;
+                fi;
+                shopt -u extglob
+              fi;             
+            done <<< "${clang_files_list}";
+            unset missing;
+            if [[ -s 'check-file-includes.txt' ]]; then
+              awk '!/\.h$|\.c$/ { sub(/\/$/, ""); print }' 'check-file-includes.txt' > 'check-file-includes-tmp.txt';
+              awk '!seen[$0]++' 'check-file-includes-tmp.txt' > 'check-file-includes.txt' && cp -f 'check-file-includes.txt' 'build/check-file-includes.txt' && echo -e "\n::notice::✅ check-file located ${located_count} files. ${missing_count} missing out of ${file_count} total!!!\n\nDuplicate paths removed from check-file-includes.txt\nFound include directories added to build/check-file-includes.txt\nTo get the file set option ( upload: true )\nRetrive file from artifacts zip download\nThen add it to your repository root before re-check!!!\n\nYou can also set ( cache: true )\nFeature caches local project current state\nThis will store the missing files found list during auto detect mode\nWhich will auto update included directories for checking during next re-check!!!" | process_input && found=true;
+            fi;
+          fi;
+          if [[ ${update} ]] && ${{ env.analyzer == '2' }}; then
+            echo -e "\nPARAMETERS: $(rm -vf ${clang_file} 2>/dev/null)" | process_input;
+          fi;
+          [[ -f ${count1} ]] && rm "${count1}";
+          [[ -f ${count2} ]] && rm "${count2}";
+          [[ -f ${count3} ]] && rm "${count3}";
+          ${{ inputs.content }} && echo -e "\n####################\n\tINSTALLED COMPILERS\n####################\n\n${compiler_list}" | process_input;
+          if [[ "${fixed}" ]]; then
+            echo "file_fixed=1" >> "${GITHUB_ENV}";
+          fi;
+          echo "github_include_dirs=" >> "${GITHUB_ENV}";
+          if [[ "${found}" ]]; then
+            echo "includes=true" >> "${GITHUB_ENV}";
+          else
+            echo "includes=false" >> "${GITHUB_ENV}";
+          fi;
+          [[ -f "/tmp/*/metadata.json" ]] && echo -e"\nCodeChecker Analyzer list: $(cp -vf "/tmp/*/metadata.json" build/)";
+          echo -e '\n####################\n\tProject Checked Exiting...\n####################\n' | process_input;
+        else
+          echo -e '\n####################\n\tProject Not Checked Exiting...\n####################\n' | process_input;
+        fi;
+        seconds="$((SECONDS + start_time))";
+        m=$((seconds / 60));
+        s=$((seconds % 60));
+        printf "Project Process Runtime: %d minutes and %d seconds\n" "$m" "$s";
+      shell: bash
+      continue-on-error: true
+
+    - name: Check & Repair (Clang-tools)
+      if: inputs.filename != ''
+      run: |
+        echo '';
+        set +e
+        SAVEIFS=${IFS}
+        include_count=1
+        include_total=1
+        build_cache='build_cache';
+        clang_file='.clang-tidy';
+        repaired='check-file-repaired.txt';
+        file_count=1
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        cppchecks='.cppcheck';
+        error_log="${{ inputs.filename }}_error.log";
+        checked=false
+        count2=0
+        github=${GITHUB_WORKSPACE};
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${error_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${error_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        } 2>&1;
+        if [[ -f 'compile_commands.json' ]]; then
+          compile_json='compile_commands.json';
+        elif [[ -f 'build/compile_commands.json' ]]; then
+          compile_json='build/compile_commands.json';
+        else
+          compile_json='build/compile_commands.json';
+        fi;
+        if ${{ inputs.database }}; then
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(LC_ALL=C grep -sF "/${{ inputs.filename }}" "${{ env.database }}" 2>/dev/null);
+            echo -e "\n####################\nLiteral String Pattern Matching Active\n####################\n" | process_input;
+          else
+            regex="\${{ inputs.filename }}$";
+            files=$(LC_ALL=C grep -sE "${regex}" "${{ env.database }}" 2>/dev/null);
+            echo -e "\n####################\nExtended Regex Pattern Matching Active\n####################\n" | process_input;
+          fi;
+        else
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(sudo find ${{ env.base }} -not \( -path "*/build/*" -prune -o -path "*/.git/*" -prune \) -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "${{ inputs.filename }}" -print);
+          else
+            files=$(sudo find ${{ env.base }} -not \( -path "*/build/*" -prune -o -path "*/.git/*" -prune \) -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*${{ inputs.filename }}" -print);
+          fi;
+        fi;
+        if [[ "${file_type}" == [cth]* ]] && [[ -n ${files} ]]; then
+          echo -e "\n####################\nWorkspace Folder: ${{ env.dirname }}\n####################\n" | process_input;
+          if [[ -f "${clang_file}" ]] && ${{ inputs.repair }}; then
+            echo -e '\n####################\n\t.clang-tidy found continuing...\n####################\n' | process_input
+          elif [[ ! -f "${clang_file}" ]] && ${{ inputs.repair }}; then
+            echo -e "\n####################\n::error:: .clang-tidy not found exiting...\n####################\n" | process_input;
+            exit 1
+          fi;
+          if [[ -f "${compile_json}" ]] && ! ${{ inputs.include }}; then
+            echo -e '\n####################\n\tcompile_commands.json found continuing...\n####################\n' | process_input 
+          elif [[ ! -f "${compile_json}" ]] && ! ${{ inputs.include }}; then
+            echo -e "\n####################\n::error:: compile_commands.json not found\nUse inputs.project: true to create it exiting...\n####################\n" | process_input;
+            exit 1
+          fi;
+          if [[ -f "${cppchecks}" ]]; then
+             echo -e "\n####################\n\t${cppchecks} found continuing...\n####################\n" | process_input;
+             cppchecks=$(cat ${cppchecks} | tr -d ' \n');
+          else
+             cppchecks=all
+          fi;
+          if [[ -d "${build_cache}" ]]; then
+             echo -e '\n####################\n\tbuild_cache found continuing...\n####################\n' | process_input;
+             echo 'build_cache=true' >> "${GITHUB_ENV}";
+          else
+             mkdir -p "${build_cache}";
+          fi;
+          if ${{ inputs.content }}; then
+            echo -e "\n# Found File Path(s)\n" | process_input;
+            awk 'NR % 10 == 1 {print "---- Lines " NR " to " NR+9 " ----"} {print}' "${files}" | process_input;
+            echo -e '\t--------------------\n' | process_input
+          fi;
+          { time for file in ${files[@]}; do
+            search_path="${file}";
+            check_date=$(LC_ALL=C grep -sF "${search_path}" "${repaired}" | cut -d' ' -f 2-);
+            count1=$((file_count++));
+            echo -e "\n####################\n\tFILE PATH (${count1})\n####################\n" | process_input;
+            echo "$(dirname ${file})";
+            if ${{ inputs.content }}; then
+              echo -e "\n####################\n\tFILE CONTENT (${count1})\n####################\n" | process_input;
+              batcat --theme=ansi --paging=never --show-all --color=always --style=full "{file}";
+            fi;
+            if ${{ inputs.include }}; then
+              IFS=$'\n';
+              includes=$(find $(dirname ${file}) -name $(basename ${file}) -exec sed -n 's/^#include <\(.*\)>/\1/p; s/^#include "\(.*\)"/\1/p' "{}" \;);
+              include1='include_file1.txt';
+              include2='include_file2.txt';
+              if [[ ${includes} ]]; then
+                echo -e "\n# Found Include File(s):\n${includes}\n" | process_input;
+                echo > "${include1}";
+                for i in ${includes[@]}; do
+                  final="${i}";
+                  count2=$((include_count++));
+                  count3=$((include_total++));
+                  header=$(find . -type f \( -path "*/$(dirname ${i})/*" -o -path "*/$(dirname ${file})/*" -o -path "*/*/*" \) -name "$(basename ${i})" -print -quit);
+                  if [[ -f "${header}" ]]; then
+                    echo "$(dirname ${header#./})" >> "${include1}";
+                  else
+                    echo -e "\n::notice:: include source file ${i} is missing\n" | process_input;
+                  fi;
+                done;
+                IFS=${SAVEIFS};
+                if [[ -f "${include1}" ]]; then
+                  awk '!seen[$0]++' "${include1}" > "${include2}";
+                fi;
+                if [[ -f "${include2}" ]]; then
+                  if ${{ inputs.repair }}; then
+                    if ${{ inputs.stored }} && ${{ env.update }} && [[ $(LC_ALL=C grep -sF "${search_path}" "${repaired}") ]]; then
+                      echo -e "\n####################\nSTORED NOTHING TO REPAIR\n####################\n" | process_input;
+                      echo -e "\n####################\nChecked on ${check_date}\nSkipping $(basename ${file})\n####################\n" | process_input;
+                    elif ${{ inputs.stored }} && ${{ env.update }}; then
+                      echo -e "\n\n####################\nGCC/G++ FILES ANALYZER (${count1})\n####################\n\n" | process_input;
+                      if [[ "${file_type}" == [c] ]]; then
+                        gcc -MM -MP "${file}" | process_input || echo -e "::error:: ( $? ) & broken pipe" | process_input;
+                      elif [[ "${file_type}" == [c]* ]]; then
+                        g++ -MM -MP "${file}" | process_input || echo -e "::error:: ( $? ) & broken pipe" | process_input;
+                      fi;
+                      echo -e "\n\n####################\nCLANG-TIDY FIX FILES ANALYZER (${count1})\n####################\n\n" | process_input;
+                      clang-tidy "${file}" --config-file="${clang_file}" --fix-errors --fix-notes -- -I"include/" | process_input || echo -e "::error:: ( $? )" | process_input;
+                      if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                        echo -e "\n####################\nSTORING NO ERRORS FOUND\n####################\n\n${file}\n" | process_input;
+                      else
+                        echo -e "\n####################\nSTORING FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                        errors=true
+                      fi;
+                      echo "${file} $(date)" >> "${repaired}";
+                      fixed=true
+                    elif ! ${{ inputs.stored }} || ! ${{ env.update }}; then
+                      echo -e "\n\n####################\nCLANG-TIDY FILES ANALYZER (${count1})\n####################\n\n" | process_input;
+                      if [[ $(echo "${file_type}" | LC_ALL=C egrep "^c$|^cc$") ]]; then
+                        gcc -MM "${file}" | process_input || echo -e "::error:: ( $? ) & broken pipe" | process_input;
+                      elif [[ $(echo "${file_type}" | LC_ALL=C egrep "^c..$") ]]; then
+                        g++ -MM "${file}" | process_input || echo -e "::error:: ( $? ) & broken pipe" | process_input;
+                      fi;
+                      clang-tidy "${file}" --config-file="${clang_file}" --fix-errors --fix-notes -- -I"include/" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                      if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                        echo -e "\n####################\nCHECK-FILE NO ERRORS FOUND ${file}\n####################\n" | process_input;
+                      else
+                        echo -e "\n####################\nCHECK-FILE FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                        errors=true
+                      fi;
+                      fixed=true
+                    fi;
+                  else
+                    echo -e "\n####################\nCPPCHECK INCLUDE FILE(S) ANALYZER (${count2})\n####################\n\nFinal File: ${final}\n\n" | process_input;
+                    cppcheck --verbose --force --enable="${cppchecks}" --report-progress --suppress=* --suppress=checkersReport --includes-file="${include2}" "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                    if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                      echo -e "\n####################\nCHECK-FILE NO ERRORS FOUND ${file}\n####################\n" | process_input;
+                    else
+                      echo -e "\n####################\nCHECK-FILE FOUND ERROR(S)\n####################\n" | process_input;
+                      errors=true
+                    fi;
+                  fi;
+                fi;
+              else
+                echo -e "\n\n####################\nINCLUDE FILE(S) FOR $(basename ${file}) NOT PRESENT\n####################\n\n" | process_input;
+              fi;
+              echo -e "\n::notice:: Number of $(basename ${file}) include file(s): ${count2}\n" | process_input;
+              include_count=1
+            else
+              if ${{ inputs.repair }}; then
+                if ${{ inputs.stored }} && ${{ env.update }} && [[ $(LC_ALL=C grep -sF "${search_path}" "${repaired}") ]]; then
+                  echo -e "\n####################\nSTORED NOTHING TO REPAIR\n####################\n" | process_input;
+                  echo -e "\n####################\nChecked on ${check_date}\nSkipping $(basename ${file})\n####################\n" | process_input;
+                elif ${{ inputs.stored }} && ${{ env.update }}; then
+                  echo -e "\n\n####################\nCLANG-TIDY FILES ANALYZER (${count1})\n####################\n\n" | process_input;
+                  clang-tidy "${file}" --config-file="${clang_file}" --fix-errors --fix-notes 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                  if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                    echo -e "\n####################\nSTORING NO ERRORS FOUND\n####################\n\n${file}\n" | process_input;
+                  else
+                    echo -e "\n####################\nSTORING FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                    errors=true
+                  fi;
+                  echo "${file} $(date)" >> "${repaired}";
+                  fixed=true
+                elif ${{ inputs.stored == 'false' }} || ${{ env.update == 'false' }}; then
+                  echo -e "\n\n####################\nCLANG-TIDY FILES ANALYZER (${count1})\n####################\n\n" | process_input;
+                  clang-tidy "${file}" --config-file="${clang_file}" --fix-errors --fix-notes 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                  if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                    echo -e "\n####################\nCHECK-FILE NO ERRORS FOUND ${file}\n####################\n" | process_input;
+                  else
+                    echo -e "\n####################\nCHECK-FILE FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                    errors=true
+                  fi;
+                  fixed=true
+                fi;
+              else
+                echo -e "\n\n####################\nCPPCHECK FILE ANALYZER (${count1})\n####################\n\n" | process_input;
+                if ${{ inputs.project }} && ${{ inputs.stored }}; then
+                  cppcheck -j "$(nproc --all)" --verbose --force --enable="${cppchecks}" --report-progress --suppress=checkersReport --suppress=missingInclude --suppress=missingIncludeSystem --suppress=unmatchedSuppression:"{}" --cppcheck-build-dir="${build_cache}" --project="${compile_json}" "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                  echo 'build_cache=true' >> "${GITHUB_ENV}";
+                elif ${{ inputs.project }}; then
+                  cppcheck --verbose --force --enable="${cppchecks}" --report-progress --suppress=checkersReport --suppress=missingInclude --suppress=missingIncludeSystem --suppress=unmatchedSuppression:"{}" --project="${compile_json}" "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                else
+                  cppcheck --verbose --force --enable="${cppchecks}" --report-progress --suppress=checkersReport --suppress="*" "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                fi;
+                if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                  echo -e "\n####################\nCHECK-FILE NO ERRORS FOUND ${file}\n####################\n" | process_input;
+                else
+                  echo -e "\n####################\nCHECK-FILE FOUND ERROR(S)\n####################\n" | process_input;
+                  errors=true
+                fi;
+              fi;
+            fi;
+            if ${{ inputs.recheck }} && ${{ inputs.repair }}; then
+              echo -e "\n\n####################\nCPPCHECK RE-ANALYZING FILE(S) (${count1})\n####################\n\n" | process_input;
+              cppcheck -j "$(nproc --all)" --verbose --force --enable="${cppchecks}" --report-progress --suppress=checkersReport --suppress=* --quiet "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+              if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                echo -e "\n####################\nRECHECK-FILE NO ERRORS FOUND ${file}\n####################\n" | process_input;
+              else
+                echo -e "\n####################\nRECHECK-FILE FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                errors=true
+              fi;
+            fi;
+            if ${{ inputs.number > 0 }}; then
+              if [[ ${{ inputs.number }} -eq ${count1} ]]; then
+                echo -e "\nFile ${count1} checking auto stopped at $(basename ${file})\n" | process_input;
+                break;
+              fi;
+            fi;
+          done; echo '| Runtime |'; } 2>&1
+          if ${{ inputs.include }}; then
+            echo -e "\n::notice:: Total number of include file(s) was: ${count3}\n" | process_input;
+          fi;
+          echo -e "\n::notice:: Total number of ${{ inputs.filename }} file(s) checked is: ${count1}\n" | process_input;
+          echo -e "Scanning Completed!\nCheck-File Exiting!\n .....\n" | process_input;
+          echo "file_found=1" >> "${GITHUB_ENV}";
+          if [[ "${errors}" ]]; then
+            echo "file_error=1" >> "${GITHUB_ENV}";
+          fi;
+          if [[ "${fixed}" ]]; then
+            echo "file_fixed=1" >> "${GITHUB_ENV}";
+          fi;
+        elif [[ $(echo "${file_type}" | LC_ALL=C egrep "^c$|^c.$|^c..$|^h$|^h.$|^h..$|^t$|^t.$|^t..$") ]]; then
+          echo -e "\n####################\nFINISHED SEARCHING C/C++ FILE TYPES\nNO $(echo ${{ inputs.filename }} | sed 's/[\/\$]//g') FOUND\n####################\n";
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Check Shell Files
+      if: inputs.filename != '' && env.file_found == '0' 
+      run: |
+        echo '';
+        set +e
+        fixed=false
+        shellcheck_count=1
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        error_log="${{ inputs.filename }}_error.log";
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${error_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${error_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        }
+        if ${{ inputs.database }}; then
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(LC_ALL=C grep -sF "/${{ inputs.filename }}" "${{ env.database }}");
+            echo -e "\n####################\nLiteral String Pattern Matching Active\n####################\n" | process_input;
+          else
+            regex="\${{ inputs.filename }}$";
+            files=$(LC_ALL=C grep -sE "${regex}" "${{ env.database }}");
+            echo -e "\n####################\nExtended Regex Pattern Matching Active\n####################\n" | process_input;
+          fi;
+        else
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "${{ inputs.filename }}" -print);
+          else
+            files=$(sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*${{ inputs.filename }}" -print);
+          fi;
+        fi;
+        if [[ "${file_type}" == [sh] ]] && [[ -n ${files} ]]; then
+          echo -e "\n####################\nWorkspace Folder: ${{ env.dirname }}\n####################\n" | process_input;
+          if ${{ inputs.content }}; then
+            echo -e "\n# Found File Path(s)\n" | process_input;
+            awk 'NR % 10 == 1 {print "---- Lines " NR " to " NR+9 " ----"} {print}'"${files}" | process_input;
+            echo -e '\t--------------------\n' | process_input
+          fi;
+          { time -p for file in ${files[@]}; do
+            search_path="${file}";
+            check_date=$(LC_ALL=C grep -Fs "${search_path}" "${repaired}" | cut -d' ' -f 2-);
+            count3=$((shellcheck_count++));
+            echo -e "\n####################\n\tFILE PATH (${count3})\n####################\n" | process_input;
+            echo "$(dirname ${file})";
+            if ${{ inputs.content }}; then
+              echo -e "\n####################\n\tFILE CONTENT\n####################\n" | process_input;
+              batcat --theme=ansi --paging=never --show-all --color=always --style=full "${file}";
+              echo -e "\n\n";
+            fi;
+            if ${{ inputs.repair }}; then
+              if ${{ inputs.stored }} && ${{ env.update }} && [[ $(LC_ALL=C grep -sF "${search_path}" "${repaired}") ]]; then
+                echo -e "\n####################\nSTORED NOTHING TO REPAIR\n####################\n" | process_input;
+                echo -e "\n####################\nRepaired on ${check_date}\nSkipping $(basename ${file})\n####################\n" | process_input;
+              elif ${{ inputs.stored }} && ${{ env.update }}; then
+                echo -e "\n\n####################\nSHELLHARDEN ANALYZING $(basename ${file}) FOR ERROR(S) ($count3)\n####################\n\n" | process_input;
+                shellharden --syntax-suggest --transform "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                  echo -e "\n####################\nSTORING NO ERRORS FOUND\n####################\n\n${file}\n" | process_input;
+                else
+                  echo -e "\n####################\nSTORING FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                  errors=true
+                fi;
+                echo "${file} $(date)" >> "${repaired}";
+                fixed=true
+              elif ! ${{ inputs.stored }} || ! ${{ env.update }}; then
+                echo -e "\n\n####################\nSHELLHARDEN ANALYZING $(basename ${file}) FOR ERROR(S) ($count3)\n####################\n\n" | process_input;
+                shellharden --syntax-suggest --transform "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+                if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                  echo -e "\n####################\nSHELLHARDEN NO ERRORS FOUND ${file}\n####################\n" | process_input;
+                else
+                  echo -e "\n####################\nSHELLHARDEN FOUND ERROR(S) TO REPAIR\n####################\n" | process_input;
+                  errors=true
+                fi;
+                fixed=true
+              fi;
+            fi;
+            if ${{ inputs.recheck }}; then
+              echo -e "\n\n####################\nSHELLCHECK ANALYZING $(basename ${file}) FOR ERROR(S) ($count3)\n####################\n\n" | process_input;
+              shellcheck --norc --severity=warning --color=always "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+              if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                echo -e "\n####################\nSHELLCHECK NO ERRORS FOUND ${file}\n####################\n" | process_input;
+              else
+                echo -e "\n####################\nSHELLCHECK FOUND ERROR(S)\n####################\n" | process_input;
+                errors=true
+              fi;
+            elif ! ${{ inputs.repair }}; then
+              echo -e "\n\n####################\nSHELLCHECK ANALYZING $(basename ${file}) FOR ERROR(S) ($count3)\n####################\n\n" | process_input;
+              shellcheck --norc --severity=warning --color=always "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? )" | process_input;
+              if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+                echo -e "\n####################\nSHELLCHECK NO ERRORS FOUND ${file}\n####################\n" | process_input;
+              else
+                echo -e "\n####################\nSHELLCHECK FOUND ERROR(S)\n####################\n" | process_input;
+                errors=true
+              fi;
+            fi;
+            if ${{ inputs.number > 0 }}; then
+              if [[ ${{ inputs.number }} -eq ${count1} ]]; then
+                echo -e "\nFile ${count1} checking auto stopped at $(basename ${file})\n" | process_input;
+                break;
+              fi;
+            fi;
+          done; echo '| Runtime |'; } 2>&1
+          echo -e "\n::notice:: Total number of ${{ inputs.filename }} file(s) checked is: ${count3}\n" | process_input;
+          echo -e "Scanning Completed!\nCheck-File Exiting!\n .....\n" | process_input;
+          echo "file_found=1" >> "${GITHUB_ENV}";
+          if [[ "${errors}" ]]; then
+            echo "file_error=1" >> "${GITHUB_ENV}";
+          fi;
+          if [[ "${fixed}" ]]; then
+            echo "file_fixed=1" >> "${GITHUB_ENV}";
+          fi;
+        elif [[ $(echo "${file_type}" | LC_ALL=C egrep -i "^sh$") ]]; then
+          echo -e "\n####################\nFINISHED SEARCHING SH FILES\nNO $(echo ${{ inputs.filename }} | sed 's/[\/\$]//g') FOUND\n####################\n" | process_input;
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Check Makefile Files
+      if: inputs.filename != '' && env.file_found == '0'
+      run: |
+        echo '';
+        set +e
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        file='checkmake.ini';
+        path='/home/runner/checkmake.ini';
+        error_log="${{ inputs.filename }}_error.log";
+        process_input() {
+          while IFS= read -r output; do
+            if ${{ inputs.output == '1' }}; then
+              echo -e "${output}" | tee -a "${error_log}";
+            elif ${{ inputs.output == '2' }}; then
+              echo -e "${output}" >> "${error_log}";
+            elif ${{ inputs.output == '3' }}; then
+              echo -e "${output}";
+            elif ${{ inputs.output == '4' }}; then
+              echo -e "${output}" >/dev/null;
+            fi;
+          done;
+        } 2>&1;
+        if ${{ inputs.database }}; then
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(LC_ALL=C grep -sF "/${{ inputs.filename }}" "${{ env.database }}");
+            echo -e "\n####################\nLiteral String Pattern Matching Active\n####################\n" | process_input;
+          else
+            regex="\${{ inputs.filename }}$";
+            files=$(LC_ALL=C grep -sE "${regex}" "${{ env.database }}");
+            echo -e "\n####################\nExtended Regex Pattern Matching Active\n####################\n" | process_input;
+          fi;
+        else
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "${{ inputs.filename }}" -print);
+          else
+            files=$(sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*${{ inputs.filename }}" -print);
+          fi;
+        fi;
+        if [[ ${path} ]]; then
+          echo -e "\n####################\ncheckmake.ini found in system continuing ...\n####################\n" | process_input;
+        fi;
+        makefile_count=1
+        if [[ $(echo "${file_type}" | LC_ALL=C egrep -i "^mk$|.*Makefile$") ]] && [[ -n ${files} ]]; then
+          echo -e "\n####################\nWorkspace Folder: ${{ env.dirname }}\n####################\n" | process_input;
+          { time -p for file in ${files[@]}; do
+            count4=$((makefile_count++));
+            echo -e "\n####################\n\tFILE PATH (${count4})\n####################\n" | process_input;
+            echo "$(dirname ${file})";
+            if ${{ inputs.content }}; then
+              echo -e "\n####################\n\tFILE CONTENT\n####################\n\n" | process_input;
+              batcat --theme=ansi --paging=never --show-all --color=always --style=full "${file}" | process_input;
+              echo -e "\n\n";
+            fi;
+            echo -e "\n####################\nCHECKMAKE ANALYZING $(basename ${file}) FOR ERROR(S) ($count4)\n####################\n" | process_input;
+            checkmake "${file}" 2>/dev/null | process_input || echo -e "::error:: ( $? ) from checkmake" | process_input;
+            if [[ -s "${error_log}" ]] && [[ ! $(LC_ALL=C grep -sE "${file}.*error:" "${error_log}") ]]; then
+              echo -e "\n####################\nCHECKMAKE NO ERRORS FOUND ${file}\n####################\n" | process_input;
+            else
+              echo -e "\n####################\nCHECKMAKE FOUND ERROR(S)\n####################\n" | process_input;
+              errors=true
+            fi;
+          done; echo '| Runtime |'; } 2>&1
+          echo -e "\n::notice:: Total number of ${{ inputs.filename }} file(s) checked is: ${count4}\n" | process_input;
+          echo -e "Scanning Completed!\nCheck-File Exiting!\n .....\n" | process_input;
+          if [[ "${errors}" ]]; then
+            echo "file_error=1" >> "${GITHUB_ENV}";
+          fi;
+          echo "file_found=1" >> "${GITHUB_ENV}";
+        elif [[ $(echo "${file_type}" | LC_ALL=C egrep -i "^mk$|.*Makefile$") ]]; then
+          echo -e "\n####################\nFINISHED SEARCHING MK FILES\nNO ${{ inputs.filename }} FOUND\n####################\n" | process_input;
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Check All Files
+      if: inputs.filename != '' && env.file_found == '0' 
+      run: |
+        echo '';
+        set +e
+        file_name="${{ inputs.filename }}";
+        file_type="${file_name##*.}";
+        if ${{ inputs.database }}; then
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(LC_ALL=C grep -sF "/${{ inputs.filename }}" "${{ env.database }}");
+            echo -e "\n####################\nLiteral String Pattern Matching Active\n####################\n";
+          else
+            regex="\${{ inputs.filename }}$";
+            files=$(LC_ALL=C grep -sE "${regex}" "${{ env.database }}");
+            echo -e "\n####################\nExtended Regex Pattern Matching Active\n####################\n";
+          fi;
+        else
+          if [[ $(echo "${{ inputs.filename }}" | sed 's/[\/\$]//g' | grep -Po "\b\w+\.\w+\b") ]]; then
+            files=$(sudo find / -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "${{ inputs.filename }}" -print 2>/dev/null);
+          else
+            files=$(sudo find / -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*${{ inputs.filename }}" -print 2>/dev/null);
+          fi;
+        fi;
+        file_count=1
+        if [[ ${files} ]]; then
+          echo -e "\n####################\nWorkspace Folder: ${{ env.dirname }}\n####################\n";
+          { time -p for file in ${files[@]}; do
+            count5=$((file_count++));
+            echo -e "\n####################\n\tFILE PATH (${count5})\n####################\n";
+            echo "$(dirname ${file})";
+            if ${{ inputs.content }}; then
+              echo -e "\n####################\n\tFILE CONTENT (${count5})\n####################\n\n";
+              batcat --theme=ansi --paging=never --show-all --color=always --style=full "${file}";
+              echo -e "\n\n";
+            fi;
+          done; echo '| Runtime |'; } 2>&1
+          echo -e "\n::notice:: Total number of ${{ inputs.filename }} file(s) checked is: ${count5}\n";
+          echo -e "Scanning Completed!\nCheck-File Exiting!\n .....\n";
+          echo "file_found=1" >> "${GITHUB_ENV}";
+        else
+          echo -e "\n####################\nFINISHED SEARCHING ALL FILES\nNO ${{ inputs.filename }} FOUND\n####################\n";
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Word text Match
+      if: inputs.pattern != ''
+      run: |
+        echo '';
+        set +e
+        file_count=1
+        if ${{ inputs.database }}; then
+          matched1=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*.${type}" -print | xargs -r -P "$(nproc --all)" sudo rg -j "$(nproc --all)" --color always -sHFn "${{ inputs.pattern }}" 2>/dev/null);
+          content1=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*.${type}" -print | xargs -r -P "$(nproc --all)" sudo rg -j "$(nproc --all)" -l --quiet "${{ inputs.pattern }}" 2>/dev/null);
+          matched2=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -print | xargs -r -P "$(nproc --all)" sudo rg -j "$(nproc --all)" --color always -sHFn "${{ inputs.pattern }}" 2>/dev/null);
+          content2=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -print | xargs -r -P "$(nproc --all)" sudo rg -j "$(nproc --all)" -l --quiet "${{ inputs.pattern }}" 2>/dev/null);
+        else
+          matched1=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*.${type}" -exec sudo grep --color=always -sHanF "${{ inputs.pattern }}" "{}" \; );
+          content1=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "*.${type}" -exec sudo grep -q "${{ inputs.pattern }}" "{}" \; );
+          matched2=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -exec sudo grep --color=always -sHanF "${{ inputs.pattern }}" "{}" \; );
+          content2=$(time -p sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -exec sudo grep -q "${{ inputs.pattern }}" "{}" \; );
+        fi;
+        echo -e "\n####################\nWorkspace Folder: ${{ env.dirname }}\n####################\n";
+        echo -e "\n####################\nPattern Matching: ${{ inputs.pattern }}\n####################\n";
+        if [[ "${{ inputs.filetype }}" != '' ]]; then
+          for type in ${types[@]}; do
+            echo '| Runtime |';
+            matches=${matched1};
+            if [[ -n ${matches} ]]; then
+              counter=$( echo "${matches}" | rg -c "${{ inputs.pattern }}" );
+              echo -e "\n####################\n (${counter}) CONTENT MATCH(S) FOUND IN ${{ inputs.filetype }} FILE(S)\n####################\n";
+              echo -e "\n${matches}\n";
+              if ${{ inputs.content }}; then
+                echo '| Runtime |';
+                contents=${content1};
+                for c in ${contents[@]}; do
+                  count=$((file_count++));
+                  echo -e "\n####################\n\tFILE PATH (${count})\n####################\n";
+                  echo -e "\n$(dirname ${c})\n":
+                  echo -e "\n####################\n\tFILE CONTENT (${count})\n####################\n\n";
+                  batcat --theme=ansi --paging=never --show-all --color=always --style=full "${c}";
+                  echo -e "\n####################\nFILE COMPLETED\n####################\n";
+                done;
+              fi;
+            else
+              echo -e "\n####################\n::warning::PATTERN MATCH FINISHED SEARCHING NO ${{ inputs.pattern }} FOUND\n####################\n";
+            fi;
+          done;
+          echo -e "\nScanning Completed!\nPattern Locator\nExiting...\n";
+        else
+          echo '| Runtime |';
+          matches=${matched2};
+          if [[ ${matches} ]]; then
+            counter=$( echo "${matches}" | rg -c "${{ inputs.pattern }}" );
+            echo -e "\n####################\n (${counter}) CONTENT MATCH(S) FOUND IN FILE(S)\n####################\n";
+            echo -e "\n${matches}\n";
+            if ${{ inputs.content }}; then
+              echo '| Runtime |';
+              content=${content2};
+              for c in ${content[@]}; do
+                count=$((file_count++));
+                echo -e "\n####################\n\tFILE PATH (${count})\n####################\n";
+                echo -e "\n$(dirname ${c})\n":
+                echo -e "\n####################\n\tFILE CONTENT (${count})\n####################\n\n";
+                batcat --theme=ansi --paging=never --show-all --color=always --style=full "${c}";
+                echo -e "\n####################\nFILE COMPLETED\n####################\n";
+              done;
+            fi;
+          else
+            echo -e "\n####################\n::warning::PATTERN MATCH FINISHED SEARCHING NO ${{ inputs.pattern }} FOUND\n####################\n";
+          fi;
+          echo -e "\nScanning Completed!\nPattern Locator\nExiting...\n";
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Directory Contains
+      if: inputs.filename != '' && inputs.content == 'true'
+      run: |
+        echo ''
+        check_file=$(dirname $(sudo find ${{ env.base }} -type f \( -path "*/${{ env.dirname }}/*" -o -path "*/*/*" \) -name "${{ inputs.filename }}"));
+        if [[ ${{ env.file_found }} != 0  ]]; then
+          echo -e "\n####################\nNOTE: Contents found in directory for ${{ inputs.filename }} file(s)\n####################\n";
+          ls -Shap "${check_file}";
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Cleanup Artifacts Report
+      if: inputs.report == 'true'
+      run: |
+        echo '';
+        set +e
+        min_size_bytes=$((20 * 1024 * 1024));
+        filename1="${{ env.github_repository }}_project.log";
+        filename2="${{ inputs.filename }}_error.log";
+        if [[ -s "${filename1}" ]]; then
+          filesize1=$(sudo stat -c%s "${filename1}" 2>/dev/null);
+          ansi2txt "${filename1}" > "${filename1}.tmp";
+          mv -vf "${filename1}.tmp" "${filename1}";
+          if (( filesize1 > min_size_bytes )); then
+            split -d -C 10M "${filename1}" 'part_'
+            echo "file1_parted=1" >> "${GITHUB_ENV}";
+          fi;
+        fi;
+        if [[ -s "${filename2}" ]]; then
+          filesize2=$(sudo stat -c%s "${filename2}" 2>/dev/null);
+          ansi2txt "${filename2}" > "${filename2}.tmp";
+          mv -vf "${filename2}.tmp" "${filename2}";
+          if (( filesize2 > min_size_bytes )); then
+            split -d -C 10M "${filename2}" 'part_'
+            echo "file2_parted=1" >> "${GITHUB_ENV}";
+          fi;
+        fi;
+      shell: bash
+      continue-on-error: true
+      
+    - name: Repository Update
+      if: env.update == 'true' && env.file_fixed == '1'
+      run: |
+        echo '';
+        error_log="${GITHUB_WORKSPACE}/${{ inputs.filename }}_error.log";
+        repair_date="$(date +%Y%m%d)";
+        process_input() {
+          while IFS= read -r log; do
+            if [[ ${{ inputs.output == '1' }} ]]; then
+              echo "$log" | tee -a "${error_log}";
+            elif [[ ${{ inputs.output == '2' }} ]]; then
+              echo "$log" >> "${error_log}";
+            elif [[ ${{ inputs.output == '3' }} ]]; then
+              echo "$log";
+            fi;
+          done;
+        }
+        if ${{ inputs.project }}; then
+          git config --global --add safe.directory .
+        fi;
+        git config --global user.name "${{ github.actor }}";
+        git config --global user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com";
+        git config --global credential.helper store
+        git config --global http.lowSpeedLimit 0
+        git config --global http.lowSpeedTime 999999
+        git add .
+        git commit -m "check-file-action repaired errors in ${{ inputs.filename }} file(s)";
+        git push origin "${{ github.ref }}";
+        if [[ ${PIPESTATUS[0]} == 0 ]] || [[ ${PIPESTATUS[1]} == 0 ]]; then
+          echo -e "\n####################\nCHECK FILE UPDATED REPOSITORY\n####################\n";
+          echo -e "\n####################\nUPDATED FILE(S) LIST:\n####################\n";
+          git diff --name-only @{push}@{1} @{push} | process_input;
+          echo -e "\n\t########## ${repair_date} ##########\n";
+        else
+          echo -e "\n####################\nCHECK FILE COULD NOT UPDATED REPO FILE(S)\n####################\n";
+          echo 'Retrying again after git fetches branch';
+          git fetch origin "${{ github.ref }}";
+          git add .
+          git commit -m "check-file-action repaired errors in ${{ inputs.filename }} file(s)";
+          git push origin "${{ github.ref }}";
+          if [[ ${PIPESTATUS[0]} == 0 ]] || [[ ${PIPESTATUS[1]} == 0 ]]; then
+            echo -e "\n####################\nCHECK FILE UPDATED REPOSITORY\n####################\n";
+            echo -e "\n####################\nUPDATED FILE(S) LIST:\n####################\n";
+            git diff --name-only @{push}@{1} @{push} | process_input;
+            echo -e "\n\t########## ${repair_date} ##########\n";
+            if ${{ inputs.project }}; then
+              git status | process_input 2>/dev/null;
+            fi;
+          else
+            echo 'Was git push event successful status ? unknown';
+          fi;
+        fi;
+      shell: bash
+      continue-on-error: true
+
+    - name: Uploading ${{ github.repository }} Project Build Release
+      if: inputs.build > '0' && inputs.project == 'true' && env.build_files == '1'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: build/bin/*
+        name: Build For ${{ github.repository }} Repository.
+        tag_name: ${{ github.run_id }}
+      continue-on-error: true
+
+    - name: Uploading ${{ github.repository }} Project Report Checks
+      if: inputs.analyzer == '4' && inputs.project == 'true' && inputs.repair == 'true' && env.build_files == '1'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.github_repository }}_reports
+        path: reports
+      continue-on-error: true
+
+    - name: Uploading Build Files Artifacts
+      if: inputs.upload == 'true' && inputs.project == 'true' && env.build_files == '1'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.github_repository }}_build
+        path: build
+        include-hidden-files: true
+      continue-on-error: true
+
+    - name: Uploading Build_Cache Artifacts
+      if: inputs.report == 'true' && inputs.filename != '' && env.file_found == '1' && inputs.stored == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.github_repository }}_checked
+        path: build_cache
+        include-hidden-files: true
+      continue-on-error: true
+
+    - name: Uploading ${{ inputs.filename }} Error Report Artifact
+      if: inputs.report == 'true' && inputs.filename != '' && env.file_found == '1'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.filename }}_error.log
+        path: ${{ inputs.filename }}_error.log
+        include-hidden-files: true
+      continue-on-error: true
+
+    - name: Uploading ${{ env.github_repository }} Project Report Artifact
+      if: inputs.report == 'true' && inputs.project == 'true' && env.check_build == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.github_repository }}_project.log
+        path: ${{ env.github_repository }}_project.log
+        include-hidden-files: true
+      continue-on-error: true
+
+    - name: Uploading ${{ inputs.filename }} Error Report Artifacts
+      if: inputs.report == 'true' && inputs.filename != '' && env.file_found == '1' && env.file2_parted == '1'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.filename }}_split_error.log
+        path: part_*
+        include-hidden-files: true
+      continue-on-error: true
+
+    - name: Uploading ${{ github.repository }} Project Report Artifacts
+      if: inputs.report == 'true' && inputs.project == 'true' && env.check_build == 'true' && env.file1_parted == '1'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.github_repository }}_split_project.log
+        path: part_*
+        include-hidden-files: true
+      continue-on-error: true
+
+    - name: Delete Files
+      if: inputs.filename != '' || inputs.pattern != '' || inputs.project == 'true'
+      run: |
+        date
+        if [[ -f "${{ env.github_repository }}_project.log" ]]; then
+          echo -e "\nPROJECT: $(rm -vf ${{ env.github_repository }}_project.log)";
+        fi;
+        if [[ -f "${{ inputs.filename }}_error.log" ]]; then
+          echo -e "\nLOGFILE: $(rm -vf ${{ inputs.filename }}_error.log)";
+        fi;
+        if [[ -e "database" ]]; then
+          echo -e "\nDATABASE: $(rm -vf database)";
+        fi;
+        echo '';
+      shell: bash
+      continue-on-error: true
+
+    - name: Save Project
+      if: inputs.cache == 'true' && ( inputs.stored == 'true' || inputs.source == 'true' || env.includes == 'true' ) && steps.restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v5
+      id: save
+      with:
+        path: |
+          ./build
+          compile_commands.json
+          check-file-sources.txt
+          check-file-includes.txt
+          check-file-repaired.txt
+        key: ${{ steps.restore.outputs.cache-primary-key }}
+        enableCrossOsArchive: true
+      continue-on-error: true
+
+    - name: Action Check
+      if: inputs.filename == '' && inputs.pattern == '' && inputs.project == 'false'
+      run: |
+        echo ''
+        echo -e "\n::error::No input provided to • filename: none • pattern: none • project: false\n\tNothing To Do! ?\n";
+      shell: bash
+      continue-on-error: true
+
+    - name: Check Project Size
+      run: |
+        echo '';
+        echo -e "\033[33mRepository Project Total Size:\033[0m \033[1m$(du ${{ env.base }} -shx)\033[0m\n";
+      shell: bash
+      continue-on-error: true
+
+    - name: Exiting
+      run: |
+        echo '';
+        text() {
+          local text="$1";
+          echo -e "${text}"
+        }
+        texta="######################";
+        textb="#\033[1m\033[32m CHECK FILE EXITING \033[0m#";
+        textc="######################";
+        text "${texta}";
+        text "${textb}";
+        text "${textc}\n";
+      shell: bash
+      continue-on-error: true
+## Version 2.0.0 Professional (beta stable 10)
