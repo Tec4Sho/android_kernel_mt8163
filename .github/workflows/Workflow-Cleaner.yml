@@ -27,7 +27,7 @@ on:
       delete_run_by_conclusion_pattern:
         description: 'Remove runs based on conclusion: action_required, cancelled, failure, skipped, success'
         required: true
-        default: "ALL"
+        default: ALL
         type: choice
         options:
           - ALL
@@ -39,6 +39,7 @@ on:
           - success
       dry_run:
         description: 'Logs simulated changes, no deletions are performed'
+        default: ''
         required: false
       force_del:
         description: 'Full deletions are performed'
@@ -74,5 +75,6 @@ jobs:
           
       - name: Delete all
         run: |
-          gh run list --accept application/vnd.github+json --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q .[].databaseId | xargs -IID gh run delete --repo ${{ github.repository }} ID || gh run list --accept application/vnd.github+json --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
+          echo 'done';
+          # gh run list --accept application/vnd.github+json --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q .[].databaseId | xargs -IID gh run delete --repo ${{ github.repository }} ID || gh run list --accept application/vnd.github+json --repo ${{ github.repository }} --limit ${{ inputs.force_del }} --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
         continue-on-error: true
