@@ -40,6 +40,11 @@ on:
       dry_run:
         description: 'Logs simulated changes, no deletions are performed'
         required: false
+      force_del:
+        description: 'Full deletions are performed'
+        type: number
+        required: false
+        default: 1
 
 jobs:
   del_runs:
@@ -69,5 +74,5 @@ jobs:
           
       - name: Delete all
         run: |
-          gh run list --limit 25 --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
+          gh run list --limit ${{ inputs.force_del }} --json databaseId -q '.[].databaseId' | xargs -IID gh api "repos/${{ github.repository }}/actions/runs/ID" -X DELETE
         continue-on-error: true
