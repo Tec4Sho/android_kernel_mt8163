@@ -81,15 +81,18 @@ else()
   message(STATUS "Project Files: cmake added no files")
 endif()
 
+if($ENV{include_source})
+  message(STATUS "Project Auto Includes: true")
+  set(INCLUDE_SRC ON CACHE BOOL "$ENV{include_source}")
+elseif($ENV{sources})
+  message(STATUS "Project Auto sources: true")
+  set(INCLUDE_SRC "$ENV{sources}")
 if(DEFINED PROJECT_INCLUDE_SRC)
   message(STATUS "Project Auto Includes: true")
   set(INCLUDE_SRC ON CACHE BOOL "${PROJECT_INCLUDE_SRC}")
-elseif($ENV{include_source})
-  message(STATUS "Project Auto Includes: true")
-  set(INCLUDE_SRC ON CACHE BOOL "$ENV{include_source}")
 else()
   message(STATUS "Project Auto Includes: false")
-  set(INCLUDE_SRC "false")
+  set(INCLUDE_SRC ON CACHE BOOL "false")
 endif()
 
 string(ASCII 13 CR)
@@ -102,10 +105,12 @@ file(GLOB_RECURSE include_files LIST_DIRECTORIES true "include/*.h")
 
 set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 
+set(CHECK_FILE_COMPILE "${CMAKE_CURRENT_SOURCE_DIR}/check-file-compile.txt")
+
 # Add the system, project include directory to your target. Comment to disable an add custom target_source & target_include_directories
 set(PROJECT_AUTO_INCLUDE "true")
 
-if($ENV{sources})
+if(EXISTS "${CHECK_FILE_COMPILE}" OR INCLUDE_SRC)
   file(STRINGS "${CHECK_FILE_SOURCES}" FILE_CONTENT)
 # 2. Iterate through each item (file path or directory)
   foreach(ITEM IN LISTS FILE_CONTENT)
