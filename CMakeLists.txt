@@ -103,6 +103,8 @@ file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
 # Find all subdirectories that contain at least one header file
 file(GLOB_RECURSE include_files LIST_DIRECTORIES true "include/*.h")
 
+target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}")
+
 set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 
 set(CHECK_FILE_COMPILE "${CMAKE_CURRENT_SOURCE_DIR}/check-file-compile.txt")
@@ -129,6 +131,7 @@ if(EXISTS "${CHECK_FILE_COMPILE}")
         message(WARNING "Path does not exist: ${FULL_PATH}")
     endif()
   endforeach()
+  message(STATUS "Include Directories: added")
 elseif(DEFINED PROJECT_AUTO_INCLUDE)
   target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}")
   if(EXISTS "${CHECK_FILE_SOURCES}" AND INCLUDE_SRC)
