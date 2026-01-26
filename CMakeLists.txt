@@ -110,8 +110,8 @@ set(CHECK_FILE_COMPILE "${CMAKE_CURRENT_SOURCE_DIR}/check-file-compile.txt")
 # Add the system, project include directory to your target. Comment to disable an add custom target_source & target_include_directories
 set(PROJECT_AUTO_INCLUDE "true")
 
-if(EXISTS "${CHECK_FILE_COMPILE}" OR INCLUDE_SRC)
-  file(STRINGS "${CHECK_FILE_SOURCES}" FILE_CONTENT)
+if(EXISTS "${CHECK_FILE_COMPILE}")
+  file(STRINGS "${CHECK_FILE_COMPILE}" FILE_CONTENT)
 # 2. Iterate through each item (file path or directory)
   foreach(ITEM IN LISTS FILE_CONTENT)
     if(NOT IS_ABSOLUTE "${ITEM}")
