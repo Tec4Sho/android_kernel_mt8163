@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30.0) # Specifies the minimum required CMake version
+cmake_minimum_required(VERSION 4.1.0) # Specifies the minimum required CMake version
 
 set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE STRING "" FORCE)
 
@@ -146,7 +146,7 @@ if(EXISTS "${CHECK_FILE_COMPILE}" AND IS_READABLE "${CHECK_FILE_COMPILE}")
     endforeach()    
     message(CHECK_PASS "Source Files & Include Directories: ${FILE_COUNT}/${SOURCE_COUNT} - Done")
   else()
-    message(WARNING "${CHECK_FILE_COMPILE} exists but is empty!")
+    message(STATUS "${CHECK_FILE_COMPILE} exists but is empty!")
     add_executable("${PROJECT_NAME}")
     target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}")
     file(GLOB_RECURSE INCLUDE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hh" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
