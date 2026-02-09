@@ -113,7 +113,7 @@ jobs:
           makefile: 'omni_tb8163p3_bsp-eng'
           filename: ${{ inputs.filename }}
           filetype: c
-          database: true
+          database: false
           absolute: true
           pattern: ${{ inputs.pattern }}
           project: true
