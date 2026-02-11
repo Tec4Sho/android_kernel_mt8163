@@ -12,7 +12,7 @@ on:
         type: string
         required: false
         default: ''
-      dirname:
+      dirpath:
         description: 'DEFAULT DIRECTORY'
         type: string
         required: false
@@ -117,7 +117,8 @@ jobs:
           absolute: true
           pattern: ${{ inputs.pattern }}
           project: true
-          dirname: ${{ inputs.dirname }}
+          dirpath: ${{ inputs.dirpath }}
+          dirname: ${{ inputs.dirpath }}
           content: true
           include: ${{ inputs.include }}
           recheck: false
