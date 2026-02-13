@@ -18,7 +18,7 @@ message(STATUS "Project Name: ${PROJECT_NAME}")
 
 message(STATUS "Workspace Path: $ENV{GITHUB_WORKSPACE}")
 
-set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES OFF) # Useful/Needed for large list of include directories
+set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON) # Useful/Needed for large list of include directories
 
 find_program(CLANG_TIDY_EXE "clang-tidy")
   if(CLANG_TIDY_EXE)
