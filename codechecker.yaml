@@ -10,9 +10,7 @@ analyze:
   - --ignore=skip.txt
   - --verbose=info
   - --clean
-  - "--"
-  - "--target=${TARGET_ARCH}"
-
+  
 parse:
   - --trim-path-prefix=${GITHUB_WORKSPACE}/reports
   - --print-steps
