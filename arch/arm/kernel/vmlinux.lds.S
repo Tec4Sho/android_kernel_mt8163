@@ -145,11 +145,12 @@ SECTIONS
 	 */
 	. = ALIGN(8);
 	.ARM.unwind_idx : {
-		__exidx_start = .;
 		__start_unwind_idx = .;
+		__exidx_start = .;
 		*(.ARM.exidx*)
-		__stop_unwind_idx = .;
 		__exidx_end = .;
+		__stop_unwind_idx = .;
+	}  /* <--- THIS BRACE WAS MISSING */
 
 	.ARM.unwind_tab : {
 		__start_unwind_tab = .;
