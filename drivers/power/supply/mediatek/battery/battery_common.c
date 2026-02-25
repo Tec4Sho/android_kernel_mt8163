@@ -113,6 +113,7 @@ int battery_cmd_thermal_test_mode_value;
 int g_battery_tt_check_flag;
 /* 0:default enable check batteryTT, 1:default disable check batteryTT */
 
+bool chargin_hw_init_done = false; 
 
 /*
  *  Global Variable
