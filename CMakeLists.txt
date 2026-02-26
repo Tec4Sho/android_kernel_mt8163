@@ -112,12 +112,6 @@ set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 # .add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}")
 
-list(SORT PROJECT_SRC_FILES)
-
-list(LENGTH PROJECT_SRC_FILES SOURCE_COUNT)
-
-message(STATUS "Source file count: ${SOURCE_COUNT}")
-
 if(DEFINED PROJECT_SRC_DIRS)
   message(STATUS "Project Source: ${PROJECT_SRC_DIRS}")
 else()
@@ -149,7 +143,9 @@ if(EXISTS "${CHECK_FILE_BUILD}" AND IS_READABLE "${CHECK_FILE_BUILD}")
       C_STANDARD 90
       C_STANDARD_REQUIRED ON
       EXCLUDE_FROM_ALL TRUE
-    )  
+    )
+    set(PROJECT_SRC_FILES "${build_files}")
+    set(PROJECT_AUTO_INCLUDE "false")
     message(CHECK_PASS "Build Source Files: ${FILE_COUNT}/${SOURCE_COUNT} - Done")
   else()
     message(STATUS "${CHECK_FILE_BUILD} exists but is empty!")
@@ -163,14 +159,17 @@ if(EXISTS "${CHECK_FILE_BUILD}" AND IS_READABLE "${CHECK_FILE_BUILD}")
       list(APPEND INCLUDE_DIRS ${DIR})
     endforeach()
     list(REMOVE_DUPLICATES INCLUDE_DIRS)
+    set(PROJECT_AUTO_INCLUDE "false")
     target_include_directories("${PROJECT_NAME}" PRIVATE ${INCLUDE_DIRS})
   endif()
     set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON) # Useful/Needed for large list of include directories
     message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check 1]")
 elseif($ENV{github_absolute_path})
+  set(PROJECT_AUTO_INCLUDE "true")
   message(STATUS "Project Paths: Absolute Mode")
   file(GLOB_RECURSE PROJECT_SRC_FILES "*.$ENV{filetype}")
 else()
+  set(PROJECT_AUTO_INCLUDE "true")
   message(STATUS "Project Paths: Relative Mode")
   file(GLOB_RECURSE PROJECT_SRC_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.$ENV{filetype}")
 endif()
@@ -182,6 +181,12 @@ elseif($ENV{github_source_files})
 else()
   message(STATUS "Project Files: cmake added no files")
 endif()
+
+list(SORT PROJECT_SRC_FILES)
+
+list(LENGTH PROJECT_SRC_FILES SOURCE_COUNT)
+
+message(STATUS "Source file count: ${SOURCE_COUNT}")
 
 if($ENV{include_source})
   message(STATUS "Project Auto Includes 1: true")
@@ -208,7 +213,6 @@ set(CHECK_FILE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/check-file-sources.txt")
 set(CHECK_FILE_COMPILE "${CMAKE_CURRENT_SOURCE_DIR}/check-file-compile.txt")
 
 # Add the system, project include directory to your target. Comment to disable an add custom target_source & target_include_directories
-set(PROJECT_AUTO_INCLUDE "true")
 
 get_filename_component(compile_file ${CHECK_FILE_COMPILE} NAME)
 
@@ -310,16 +314,16 @@ elseif(DEFINED PROJECT_AUTO_INCLUDE)
   set_target_properties("${PROJECT_NAME}" PROPERTIES C_STANDARD 90) 
 else()
 # Add your custom includes here after commenting # set(PROJECT_AUTO_INCLUDE "true") above
-  add_executable("${PROJECT_NAME}") # Creates an executable target named "MyProject" from source files
+  # add_executable("${PROJECT_NAME}") # Creates an executable target named "MyProject" from source files
   set(FILE_COUNT 0)
   foreach(FILE ${PROJECT_SRC_FILES})
     math(EXPR FILE_COUNT "${FILE_COUNT} + 1")
     set(FILE_CONTENTS "")
     file(READ "${FILE}" FILE_CONTENTS)
-    string(REGEX MATCHALL "#include[ \t]+\"([^\"]+)\"" MATCHED_HEADERS ${FILE_CONTEXTS})
+    string(REGEX MATCHALL "#include[ \t]+\"<([^\"]+)\">" MATCHED_HEADERS ${FILE_CONTEXTS})
     set(HEADER_LIST "")
     foreach(MATCH ${MATCHED_HEADERS})
-      string(REGEX REPLACE "#include[ \t]+\"([^\"]+)\"" "\\1" HEADER_NAME "${MATCH}")
+      string(REGEX REPLACE "#include[ \t]+\"<([^\"]+)\">" "\\1" HEADER_NAME "${MATCH}")
       list(APPEND HEADER_LIST "${HEADER_NAME}")
     endforeach()
     list(REMOVE_DUPLICATES HEADER_LIST)
