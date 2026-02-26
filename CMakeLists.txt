@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 4.1.0) # Specifies the minimum required CMake ver
 
 set(CMAKE_CONFIGURATION_TYPES "Debug" CACHE STRING "" FORCE)
 
+string(ASCII 13 CR)
+
 if(DEFINED GITHUB_PROJECT_NAME)
   set(PROJECT_NAME "${GITHUB_PROJECT_NAME}")
 else()
@@ -110,25 +112,68 @@ set(LLVM_ENABLE_PROJECTS "clang;clang-tools-extra")
 
 # .add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}")
 
+list(SORT PROJECT_SRC_FILES)
+
+list(LENGTH PROJECT_SRC_FILES SOURCE_COUNT)
+
+message(STATUS "Source file count: ${SOURCE_COUNT}")
+
 if(DEFINED PROJECT_SRC_DIRS)
   message(STATUS "Project Source: ${PROJECT_SRC_DIRS}")
 else()
   message(STATUS "Project Source: $ENV{github_source_dirs}")
 endif()
 
-if($ENV{github_absolute_path})
+set(CHECK_FILE_BUILD "${CMAKE_CURRENT_SOURCE_DIR}/build-source-files.txt")
+
+get_filename_component(build_compile_file ${CHECK_FILE_BUILD} NAME)
+
+if(EXISTS "${CHECK_FILE_BUILD}" AND IS_READABLE "${CHECK_FILE_BUILD}")
+  set(FILE_COUNT 0)
+  file(STRINGS "${CHECK_FILE_BUILD}" FILE_CONTENT)
+  file(READ "${CHECK_FILE_BUILD}" content_of_file)
+  if(NOT "${content_of_file}" STREQUAL "")
+    message(CHECK_START "Sources ${build_compile_file} found. Proceeding...")
+    add_executable("${PROJECT_NAME}")
+    foreach(FILE IN LISTS FILE_CONTENT)
+      get_filename_component(file ${FILE} NAME)
+      math(EXPR FILE_COUNT "${FILE_COUNT} + 1")
+      message(STATUS "Processing File: ${file}  ${FILE_COUNT}/${SOURCE_COUNT}")
+      message(STATUS "Target Name: ${PROJECT_NAME}_${FILE_COUNT}")
+      message(STATUS "Source File: ${FILE}")
+      list(APPEND build_files ${FILE})
+    endforeach()
+    list(REMOVE_DUPLICATES build_files)
+    target_sources("${PROJECT_NAME}" PRIVATE "${build_files}")
+    set_target_properties("${PROJECT_NAME}" PROPERTIES 
+      C_STANDARD 90
+      C_STANDARD_REQUIRED ON
+      EXCLUDE_FROM_ALL TRUE
+    )  
+    message(CHECK_PASS "Build Source Files: ${FILE_COUNT}/${SOURCE_COUNT} - Done")
+  else()
+    message(STATUS "${CHECK_FILE_BUILD} exists but is empty!")
+    add_executable("${PROJECT_NAME}")
+    file(GLOB_RECURSE PROJECT_SRC_FILES "*.$ENV{filetype}")
+    target_sources("${PROJECT_NAME}" PRIVATE "${PROJECT_SRC_FILES}")
+    file(GLOB_RECURSE INCLUDE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hh" "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp")
+    set(INCLUDE_DIRS "")
+    foreach(FILE ${INCLUDE_FILES})
+      get_filename_component(DIR ${FILE} DIRECTORY)
+      list(APPEND INCLUDE_DIRS ${DIR})
+    endforeach()
+    list(REMOVE_DUPLICATES INCLUDE_DIRS)
+    target_include_directories("${PROJECT_NAME}" PRIVATE ${INCLUDE_DIRS})
+  endif()
+    set(CMAKE_C_USE_RESPONSE_FILE_FOR_INCLUDES ON) # Useful/Needed for large list of include directories
+    message(STATUS "Project Includes: cmake added include directories. clang analyzing multiple includes [check 1]")
+elseif($ENV{github_absolute_path})
   message(STATUS "Project Paths: Absolute Mode")
   file(GLOB_RECURSE PROJECT_SRC_FILES "*.$ENV{filetype}")
 else()
   message(STATUS "Project Paths: Relative Mode")
   file(GLOB_RECURSE PROJECT_SRC_FILES RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.$ENV{filetype}")
 endif()
-
-list(SORT PROJECT_SRC_FILES)
-
-list(LENGTH PROJECT_SRC_FILES SOURCE_COUNT)
-
-message(STATUS "Source file count: ${SOURCE_COUNT}")
 
 if(DEFINED PROJECT_SRC_FILES)
   message(STATUS "Project Files: cmake added source files")
@@ -151,8 +196,6 @@ else()
   message(STATUS "Project Auto Includes 4: false")
   set(INCLUDE_SRC ON CACHE BOOL "false")
 endif()
-
-string(ASCII 13 CR)
 
 # Automatically find all header files recursively
 file(GLOB_RECURSE ALL_HEADERS CONFIGURE_DEPENDS "*.h")
