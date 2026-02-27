@@ -119,14 +119,10 @@ else()
 endif()
 
 # 1. Find the file
-find_file(CHECK_FILE_PATH 
-  NAMES "build-source-files.txt"
-  PATHS "${CMAKE_CURRENT_SOURCE_DIR}"
-  NO_DEFAULT_PATH
-)
+file(GLOB CHECK_FILE_PATH "build-source-files.txt")
 
 # 2. Start the logic if file is found
-if(EXISTS "${CHECK_FILE_PATH}" AND NOT IS_DIRECTORY "${CHECK_FILE_PATH}")
+if(EXISTS "${CHECK_FILE_PATH}" AND IS_READABLE "${CHECK_FILE_PATH}")
   file(STRINGS "${CHECK_FILE_PATH}" CHECK_BUILD)
   get_filename_component(CHECK_FILE_DIR "${CHECK_FILE_PATH}" DIRECTORY)
   # Prepare the list
