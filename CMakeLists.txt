@@ -119,14 +119,16 @@ else()
 endif()
 
 # 1. Find the file
-file(GLOB CHECK_FILE_PATH "build-source-files.txt")
+#file(GLOB CHECK_FILE_PATH "build-source-files.txt")
+
+set(CHECK_FILE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/build-source-files.txt")
 
 # 2. Start the logic if file is found
 if(EXISTS "${CHECK_FILE_PATH}" AND IS_READABLE "${CHECK_FILE_PATH}")
   file(STRINGS "${CHECK_FILE_PATH}" CHECK_BUILD)
   get_filename_component(CHECK_FILE_DIR "${CHECK_FILE_PATH}" DIRECTORY)
   # Prepare the list
-  list(TRANSFORM CHECK_BUILD PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+  # list(TRANSFORM CHECK_BUILD PREPEND "${CHECK_FILE_DIR}/")
   list(REMOVE_DUPLICATES CHECK_BUILD)
   list(LENGTH CHECK_BUILD SOURCE_COUNT)
   message(CHECK_START "Scanning ${SOURCE_COUNT} files...")
@@ -134,7 +136,7 @@ if(EXISTS "${CHECK_FILE_PATH}" AND IS_READABLE "${CHECK_FILE_PATH}")
   set(TOTAL_INCLUDE_DIRS "")
   set(FILE_COUNT 0)
   foreach(FILE IN LISTS CHECK_BUILD)
-    if(EXISTS "${FILE}" AND NOT IS_DIRECTORY "${FILE}")
+    if(FILE)
       math(EXPR FILE_COUNT "${FILE_COUNT} + 1")
       # Reset local list for THIS file only
       set(MATCHED_HEADERS "")
