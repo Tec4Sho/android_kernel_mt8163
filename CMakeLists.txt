@@ -25,7 +25,7 @@ string(ASCII 13 CR)
 	endif()
 	
 # For arm 32 an 64 bit builds using inputs.arch=arm
-if($ENV{linux} STREQUAL "true")
+if($ENV{linux})
 	if($ENV{arch} STREQUAL "arm")
 	# These MUST come before the project() call
 	  set(CMAKE_SYSTEM_NAME Linux)
@@ -77,6 +77,7 @@ if($ENV{linux} STREQUAL "true")
 	    -O2 # Kernels typically require at least -O1 for inline functions to work
 	)
 else()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-pic")
 	if($ENV{arch} STREQUAL "arm")
 	# These MUST come before the project() call
 	  set(CMAKE_SYSTEM_NAME Linux)
