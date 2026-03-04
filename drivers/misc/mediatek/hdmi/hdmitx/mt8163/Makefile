@@ -12,5 +12,5 @@
 #
 
 ifeq ($(CONFIG_MTK_INTERNAL_HDMI_SUPPORT), y)
-obj-y  += $(subst ",,$(CONFIG_MTK_PLATFORM))/
+obj-y += mt_hdmi.o hdmi_drv.o hdmi_hw.o
 endif
