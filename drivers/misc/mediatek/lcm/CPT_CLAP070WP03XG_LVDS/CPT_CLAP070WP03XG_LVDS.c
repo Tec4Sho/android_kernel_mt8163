@@ -26,8 +26,8 @@
 #define FRAME_WIDTH  (1920)
 #define FRAME_HEIGHT (1080)
 #else
-#define FRAME_WIDTH  (800)
-#define FRAME_HEIGHT (1280)
+#define FRAME_WIDTH  (600)   // Changed from 800
+#define FRAME_HEIGHT (1024)  // Changed from 1280
 #endif
 
 //#define GPIO_LCD_RST_EN      GPIO90
