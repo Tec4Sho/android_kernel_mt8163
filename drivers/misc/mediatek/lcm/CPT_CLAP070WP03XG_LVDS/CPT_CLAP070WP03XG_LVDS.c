@@ -17,6 +17,12 @@
 #include "lcm_drv.h"
 #include "mt8193_lvds.h"
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
 // ---------------------------------------------------------------------------
 //  Local Constants
 // ---------------------------------------------------------------------------
