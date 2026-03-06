@@ -21,8 +21,7 @@ CheckOptions:
 ExtraArgs:
   - -D__KERNEL__
   - -DKBUILD_STR(s)=#s
-  - -target
-  - arm-linux-androideabi
+  - --target=arm-linux-androideabi  # Changed to double dash + equals
   - -m32
   - -Wno-implicit-function-declaration
   - -Wno-int-conversion
@@ -34,8 +33,7 @@ ExtraArgs:
   - -nostdinc
   - -Wno-unknown-attributes
   - -Wno-missing-prototypes
-  - --nostdlibinc
+  - -nostdlibinc
   - -nobuiltininc
   - -Wno-everything
   - -Wno-error
-...
