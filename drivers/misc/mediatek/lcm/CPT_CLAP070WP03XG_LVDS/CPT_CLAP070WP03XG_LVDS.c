@@ -10,9 +10,9 @@
 #elif (defined BUILD_UBOOT)
 #include <asm/arch/mt6577_gpio.h>
 #else
-#include <mach/mt_gpio.h>
+#include <mt-plat/mt_gpio.h>
 #include <linux/xlog.h>
-#include <mach/mt_pm_ldo.h>
+#include <mt-plat/upmu_common.h>
 #endif
 #include "lcm_drv.h"
 #include "mt8193_lvds.h"
