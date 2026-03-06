@@ -131,6 +131,8 @@ jobs:
           number: ${{ inputs.number }}
           output: 1
           build: ${{ inputs.build }}
+          linux: false
+          limit: 60
           clean: true
           cache: false
           arch: ${{ inputs.arch }}
