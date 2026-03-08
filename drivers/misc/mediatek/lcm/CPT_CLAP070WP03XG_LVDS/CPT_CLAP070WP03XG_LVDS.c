@@ -116,6 +116,8 @@ static LCM_UTIL_FUNCS lcm_util = {0};
 // ---------------------------------------------------------------------------
 //  Local Functions
 // ---------------------------------------------------------------------------
+void hwPowerOn(int type, int level, char* tag) {}
+void hwPowerDown(int type, char* tag) {}
 
 static __inline void send_ctrl_cmd(unsigned int cmd)
 {
@@ -380,7 +382,7 @@ static void lcm_resume(void)
     hwPowerOn(MT6323_POWER_LDO_VGP1, VOL_3300, "LCM");
 #endif
 
-    MDELAY(30);	
+    MDELAY(30);
 
     lcm_set_gpio_output(GPIO_LCD_PWR, 1);
     lcm_set_gpio_output(GPIO_LCD_PWR_EN, 1);
