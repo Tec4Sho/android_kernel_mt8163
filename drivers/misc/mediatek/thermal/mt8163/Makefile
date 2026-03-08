@@ -48,8 +48,8 @@ else
         endif
     endif
 
-    obj-y += mtk_ts_battery.o
-    obj-y += mtk_temp_sensor_battery.o
+    obj-$(CONFIG_MTK_THERMAL) += mtk_ts_battery.o
+    obj-$(CONFIG_MTK_TEMP_SENSOR_BATTERY) += mtk_temp_sensor_battery.o
 endif
 
 
