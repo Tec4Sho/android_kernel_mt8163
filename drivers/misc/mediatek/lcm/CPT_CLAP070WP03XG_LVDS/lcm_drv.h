@@ -677,15 +677,15 @@ unsigned char which_lcd_module_triple(void);
 int lcm_vgp_supply_enable(void);
 int lcm_vgp_supply_disable(void);
 /* MediaTek Linker Stubs for TWRP */
-void hwPowerOn(int type, int level, char* tag) {}
-void hwPowerDown(int type, char* tag) {}
-int iReadRegI2CTiming(int a, int b, int c, int d, int e) { return 0; }
-int iWriteRegI2CTiming(int a, int b, int c, int d, int e) { return 0; }
-void thermal_sensor_dt_to_params(void* a) {}
-int thermal_level_compare(int a, int b) { return 0; }
-int battery_meter_get_battery_temperature(void) { return 250; }
-int prefer_idle_for_perf_idx = 0;
-/* Fake the charger interface so Binder stops complaining; */
-void* chr_control_interface = 0;
-int upmu_is_chr_det(void) { return 1; } // Pretend it's always charging
+/* Inside lcm_drv.h */
+static inline void hwPowerOn(int type, int level, char* tag) {}
+static inline void hwPowerDown(int type, char* tag) {}
+static inline int iReadRegI2CTiming(int a, int b, int c, int d, int e) { return 0; }
+static inline int iWriteRegI2CTiming(int a, int b, int c, int d, int e) { return 0; }
+static inline void thermal_sensor_dt_to_params(void* a) {}
+static inline int thermal_level_compare(int a, int b) { return 0; }
+static inline int battery_meter_get_battery_temperature(void) { return 250; }
+static int prefer_idle_for_perf_idx = 0;
+static void* chr_control_interface = 0;
+static inline int upmu_is_chr_det(void) { return 1; } // Pretend it's always charging
 #endif /* __LCM_DRV_H__ */
