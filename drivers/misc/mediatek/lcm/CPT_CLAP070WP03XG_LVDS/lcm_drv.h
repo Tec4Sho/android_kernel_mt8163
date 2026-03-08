@@ -682,8 +682,10 @@ static inline void hwPowerOn(int type, int level, char* tag) {}
 static inline void hwPowerDown(int type, char* tag) {}
 static inline int iReadRegI2CTiming(int a, int b, int c, int d, int e) { return 0; }
 static inline int iWriteRegI2CTiming(int a, int b, int c, int d, int e) { return 0; }
-static inline void thermal_sensor_dt_to_params(void* a) {}
-static inline int thermal_level_compare(int a, int b) { return 0; }
+/* Use '...' to accept any number of arguments; */
+static inline void* thermal_sensor_dt_to_params(void* a, ...) { return 0; }
+static inline int thermal_level_compare(void* a, ...) { return 0; }
+
 static inline int battery_meter_get_battery_temperature(void) { return 250; }
 static int prefer_idle_for_perf_idx = 0;
 static void* chr_control_interface = 0;
