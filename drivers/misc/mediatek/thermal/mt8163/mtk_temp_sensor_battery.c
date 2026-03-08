@@ -39,6 +39,11 @@
 
 #define PMIC_SENSOR_NAME "mtktsbattery_sensor"
 
+/* Forced stubs for TWRP build; */
+int battery_meter_get_battery_temperature(void) { return 250; } // Returns a fake 25.0°C
+void thermal_sensor_dt_to_params(void* a) {} 
+int thermal_level_compare(int a, int b) { return 0; }
+
 struct thermal_dev_node_names battery_node_names = {
 	.offset_name = "thermal_battery,offset",
 	.offset_invert_name = "thermal_battery,offset_invert",
