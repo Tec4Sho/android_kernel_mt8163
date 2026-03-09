@@ -33,4 +33,4 @@ obj-$(CONFIG_MTK_SCHED_RQAVG_KS) += sched_avg.o
 obj-y += eas_plus.o
 
 # For CPU topology to user space
-obj-y += sched_ctl.o
+# obj-y += sched_ctl.o
