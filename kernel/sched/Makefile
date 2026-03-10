@@ -16,7 +16,7 @@ CFLAGS_core.o := $(PROFILING) -fno-omit-frame-pointer
 endif
 
 ccflags-y += -DMET_USER_EVENT_SUPPORT
-obj-y += core.o loadavg.o clock.o cputime.o
+obj-y += core.o loadavg.o clock.o cputime.o mtk_stub.o
 obj-y += idle_task.o fair.o rt.o deadline.o stop_task.o
 obj-y += wait.o swait.o completion.o idle.o
 obj-$(CONFIG_SMP) += cpupri.o cpudeadline.o energy.o
