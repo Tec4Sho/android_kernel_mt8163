@@ -951,7 +951,8 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt6592-evb.dtb \
 	mt7623-evb.dtb \
 	mt8127-moose.dtb \
-	mt8135-evbp1.dtb
+	mt8135-evbp1.dtb \
+    mt8163_dtbo.dtb
 dtb-$(CONFIG_ARCH_ZX) += zx296702-ad1.dtb
 dtb-$(CONFIG_ARCH_ASPEED) += aspeed-bmc-opp-palmetto.dtb \
 	aspeed-ast2500-evb.dtb
