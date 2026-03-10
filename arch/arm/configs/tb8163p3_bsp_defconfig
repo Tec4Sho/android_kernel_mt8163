@@ -1735,7 +1735,8 @@ CONFIG_MTK_SCHED_INTEROP=y
 #
 # CONFIG_SCHED_HMP is not set
 # CONFIG_HMP_FREQUENCY_INVARIANT_SCALE is not set
-
+CONFIG_MTK_IDLE=n
+CONFIG_MTK_CPUIDLE=n
 #
 # MTK runqueue statistic calculation
 #
