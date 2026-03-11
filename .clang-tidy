@@ -22,13 +22,4 @@ CheckOptions:
 ExtraArgs:
   - -D__KERNEL__
   - -DKBUILD_STR(s)=#s
-  - -Wno-implicit-function-declaration
-  - -Wno-int-conversion
-  - -Wno-unused-value
-  - -Wno-format-security
-  - -Wno-invalid-token-paste
-  - -fno-ms-extensions
-  - -fno-builtin
-  - -Wno-unknown-attributes
-  - -Wno-missing-prototypes
 ...
