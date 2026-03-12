@@ -21,6 +21,7 @@ CheckOptions:
     value:           llvm
 ExtraArgs:
   - -D__KERNEL__
+  - -DCONFIG_PRINTK
   - -DKBUILD_STR(s)=#s
   - -Wno-implicit-function-declaration
   - -Wno-unused-value
