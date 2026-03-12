@@ -25,4 +25,5 @@ ExtraArgs:
   - -DKBUILD_STR(s)=#s
   - -Wno-implicit-function-declaration
   - -Wno-unused-value
+  - -Wno-unknown-attributes
 ...
