@@ -23,4 +23,5 @@ ExtraArgs:
   - -D__KERNEL__
   - -DKBUILD_STR(s)=#s
   - -Wno-implicit-function-declaration
+  - -Wno-unused-value
 ...
