@@ -1,5 +1,6 @@
 -*/usr/include/*
 -*/usr/local/include/*
 -*/site-packages/*
+-*/workspace/system/*
 -*/workspace/out/*
 -*/out/*
