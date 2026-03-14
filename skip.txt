@@ -1,2 +1,5 @@
-workspace/out
-out/
+-*/usr/include/*
+-*/usr/local/include/*
+-*/site-packages/*
+-*/workspace/out/*
+-*/out/*
