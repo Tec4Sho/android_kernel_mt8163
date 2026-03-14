@@ -2,6 +2,8 @@
 -*/usr/local/include/*
 -*/site-packages/*
 -*/workspace/build/*
+-*/workspace/bionic/*
+-*/workspace/bootable/*
 -*/workspace/external/*
 -*/workspace/system/*
 -*/workspace/out/*
