@@ -112,6 +112,9 @@ ROOT_NODE {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c0_pins_a>;
 	status = "okay";
+    /* ADD THESE TWO LINES */
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	camera_main_af@0c {
 		compatible = "mediatek,camera_main_af";
@@ -153,6 +156,9 @@ ROOT_NODE {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins_a>;
 	status = "okay";
+    /* ADD THESE TWO LINES */
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	vproc: sym827@60 {
 		compatible = "silergy,sym827-regulator";
@@ -171,6 +177,9 @@ ROOT_NODE {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c2_pins_a>;
 	status = "okay";
+    /* ADD THESE TWO LINES */
+	#address-cells = <1>;
+	#size-cells = <0>;
 
 	msensor_mtk: msensor@0c {
 		compatible = "mediatek,msensor";
