@@ -1,6 +1,7 @@
 -*/usr/include/*
 -*/usr/local/include/*
 -*/site-packages/*
+-*/workspace/out/soong/*
 -*/workspace/build/*
 -*/workspace/bionic/*
 -*/workspace/bootable/*
