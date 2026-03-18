@@ -8,4 +8,5 @@
 -*/workspace/external/*
 -*/workspace/system/*
 -*/workspace/out/*
+-*/.intermediates/*
 -*/out/*
