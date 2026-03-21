@@ -61,10 +61,13 @@ $(obj)/Image: vmlinux FORCE
 $(obj)/compressed/vmlinux: $(obj)/Image FORCE
 	$(Q)$(MAKE) $(build)=$(obj)/compressed $@
 
-$(obj)/zImage:	$(obj)/compressed/vmlinux FORCE
+$(obj)/zImage: $(obj)/compressed/vmlinux FORCE
 	$(call if_changed,objcopy)
+	@echo '  MKIMAGE $@.mtk'
+	$(Q)$(srctree)/scripts/mkimage $@ $(srctree)/scripts/mtk_kernel.cfg > $@.mtk
+	$(Q)mv -f $@.mtk $@
 
-$(obj)/zImage-dtb:	$(obj)/zImage $(DTB_OBJS) FORCE
+$(obj)/zImage-dtb: $(obj)/zImage $(DTB_OBJS) FORCE
 	$(call if_changed,cat)
 	@echo '  Kernel: $@ is ready'
 
