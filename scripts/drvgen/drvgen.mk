@@ -11,6 +11,7 @@
 
 ifdef MTK_PLATFORM
 DRVGEN_PATH := drivers/misc/mediatek/dws/$(MTK_PLATFORM)
+override python := python2
 
 ifeq ($(strip $(CONFIG_ARM64)), y)
 MAIN_DT_NAMES := $(subst $\",,$(CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES))
