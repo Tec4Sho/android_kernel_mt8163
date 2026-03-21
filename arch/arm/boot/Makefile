@@ -69,7 +69,9 @@ $(obj)/zImage: $(obj)/compressed/vmlinux FORCE
 
 $(obj)/zImage-dtb: $(obj)/zImage $(DTB_OBJS) FORCE
 	$(call if_changed,cat)
-	@echo '  Kernel: $@ is ready'
+	$(Q)$(srctree)/scripts/mkimage $@ $(srctree)/scripts/mtk_kernel.cfg > $@.mtk
+	$(Q)mv -f $@.mtk $@
+	@echo '  Kernel: $@ (MTK Signed) is ready'
 
 endif
 
